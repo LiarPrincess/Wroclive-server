@@ -1,0 +1,20 @@
+{
+  "name": "wroclive-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest --coverage --detectOpenHandles"
+  },
+  "author": "NoPoint",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  }
+}

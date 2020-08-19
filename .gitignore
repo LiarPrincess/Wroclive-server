@@ -1,0 +1,22 @@
+# General
+node_modules
+dist
+
+data/*
+!data/.gitignore
+
+.env
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Tests
+coverage

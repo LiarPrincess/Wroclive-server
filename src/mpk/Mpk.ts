@@ -9,7 +9,8 @@ import {
   Timestamped,
   VehicleLocation
 } from './models';
-import { LineProvider } from './lines-update/LineProvider';
+import { LineProvider } from './lines-update';
+import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './vehicle-update';
 
 export default class Mpk {
 
@@ -17,14 +18,26 @@ export default class Mpk {
 
   /**
    * All of the available MPK lines.
-    */
+   */
   private lines: Timestamped<Line[]>;
+
+  /**
+   * Current vehicle locations.
+   */
+  private vehicleLocations: Timestamped<LineLocations[]>;
+
+  /**
+   * Last place at which we updated vehicle angle/heading.
+   */
+  private lastHeadingUpdate: VehicleLocation[];
 
   constructor(logger: Logger) {
     this.logger = logger;
 
     const timestamp = '';
     this.lines = { timestamp, data: [] };
+    this.vehicleLocations = { timestamp, data: [] };
+    this.lastHeadingUpdate = [];
   }
 
   /* ----- */
@@ -34,8 +47,8 @@ export default class Mpk {
   /**
    * Get all of the available lines.
    */
-  getLines(): Promise<Timestamped<Line[]>> {
-    return Promise.resolve(this.lines);
+  getLines(): Timestamped<Line[]> {
+    return this.lines;
   }
 
   /**
@@ -54,8 +67,41 @@ export default class Mpk {
   /**
    * Get vehicle locations for selected lines.
    */
-  getVehicleLocations(lineNames: string[]): Promise<number[]> {
-    return Promise.resolve([]);
+  getVehicleLocations(lineNames: string[]): Timestamped<LineLocations[]> {
+    const { timestamp, data } = this.vehicleLocations;
+    const filteredLocations = data.filter(lineLoc =>
+      lineNames.some(name => name === lineLoc.line.name.toLowerCase())
+    );
+
+    return { timestamp, data: filteredLocations };
+  }
+
+  /**
+   * Update locations for all of the vehicles (of all of the lines).
+   */
+  async updateVehicleLocations(provider: VehicleLocationProvider) {
+    const lines = this.lines.data;
+    if (!lines || lines.length === 0) {
+      this.logger.info('Skipping vehicle locations update');
+      return;
+    }
+
+    const lineNames = lines.map(l => l.name);
+    const vehicles = await provider.getVehicleLocations(lineNames);
+
+    const input = {
+      lines: lines,
+      currentVehicleLocations: vehicles,
+      lastHeadingUpdates: this.lastHeadingUpdate,
+      minMovementToUpdateHeading: 50, // meters
+    };
+
+    const result = calculateVehicleLocationUpdates(input);
+    const timestamp = this.createTimestamp();
+    this.vehicleLocations = { timestamp, data: result.lineLocations };
+    this.lastHeadingUpdate = result.headingUpdates;
+
+    this.logger.info('Successfully updated vehicle locations');
   }
 
   /* ------- */

@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 
 import { ConsoleLogger } from './util';
-import { Mpk, DummyLineProvider } from './mpk';
+import { Mpk, DummyLineProvider, MMPVehicleLocationProvider } from './mpk';
 import { createV1Router } from './routers/api-v1';
 
 const logger = new ConsoleLogger();
@@ -20,11 +20,17 @@ const mpk = new Mpk(logger);
   }
 })();
 
-// (function updateVehicleLocations() {
-//   mpk.updateVehicleLocations()
-//     .catch(e => logger.error('Error while updating mpk vehicle locations.', e))
-//     .then(() => setTimeout(updateVehicleLocations, 10 * 1000)); // 10s
-// }());
+(async function updateVehicleLocations() {
+  try {
+    const provider = new MMPVehicleLocationProvider();
+    await mpk.updateVehicleLocations(provider);
+  } catch (error) {
+    logger.error('Error while updating mpk vehicle locations.', error)
+  }
+
+  const timeout = 5 * 1000; // 5s
+  setTimeout(updateVehicleLocations, timeout);
+}());
 
 /* ------ */
 /* Server */

@@ -21,7 +21,7 @@ export function createV1Router(mpk: Mpk): Router {
     try {
       standardHeaders(res, Cache.Store12h);
 
-      const data = await mpk.getLines();
+      const data = mpk.getLines();
       res.json(data);
     } catch (err) {
       next(err);
@@ -34,7 +34,7 @@ export function createV1Router(mpk: Mpk): Router {
 
       const query = req.query.lines as string || '';
       const lineNames = query.toLowerCase().split(';').map(n => n.trim());
-      const data = await mpk.getVehicleLocations(lineNames);
+      const data = mpk.getVehicleLocations(lineNames);
       res.json(data);
     } catch (err) {
       next(err);

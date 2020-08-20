@@ -2,8 +2,8 @@ import { createServer } from 'http';
 import express, { Request, Response, NextFunction } from 'express';
 
 import { ConsoleLogger } from './util';
-import { Mpk } from 'mpk';
-import { createV1Router } from 'routers/api-v1';
+import { Mpk, DummyLineProvider } from './mpk';
+import { createV1Router } from './routers/api-v1';
 
 const logger = new ConsoleLogger();
 const mpk = new Mpk(logger);
@@ -12,12 +12,14 @@ const mpk = new Mpk(logger);
 /* Update loops */
 /* ------------ */
 
-// (async function loadData() {
-//   const args = process.argv;
-//   const forceUpdate = args.indexOf('--forceUpdate') > -1;
-
-//   await mpk.loadData(forceUpdate).catch(e => logger.error('Error when updating gtfs data.', e));
-// })();
+(async function updateLines() {
+  try {
+    const provider = new DummyLineProvider();
+    await mpk.updateLines(provider);
+  } catch (error) {
+    logger.error('Failed to update mpk lines', error);
+  }
+})();
 
 // (function updateVehicleLocations() {
 //   mpk.updateVehicleLocations()

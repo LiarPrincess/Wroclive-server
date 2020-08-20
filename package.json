@@ -4,10 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/app.js",
+    "start": "node app.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --coverage --detectOpenHandles"
+
+    "deploy": "gcloud app deploy",
+    "log": "gcloud app logs tail -s default",
+    "describe": "gcloud projects describe wroclive",
+    "browse": "gcloud app browse"
   },
   "author": "NoPoint",
   "license": "ISC",
@@ -19,7 +23,6 @@
     "@types/express": "^4.17.7",
     "@types/jest": "^26.0.10",
     "@types/node": "^12.6.0",
-    "jest": "^26.4.0",
     "typescript": "^3.9.7"
   }
 }

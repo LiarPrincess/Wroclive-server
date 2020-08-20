@@ -3,3 +3,6 @@
 
 runtime: nodejs12
 instance_class: F1
+
+automatic_scaling:
+  max_instances: 0 # disable

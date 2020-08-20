@@ -1,0 +1,9 @@
+.gcloudignore
+.git
+.gitignore
+Makefile
+
+.vscode/
+dist/**.map
+src/
+node_modules/

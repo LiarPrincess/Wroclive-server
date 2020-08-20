@@ -1,14 +1,16 @@
 {
     "compilerOptions": {
       /* Basic Options */
-      "target": "es2015",
-      "module": "commonjs",
-      "lib": ["es2015"],
+      "target": "ES2019",
+      "module": "CommonJS",
 
       "outDir": "./dist",
       "rootDir": "./src",
 
-      "inlineSourceMap": true,
+      "sourceMap": true,
+      "inlineSourceMap": false,
+
+      "removeComments": true,
 
       /* Strict Type-Checking Options */
       "strict": true,

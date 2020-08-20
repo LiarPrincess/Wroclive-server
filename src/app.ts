@@ -1,4 +1,3 @@
-import { createServer } from 'http';
 import express, { Request, Response, NextFunction } from 'express';
 
 import { ConsoleLogger } from './util';
@@ -35,6 +34,10 @@ const app = express();
 app.disable('etag');
 app.disable('x-powered-by');
 
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).end();
+});
+
 app.use('/api/v1', createV1Router(mpk));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -47,9 +50,4 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).end();
 });
 
-const server = createServer(app);
-server.keepAliveTimeout = 30 * 1000;
-
-const port = process.env.PORT || 3000;
-logger.info('Starting server on:', port);
-server.listen(port);
+module.exports = app;

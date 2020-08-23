@@ -7,7 +7,7 @@
     "start": "node app.js",
     "build": "tsc",
     "watch": "tsc -w",
-
+    "test": "jest --coverage --detectOpenHandles",
     "deploy": "gcloud app deploy",
     "log": "gcloud app logs tail -s default",
     "describe": "gcloud projects describe wroclive",
@@ -16,12 +16,12 @@
   "author": "NoPoint",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/firestore": "^4.2.0",
     "axios": "^0.19.2",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
-    "@types/jest": "^26.0.10",
     "@types/node": "^12.6.0",
     "typescript": "^3.9.7"
   }

@@ -4,6 +4,8 @@ dist
 
 .DS_Store
 
+GCP-Credentials.json
+
 # Logs
 logs
 *.log

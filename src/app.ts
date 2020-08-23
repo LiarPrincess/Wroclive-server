@@ -1,35 +1,57 @@
 import express, { Request, Response, NextFunction } from 'express';
 
 import { ConsoleLogger } from './util';
-import { Mpk, DummyLineProvider, MMPVehicleLocationProvider } from './mpk';
 import { createV1Router } from './routers/api-v1';
+import { FirestoreDatabase } from './cloud-platform';
+import {
+  Mpk,
+  LineProvider, DummyLineProvider, FirestoreLineProvider,
+  MMPVehicleLocationProvider
+} from './mpk';
 
+const isLocal = process.argv.includes('run-local');
 const logger = new ConsoleLogger();
-const mpk = new Mpk(logger);
+
+const mpk: Mpk = (function() {
+  let lineProvider: LineProvider;
+
+  if (isLocal) {
+    lineProvider = new DummyLineProvider();
+  } else {
+    const db = new FirestoreDatabase();
+    lineProvider = new FirestoreLineProvider(db);
+  }
+
+  const vehicleLocationProvider = new MMPVehicleLocationProvider();
+  return new Mpk(lineProvider, vehicleLocationProvider, logger);
+})();
 
 /* ------------ */
 /* Update loops */
 /* ------------ */
 
+const second = 1000;
+const minute = 60 * second;
+const hour = 60 * minute;
+
 (async function updateLines() {
   try {
-    const provider = new DummyLineProvider();
-    await mpk.updateLines(provider);
+    await mpk.updateLines();
   } catch (error) {
     logger.error('Failed to update mpk lines', error);
   }
+
+  setTimeout(updateLines, 1 * hour);
 })();
 
 (async function updateVehicleLocations() {
   try {
-    const provider = new MMPVehicleLocationProvider();
-    await mpk.updateVehicleLocations(provider);
+    await mpk.updateVehicleLocations();
   } catch (error) {
     logger.error('Error while updating mpk vehicle locations.', error)
   }
 
-  const timeout = 5 * 1000; // 5s
-  setTimeout(updateVehicleLocations, timeout);
+  setTimeout(updateVehicleLocations, 5 * second);
 }());
 
 /* ------ */

@@ -14,6 +14,8 @@ import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './vehi
 
 export default class Mpk {
 
+  private lineProvider: LineProvider;
+  private vehicleLocationProvider: VehicleLocationProvider;
   private logger: Logger;
 
   /**
@@ -31,10 +33,17 @@ export default class Mpk {
    */
   private lastHeadingUpdate: VehicleLocation[];
 
-  constructor(logger: Logger) {
+  constructor(
+    lineProvider: LineProvider,
+    vehicleLocationProvider: VehicleLocationProvider,
+    logger: Logger
+  ) {
+    this.lineProvider = lineProvider;
+    this.vehicleLocationProvider = vehicleLocationProvider;
     this.logger = logger;
 
     const timestamp = '';
+
     this.lines = { timestamp, data: [] };
     this.vehicleLocations = { timestamp, data: [] };
     this.lastHeadingUpdate = [];
@@ -54,10 +63,9 @@ export default class Mpk {
   /**
    * Update internal line definitions from given provider.
    */
-  async updateLines(provider: LineProvider) {
-    const lines = await provider.getLines();
-    const timestamp = this.createTimestamp();
-    this.lines = { timestamp, data: lines };
+  async updateLines() {
+    const data = await this.lineProvider.getLines();
+    this.lines = data;
   }
 
   /* -------- */
@@ -79,15 +87,14 @@ export default class Mpk {
   /**
    * Update locations for all of the vehicles (of all of the lines).
    */
-  async updateVehicleLocations(provider: VehicleLocationProvider) {
+  async updateVehicleLocations() {
     const lines = this.lines.data;
     if (!lines || lines.length === 0) {
-      this.logger.info('Skipping vehicle locations update');
       return;
     }
 
     const lineNames = lines.map(l => l.name);
-    const vehicles = await provider.getVehicleLocations(lineNames);
+    const vehicles = await this.vehicleLocationProvider.getVehicleLocations(lineNames);
 
     const input = {
       lines: lines,
@@ -100,8 +107,6 @@ export default class Mpk {
     const timestamp = this.createTimestamp();
     this.vehicleLocations = { timestamp, data: result.lineLocations };
     this.lastHeadingUpdate = result.headingUpdates;
-
-    this.logger.info('Successfully updated vehicle locations');
   }
 
   /* ------- */

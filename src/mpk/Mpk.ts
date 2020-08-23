@@ -82,6 +82,14 @@ export default class Mpk {
     }
   }
 
+  /**
+   * Get shape of all routes that belong to given line.
+   */
+  // async getLineShape(lineName: string): Promise<Timestamped<LineTrip[]>> {
+  //   const data = await this.database.getLineShape(lineName);
+  //   return { timestamp: this.createTimestamp(), data };
+  // }
+
   /* ----- */
   /* Stops */
   /* ----- */
@@ -104,6 +112,16 @@ export default class Mpk {
       throw error;
     }
   }
+
+  /**
+   * Get stop schedule for a next few hours.
+   */
+  // async getStopSchedule(stopCode: string, day: Day, time: number): Promise<Timestamped<StopArrival[]>> {
+  //   // query just before user asked, so we also show recent departures
+  //   const queryTime = time - 5;
+  //   const data = await this.database.getStopSchedule(stopCode, day, queryTime);
+  //   return { timestamp: this.createTimestamp(), data };
+  // }
 
   /* -------- */
   /* Vehicles */

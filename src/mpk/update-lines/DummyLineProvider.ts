@@ -1,8 +1,8 @@
 import { Line } from '../models/lines';
-import { LineProvider } from './LineProvider';
+import { LinesProvider } from './LinesProvider';
 import { Timestamped } from 'mpk/models';
 
-export class DummyLineProvider implements LineProvider {
+export class DummyLineProvider implements LinesProvider {
 
   getLines(): Promise<Timestamped<Line[]>> {
     const timestamp = new Date().toISOString()

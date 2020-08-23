@@ -1,4 +1,4 @@
 export { default as Mpk } from './mpk';
 
-export * from './lines-update';
-export * from './vehicle-update';
+export * from './update-lines';
+export * from './update-vehicle-locations';

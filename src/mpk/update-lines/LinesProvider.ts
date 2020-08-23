@@ -1,5 +1,5 @@
 import { Line, Timestamped } from '../models';
 
-export interface LineProvider {
+export interface LinesProvider {
   getLines(): Promise<Timestamped<Line[]>>;
 }

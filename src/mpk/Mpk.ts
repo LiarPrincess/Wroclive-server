@@ -9,12 +9,12 @@ import {
   Timestamped,
   VehicleLocation
 } from './models';
-import { LineProvider } from './lines-update';
-import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './vehicle-update';
+import { LinesProvider, DummyLineProvider } from './update-lines';
+import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './update-vehicle-locations';
 
 export default class Mpk {
 
-  private lineProvider: LineProvider;
+  private linesProvider: LinesProvider;
   private vehicleLocationProvider: VehicleLocationProvider;
   private logger: Logger;
 
@@ -34,11 +34,11 @@ export default class Mpk {
   private lastHeadingUpdate: VehicleLocation[];
 
   constructor(
-    lineProvider: LineProvider,
+    linesProvider: LinesProvider,
     vehicleLocationProvider: VehicleLocationProvider,
     logger: Logger
   ) {
-    this.lineProvider = lineProvider;
+    this.linesProvider = linesProvider;
     this.vehicleLocationProvider = vehicleLocationProvider;
     this.logger = logger;
 
@@ -64,8 +64,17 @@ export default class Mpk {
    * Update internal line definitions from given provider.
    */
   async updateLines() {
-    const data = await this.lineProvider.getLines();
-    this.lines = data;
+    try {
+      const data = await this.linesProvider.getLines();
+      this.lines = data;
+    } catch (error) {
+      if (this.lines.data.length == 0) {
+        const data = DummyLineProvider.data;
+        this.lines = { timestamp: '', data };
+      }
+
+      throw error;
+    }
   }
 
   /* -------- */

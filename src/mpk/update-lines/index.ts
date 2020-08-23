@@ -1,3 +1,3 @@
-export * from './LineProvider';
+export * from './LinesProvider';
 export * from './DummyLineProvider';
 export * from './FirestoreLineProvider';

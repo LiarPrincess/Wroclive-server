@@ -1,8 +1,8 @@
 import { Line, Timestamped } from '../models';
-import { LineProvider } from './LineProvider';
+import { LinesProvider } from './LinesProvider';
 import { FirestoreDatabase } from '../../cloud-platform';
 
-export class FirestoreLineProvider implements LineProvider {
+export class FirestoreLineProvider implements LinesProvider {
 
   private db: FirestoreDatabase;
 

@@ -5,7 +5,7 @@ import { createV1Router } from './routers/api-v1';
 import { FirestoreDatabase } from './cloud-platform';
 import {
   Mpk,
-  LineProvider, DummyLineProvider, FirestoreLineProvider,
+  LinesProvider, DummyLineProvider, FirestoreLineProvider,
   MMPVehicleLocationProvider
 } from './mpk';
 
@@ -13,17 +13,17 @@ const isLocal = process.argv.includes('run-local');
 const logger = new ConsoleLogger();
 
 const mpk: Mpk = (function() {
-  let lineProvider: LineProvider;
+  let linesProvider: LinesProvider;
 
   if (isLocal) {
-    lineProvider = new DummyLineProvider();
+    linesProvider = new DummyLineProvider();
   } else {
     const db = new FirestoreDatabase();
-    lineProvider = new FirestoreLineProvider(db);
+    linesProvider = new FirestoreLineProvider(db);
   }
 
   const vehicleLocationProvider = new MMPVehicleLocationProvider();
-  return new Mpk(lineProvider, vehicleLocationProvider, logger);
+  return new Mpk(linesProvider, vehicleLocationProvider, logger);
 })();
 
 /* ------------ */

@@ -1,4 +1,4 @@
-import { MMPVehicleLocationProvider } from './mpk/vehicle-update';
+import { MMPVehicleLocationProvider } from './mpk/update-vehicle-locations';
 
 (async () => {
   try {

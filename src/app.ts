@@ -6,6 +6,7 @@ import { FirestoreDatabase } from './cloud-platform';
 import {
   Mpk,
   LinesProvider, DummyLineProvider, FirestoreLineProvider,
+  StopsProvider, DummyStopProvider, FirestoreStopProvider,
   MMPVehicleLocationProvider
 } from './mpk';
 
@@ -14,16 +15,19 @@ const logger = new ConsoleLogger();
 
 const mpk: Mpk = (function() {
   let linesProvider: LinesProvider;
+  let stopsProvider: StopsProvider;
 
   if (isLocal) {
     linesProvider = new DummyLineProvider();
+    stopsProvider = new DummyStopProvider();
   } else {
     const db = new FirestoreDatabase();
     linesProvider = new FirestoreLineProvider(db);
+    stopsProvider = new FirestoreStopProvider(db);
   }
 
   const vehicleLocationProvider = new MMPVehicleLocationProvider();
-  return new Mpk(linesProvider, vehicleLocationProvider, logger);
+  return new Mpk(linesProvider, stopsProvider, vehicleLocationProvider, logger);
 })();
 
 /* ------------ */
@@ -34,14 +38,20 @@ const second = 1000;
 const minute = 60 * second;
 const hour = 60 * minute;
 
-(async function updateLines() {
+(async function updateFirestoreData() {
   try {
     await mpk.updateLines();
   } catch (error) {
     logger.error('Failed to update mpk lines', error);
   }
 
-  setTimeout(updateLines, 1 * hour);
+  try {
+    await mpk.updateStops();
+  } catch (error) {
+    logger.error('Failed to update mpk stops', error);
+  }
+
+  setTimeout(updateFirestoreData, 1 * hour);
 })();
 
 (async function updateVehicleLocations() {

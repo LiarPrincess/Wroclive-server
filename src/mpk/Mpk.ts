@@ -10,11 +10,13 @@ import {
   VehicleLocation
 } from './models';
 import { LinesProvider, DummyLineProvider } from './update-lines';
+import { StopsProvider, DummyStopProvider } from "./update-stops";
 import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './update-vehicle-locations';
 
 export default class Mpk {
 
   private linesProvider: LinesProvider;
+  private stopsProvider: StopsProvider;
   private vehicleLocationProvider: VehicleLocationProvider;
   private logger: Logger;
 
@@ -22,6 +24,11 @@ export default class Mpk {
    * All of the available MPK lines.
    */
   private lines: Timestamped<Line[]>;
+
+  /**
+   * All of the available MPK stops.
+   */
+  private stops: Timestamped<Stop[]>;
 
   /**
    * Current vehicle locations.
@@ -35,16 +42,19 @@ export default class Mpk {
 
   constructor(
     linesProvider: LinesProvider,
+    stopsProvider: StopsProvider,
     vehicleLocationProvider: VehicleLocationProvider,
     logger: Logger
   ) {
     this.linesProvider = linesProvider;
+    this.stopsProvider = stopsProvider;
     this.vehicleLocationProvider = vehicleLocationProvider;
     this.logger = logger;
 
     const timestamp = '';
 
-    this.lines = { timestamp, data: [] };
+    this.lines = { timestamp, data: DummyLineProvider.data };
+    this.stops = { timestamp, data: DummyStopProvider.data };
     this.vehicleLocations = { timestamp, data: [] };
     this.lastHeadingUpdate = [];
   }
@@ -61,18 +71,36 @@ export default class Mpk {
   }
 
   /**
-   * Update internal line definitions from given provider.
+   * Update internal line definitions.
    */
   async updateLines() {
     try {
       const data = await this.linesProvider.getLines();
       this.lines = data;
     } catch (error) {
-      if (this.lines.data.length == 0) {
-        const data = DummyLineProvider.data;
-        this.lines = { timestamp: '', data };
-      }
+      throw error;
+    }
+  }
 
+  /* ----- */
+  /* Stops */
+  /* ----- */
+
+  /**
+   * Get all of the available stops.
+   */
+  getStops(): Timestamped<Stop[]> {
+    return this.stops;
+  }
+
+  /**
+   * Update internal stops definitions.
+   */
+  async updateStops() {
+    try {
+      const data = await this.stopsProvider.getStops();
+      this.stops = data;
+    } catch (error) {
       throw error;
     }
   }

@@ -28,6 +28,17 @@ export function createV1Router(mpk: Mpk): Router {
     }
   });
 
+  router.get('/stops', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      standardHeaders(res, Cache.Store3d);
+
+      const data = mpk.getStops();
+      res.json(data);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get('/vehicles', async (req: Request, res: Response, next: NextFunction) => {
     try {
       standardHeaders(res, Cache.Disable);

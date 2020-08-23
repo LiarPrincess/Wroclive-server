@@ -48,9 +48,9 @@ export class FirestoreDatabase {
     return this.stopsCollection.doc('all');
   }
 
-  async getAllStopsDocument(): Promise<Timestamped<Line[]>> {
+  async getAllStopsDocument(): Promise<Timestamped<Stop[]>> {
     const doc = await this.allStopsDocument.get();
-    const data =  doc.data() as Timestamped<Line[]>
+    const data =  doc.data() as Timestamped<Stop[]>
     return data;
   }
 

@@ -1,4 +1,4 @@
-import { Line } from '../models/lines';
+import { Line } from '../models';
 import { LinesProvider } from './LinesProvider';
 import { Timestamped } from 'mpk/models';
 

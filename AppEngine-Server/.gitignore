@@ -1,0 +1,20 @@
+# General
+node_modules
+dist
+
+.DS_Store
+
+GCP-Credentials.json
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Tests
+coverage

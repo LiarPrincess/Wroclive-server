@@ -1,20 +1,14 @@
-# General
-node_modules
-dist
+**/.DS_Store
 
-.DS_Store
-
-GCP-Credentials.json
+# Do NOT commit credential files!
+**/GCP-Credentials.json
 
 # Logs
 logs
 *.log
 
 # Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Tests
-coverage
+**/pids
+**/*.pid
+**/*.seed
+**/*.pid.lock

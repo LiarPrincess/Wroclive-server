@@ -1,14 +1,19 @@
-import * as fs from '@google-cloud/firestore';
+import {
+  Firestore,
+  CollectionReference,
+  DocumentReference,
+  DocumentData
+} from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
 import { Line, Stop, Timestamped } from '../mpk/models';
 
 export class FirestoreDatabase {
 
-  private db: fs.Firestore;
+  private db: Firestore;
 
   constructor() {
-    this.db = new fs.Firestore({
+    this.db = new Firestore({
       projectId: CloudPlatform.projectId(),
       keyFilename: CloudPlatform.credentialsFile()
     });
@@ -18,11 +23,11 @@ export class FirestoreDatabase {
   /* Lines */
   /* ----- */
 
-  private get linesCollection(): fs.CollectionReference<fs.DocumentData> {
+  private get linesCollection(): CollectionReference<DocumentData> {
     return this.db.collection('Lines');
   }
 
-  private get allLinesDocument(): fs.DocumentReference<any> {
+  private get allLinesDocument(): DocumentReference<any> {
     return this.linesCollection.doc('all');
   }
 
@@ -40,11 +45,11 @@ export class FirestoreDatabase {
   /* Stops */
   /* ----- */
 
-  private get stopsCollection(): fs.CollectionReference<fs.DocumentData> {
+  private get stopsCollection(): CollectionReference<DocumentData> {
     return this.db.collection('Stops');
   }
 
-  private get allStopsDocument(): fs.DocumentReference<any> {
+  private get allStopsDocument(): DocumentReference<any> {
     return this.stopsCollection.doc('all');
   }
 

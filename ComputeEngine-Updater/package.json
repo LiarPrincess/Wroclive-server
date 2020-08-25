@@ -1,0 +1,26 @@
+{
+  "name": "wroclive-updater",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node app.js",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest --coverage --detectOpenHandles"
+  },
+  "author": "NoPoint",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/firestore": "^4.2.0",
+    "axios": "^0.19.2",
+    "extract-zip": "^2.0.1",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/sqlite3": "^3.1.6",
+    "@types/node": "^12.6.0",
+    "@types/extract-zip": "^1.6.2",
+    "typescript": "^3.9.7"
+  }
+}

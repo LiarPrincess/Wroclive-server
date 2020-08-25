@@ -1,0 +1,51 @@
+import extract from 'extract-zip';
+import { promises as fs } from 'fs';
+import { join, resolve, parse, basename, dirname } from 'path';
+
+import { Logger } from '../util';
+import { LocalDatabase, queries } from '../local-database';
+
+/**
+ * Upload all of the GTFS files to SQLite database.
+ */
+export async function uploadGTFSToLocalDatabase(db: LocalDatabase, gtfsFile: string, logger: Logger): Promise<void> {
+  logger.info('Extracting gtfs file');
+  const dir = dirname(gtfsFile);
+  const dirAbsolute = resolve(dir);
+  await extract(gtfsFile, { dir: dirAbsolute });
+
+  const gtfsFiles = await listGtfsFiles(dir);
+
+  logger.info('Removing old data from database');
+  for (const file of gtfsFiles) {
+    const tableName = toTableName(file);
+    const drop = queries.dropTable(tableName);
+    await db.exec(drop);
+  }
+
+  logger.info('Uploading new GTFS data to database');
+  for (const file of gtfsFiles) {
+    const tableName = toTableName(file);
+    await db.importCsv(file, tableName);
+  }
+
+  logger.info('Creating final tables');
+  const createMpkTablesScriptPath = queries.createMpkTablesScriptPath;
+  await db.execFile(createMpkTablesScriptPath);
+
+  logger.info('Filling final tables');
+  const fillMpkTablesScriptPath = queries.fillMpkTablesScriptPath;
+  await db.execFile(fillMpkTablesScriptPath);
+}
+
+async function listGtfsFiles(gtfsDir: string): Promise<string[]> {
+  const files = await fs.readdir(gtfsDir);
+  return files
+    .filter(f => f.endsWith('txt'))
+    .map(f => join(gtfsDir, f));
+}
+
+function toTableName(gtfsFilePath: string) {
+  const file = parse(gtfsFilePath);
+  return 'gtfs_' + file.name;
+}

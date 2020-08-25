@@ -1,0 +1,19 @@
+{
+  "name": "wroclive-pubsub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./dist/app.js",
+    "build": "tsc"
+  },
+  "author": "NoPoint",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/pubsub": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.6.0",
+    "typescript": "^3.9.7"
+  }
+}

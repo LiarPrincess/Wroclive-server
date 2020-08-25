@@ -1,4 +1,4 @@
 Add following metadata entries to your VM:
 
 startup-script:
-`( node /home/michal/pubsub/dist/app.js & )`
+`/home/michal/on-vm-startup.sh`

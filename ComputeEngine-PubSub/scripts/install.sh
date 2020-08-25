@@ -20,5 +20,8 @@ chmod +x ./install-pubsub.sh
 cp ./pubsub/scripts/run.sh ./run-pubsub.sh
 chmod +x ./run-pubsub.sh
 
+cp ./pubsub/scripts/on-vm-startup.sh ./on-vm-startup.sh
+chmod +x ./on-vm-startup.sh
+
 echo
 echo All done. Remember to restart VM to apply changes.

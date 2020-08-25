@@ -1,3 +1,4 @@
+import { join } from 'path';
 import { homedir } from 'os';
 import { execFile } from 'child_process';
 import {
@@ -18,6 +19,9 @@ import { createLogger } from './util';
 // Set process title, so it is easier to kill it during install.
 // New title has to be shorter than 'node ./dist/app.js'
 process.title = 'NodePubSub';
+
+// All of our scripts are in HOME.
+process.chdir('/home/michal');
 
 const logger = createLogger('CE-PubSub');
 
@@ -58,8 +62,6 @@ async function subscribe(topicName: string, handler: (m: Message) => void) {
     subscription.on('message', handler);
   } catch (error) {
     logger.error('Error when creating subscription:', error);
-
-    throw error;
   }
 }
 
@@ -67,18 +69,15 @@ function exec(file: string) {
   logger.info(`Running file: ${file}`);
   execFile(file, (error, stdout, stderr) => {
     if (stdout) {
-      logger.info(`=== stdout from ${file} ===`);
-      logger.info(stdout);
+      logger.info(`Stdout from ${file}`, stdout);
     }
 
     if (error) {
-      logger.error(`=== error from ${file} ===`);
-      logger.error(error);
+      logger.error(`Error from ${file}`, error);
     }
 
     if (stderr) {
-      logger.error(`=== stderr from ${file} ===`);
-      logger.error(stderr);
+      logger.error(`Stderr from ${file}`, stderr);
     }
   });
 }
@@ -86,9 +85,6 @@ function exec(file: string) {
 // =====================
 // === Subscriptions ===
 // =====================
-
-// All of our scripts are in HOME.
-process.chdir(homedir());
 
 subscribe('update-GTFS-data', message => {
   logger.info(`Got message: ${message.id}`);

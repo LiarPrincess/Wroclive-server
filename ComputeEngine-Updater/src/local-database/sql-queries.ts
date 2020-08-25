@@ -92,6 +92,5 @@ where Line = ?`,
   };
 }
 
-const thisFileDir = __dirname.replace('/dist/', '/src/');
-export const createMpkTablesScriptPath = join(thisFileDir, 'mpk-create-schema.sql');
-export const fillMpkTablesScriptPath = join(thisFileDir, 'mpk-process-gtfs.sql');
+export const createMpkTablesScriptPath = './sql/mpk-create-schema.sql';
+export const fillMpkTablesScriptPath = './sql/mpk-process-gtfs.sql';

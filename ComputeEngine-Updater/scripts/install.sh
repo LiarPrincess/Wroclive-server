@@ -7,7 +7,6 @@ rm ./updater.zip
 # Compile
 cd ./updater-new/
 npm i
-npm run build
 cd ..
 
 # Replace old

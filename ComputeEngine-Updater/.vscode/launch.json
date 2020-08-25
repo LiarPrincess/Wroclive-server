@@ -12,7 +12,6 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}/dist/app.js",
-      "args": ["run-local"],
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]

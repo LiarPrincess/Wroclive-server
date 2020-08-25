@@ -2,14 +2,13 @@ import { join, resolve } from 'path';
 import { promises as fs } from 'fs';
 
 import { downloadGTFS, uploadGTFSToLocalDatabase } from './gtfs';
-import { ConsoleLogger } from './util';
+import { createLogger, isLocal } from './util';
 import { LocalDatabase } from './local-database';
 import { Exporter, CsvExporter, FirestoreExporter } from './exporters';
 import { FirestoreDatabase } from './cloud-platform';
 
 (async function() {
-  const logger =  new ConsoleLogger();
-  const isLocal = process.argv.includes('run-local');
+  const logger = createLogger('CE-Updater');
 
   let db: LocalDatabase | undefined;
   try {
@@ -39,7 +38,7 @@ import { FirestoreDatabase } from './cloud-platform';
       await db.close();
     }
 
-    logger.error(error);
+    logger.error('Error when running update', error);
   }
 })();
 

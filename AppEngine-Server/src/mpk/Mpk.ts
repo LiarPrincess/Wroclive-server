@@ -75,9 +75,17 @@ export default class Mpk {
    */
   async updateLines() {
     try {
-      const data = await this.linesProvider.getLines();
-      this.lines = data;
+      const timestampedLines = await this.linesProvider.getLines();
+
+      // If the response doesn't contain any lines, then leave 'this.lines' without changes:
+      // - If every response we got was error then use 'DummyLineProvider.data'
+      //   set in 'constructor'
+      // - If at some point we got valid response then it is still valid
+      if (timestampedLines.data) {
+        this.lines = timestampedLines;
+      }
     } catch (error) {
+      // Leave 'this.lines' as they are, see comment in try block.
       throw error;
     }
   }
@@ -106,9 +114,17 @@ export default class Mpk {
    */
   async updateStops() {
     try {
-      const data = await this.stopsProvider.getStops();
-      this.stops = data;
+      const timestampedStops = await this.stopsProvider.getStops();
+
+      // If the response doesn't contain any stops, then leave 'this.stops' without changes:
+      // - If every response we got was error then use 'DummyStopProvider.data'
+      //   set in 'constructor'
+      // - If at some point we got valid response then it is still valid
+      if (timestampedStops.data) {
+        this.stops = timestampedStops;
+      }
     } catch (error) {
+      // Leave 'this.stops' as they are, see comment in try block.
       throw error;
     }
   }

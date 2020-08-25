@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 
-import { ConsoleLogger } from './util';
+import { createLogger, isLocal } from './util';
 import { createV1Router } from './routers/api-v1';
 import { FirestoreDatabase } from './cloud-platform';
 import {
@@ -10,8 +10,7 @@ import {
   MMPVehicleLocationProvider
 } from './mpk';
 
-const isLocal = process.argv.includes('run-local');
-const logger = new ConsoleLogger();
+const logger = createLogger();
 
 const mpk: Mpk = (function() {
   let linesProvider: LinesProvider;
@@ -79,12 +78,12 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api/v1', createV1Router(mpk));
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  logger.error('404 - Not Found', req.originalUrl);
+  logger.error(`404 - Not Found: ${req.originalUrl}`);
   res.status(404).end();
 });
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error('500 - Internal Server Error', req.path, err);
+  logger.error(`500 - Internal Server Error: ${req.path}`, err);
   res.status(500).end();
 });
 

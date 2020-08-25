@@ -3,7 +3,11 @@ export interface Logger {
   error(message?: any, ...optionalParams: any[]): void;
 }
 
-export class ConsoleLogger implements Logger {
+export function createLogger(): Logger {
+  return new ConsoleLogger();
+}
+
+class ConsoleLogger implements Logger {
 
   info(message?: any, ...optionalParams: any[]): void {
     console.log(message, ...optionalParams);

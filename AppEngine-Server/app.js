@@ -5,7 +5,7 @@ const server = createServer(app);
 server.keepAliveTimeout = 30 * 1000;
 
 const port = process.env.PORT || 3000;
-console.log('Starting server on:', port);
+console.log(`Starting server on: ${port}`);
 server.listen(port);
 
 module.exports = app;

@@ -17,7 +17,7 @@ watch:
 
 .PHONY: deploy log describe browse
 
-deploy:
+deploy: build
 	gcloud app deploy
 
 log:

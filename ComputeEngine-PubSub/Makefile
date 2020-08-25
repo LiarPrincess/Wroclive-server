@@ -22,7 +22,7 @@ watch:
 connect:
 	gcloud compute ssh backend
 
-deploy:
-	zip ./pubsub.zip -r ./package.json ./package-lock.json ./GCP-Credentials.json ./tsconfig.json ./src ./scripts
+deploy: build
+	zip ./pubsub.zip -r ./package.json ./package-lock.json ./GCP-Credentials.json ./dist ./scripts
 	gcloud compute scp ./pubsub.zip backend:~
 	rm ./pubsub.zip

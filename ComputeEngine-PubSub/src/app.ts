@@ -9,7 +9,7 @@ import {
 import { google } from '@google-cloud/pubsub/build/protos/protos';
 
 import { CloudPlatform } from './CloudPlatform';
-import { ConsoleLogger } from './logger';
+import { createLogger } from './util';
 
 // ============
 // === Main ===
@@ -19,7 +19,7 @@ import { ConsoleLogger } from './logger';
 // New title has to be shorter than 'node ./dist/app.js'
 process.title = 'NodePubSub';
 
-const logger = new ConsoleLogger();
+const logger = createLogger('CE-PubSub');
 
 const second = 1;
 const minute = 60 * second;

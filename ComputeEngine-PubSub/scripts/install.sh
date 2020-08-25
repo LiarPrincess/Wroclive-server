@@ -7,7 +7,6 @@ rm ./pubsub.zip
 # Compile
 cd ./pubsub-new/
 npm i
-npm run build
 cd ..
 
 # Replace old (that involves killing currently running instance)

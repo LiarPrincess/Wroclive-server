@@ -18,10 +18,10 @@ watch:
 .PHONY: deploy log describe browse
 
 deploy: build
-	gcloud app deploy
+	gcloud app deploy app.yaml cron.yaml
 
 log:
-	gcloud app logs tail -s default
+	gcloud app logs tail
 
 describe:
 	gcloud projects describe wroclive

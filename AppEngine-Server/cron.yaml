@@ -1,0 +1,4 @@
+cron:
+- description: "Prevent server from sleeping"
+  url: /
+  schedule: every 10 minutes

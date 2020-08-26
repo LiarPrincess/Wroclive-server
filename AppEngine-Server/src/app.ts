@@ -10,7 +10,7 @@ import {
   MMPVehicleLocationProvider
 } from './mpk';
 
-const logger = createLogger();
+const logger = createLogger('Webserver');
 
 const mpk: Mpk = (function() {
   let linesProvider: LinesProvider;

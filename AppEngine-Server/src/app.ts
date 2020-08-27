@@ -53,14 +53,26 @@ const hour = 60 * minute;
   setTimeout(updateFirestoreData, 1 * hour);
 })();
 
+const vehicleLocationUpdateInterval = 5 * second;
+// We will log error if we fail to update locations for X minutes.
+const reportVehicleLocationUpdateErrorAfter = 2 * minute;
+// How many times did we fail in a row?
+let vehicleLocationUpdateErrorCounter = 0;
+
 (async function updateVehicleLocations() {
   try {
     await mpk.updateVehicleLocations();
   } catch (error) {
-    logger.error('Error while updating mpk vehicle locations.', error)
+    const failedFor = vehicleLocationUpdateErrorCounter * vehicleLocationUpdateInterval;
+    if (failedFor >= reportVehicleLocationUpdateErrorAfter) {
+      vehicleLocationUpdateErrorCounter = 0;
+      logger.error('Error while updating mpk vehicle locations.', error)
+    } else {
+      vehicleLocationUpdateErrorCounter += 1;
+    }
   }
 
-  setTimeout(updateVehicleLocations, 5 * second);
+  setTimeout(updateVehicleLocations, vehicleLocationUpdateInterval);
 }());
 
 /* ------ */
@@ -71,18 +83,10 @@ const app = express();
 app.disable('etag');
 app.disable('x-powered-by');
 
-app.use((req: Request, res: Response, next: NextFunction) => {
-  logger.error(`404 - Not Found: ${req.originalUrl}`);
-  res.status(404).end();
-});
 // wroclive.app -> 'public' directory
 // wroclive.app/api -> always respond with 200 (used in cron.yaml)
 // wroclive.app/api/v1 -> use more precise router
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`500 - Internal Server Error: ${req.path}`, err);
-  res.status(500).end();
-});
 app.get('/api', (req: Request, res: Response) => res.status(200).end());
 app.use('/api/v1', createApiV1Router(mpk));
 app.use('/', express.static('public'));

@@ -15,16 +15,11 @@ watch:
 # -- Google --
 # ------------
 
-# .PHONY: deploy log describe browse
-#
-# deploy: build
-# 	gcloud app deploy app.yaml cron.yaml
-#
-# log:
-# 	gcloud app logs tail
-#
-# describe:
-# 	gcloud projects describe wroclive
-#
-# browse:
-# 	gcloud app browse
+.PHONY: deploy log describe browse
+
+deploy: build
+	gcloud functions deploy backendStart --trigger-topic backend-start --runtime nodejs12 --region europe-west3 --ingress-settings internal-only
+	gcloud functions deploy backendStop  --trigger-topic backend-stop  --runtime nodejs12 --region europe-west3 --ingress-settings internal-only
+
+log:
+	gcloud functions logs

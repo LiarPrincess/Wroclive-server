@@ -3,12 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "author": "NoPoint",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "@google-cloud/compute": "^2.1.0",
+    "@google-cloud/logging-winston": "^4.0.0",
+    "winston": "^3.3.3"
+  },
   "devDependencies": {
     "@types/node": "^12.6.0",
     "typescript": "^3.9.7"

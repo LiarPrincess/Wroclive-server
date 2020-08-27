@@ -6,3 +6,8 @@ instance_class: F1
 
 automatic_scaling:
   max_instances: 0 # disable
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always

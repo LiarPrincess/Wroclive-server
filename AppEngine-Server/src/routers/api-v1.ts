@@ -14,7 +14,7 @@ function standardHeaders(res: Response, cache: Cache) {
   res.append('Cache-Control', cache);
 }
 
-export function createV1Router(mpk: Mpk): Router {
+export function createApiV1Router(mpk: Mpk): Router {
   const router = express.Router();
 
   router.get('/lines', async (req: Request, res: Response, next: NextFunction) => {

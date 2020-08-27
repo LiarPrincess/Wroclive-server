@@ -1,6 +1,3 @@
-import { join } from 'path';
-import { homedir } from 'os';
-import { execFile } from 'child_process';
 import {
   PubSub,
   Subscription,
@@ -8,6 +5,7 @@ import {
   CreateSubscriptionOptions
 } from '@google-cloud/pubsub';
 import { google } from '@google-cloud/pubsub/build/protos/protos';
+import { execFile } from 'child_process';
 
 import { CloudPlatform } from './CloudPlatform';
 import { createLogger } from './util';
@@ -86,7 +84,7 @@ function exec(file: string) {
 // === Subscriptions ===
 // =====================
 
-subscribe('update-GTFS-data', message => {
+subscribe('backend-update-gtfs-data', message => {
   logger.info(`Got message: ${message.id}`);
   exec('./run-updater.sh');
   message.ack();

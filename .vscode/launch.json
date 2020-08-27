@@ -7,11 +7,23 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Launch AppEngine",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/dist/app.js",
+      "program": "${workspaceFolder}/AppEngine/app.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch ComputeEngine-Updater",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/ComputeEngine-Updater/dist/app.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]

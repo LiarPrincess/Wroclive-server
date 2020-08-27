@@ -3,6 +3,8 @@
         "Firestore",
         "etag",
         "gcloud",
+        "gtfs",
+        "logname",
         "wroclive"
     ]
 }

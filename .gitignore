@@ -12,3 +12,6 @@ logs
 **/*.pid
 **/*.seed
 **/*.pid.lock
+
+# Tests
+coverage

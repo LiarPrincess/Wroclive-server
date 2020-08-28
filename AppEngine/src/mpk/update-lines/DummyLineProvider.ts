@@ -37,7 +37,6 @@ export class DummyLineProvider implements LinesProvider {
     { name: "31", type: "Tram", subtype: "Regular" },
     { name: "32", type: "Tram", subtype: "Regular" },
     { name: "33", type: "Tram", subtype: "Regular" },
-    { name: "74", type: "Tram", subtype: "Regular" },
     { name: "100", type: "Bus", subtype: "Regular" },
     { name: "101", type: "Bus", subtype: "Regular" },
     { name: "102", type: "Bus", subtype: "Regular" },

@@ -2,8 +2,12 @@
 .git
 .gitignore
 Makefile
+tsconfig.json
+tslint.json
 
 .vscode/
 dist/**.map
-src/
+dist/**/__tests__
+docs/
 node_modules/
+src/

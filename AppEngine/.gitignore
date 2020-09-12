@@ -3,3 +3,6 @@ node_modules
 dist
 
 GCP-Credentials.json
+
+# You need 'Zarzad drog i utrzymania miasta' permission for this
+/src/mpk/update-vehicle-locations/MPKVehicleLocationProvider.ts

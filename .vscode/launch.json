@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch AppEngine",
+      "name": "AppEngine",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -19,7 +19,19 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch ComputeEngine-Updater",
+      "name": "AppEngine - Test MPKVehicleLocationProvider",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/AppEngine/dist/test-get-vehicle-locations.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "ComputeEngine-Updater",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -31,7 +43,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Launch CloudFunctions",
+      "name": "CloudFunctions",
       "skipFiles": [
         "<node_internals>/**"
       ],

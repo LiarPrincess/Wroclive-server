@@ -156,7 +156,7 @@ export default class Mpk {
   }
 
   /**
-   * Update locations for all of the vehicles (of all of the lines).
+   * Update locations for all of the vehicles.
    */
   async updateVehicleLocations() {
     const lines = this.lines.data;
@@ -164,8 +164,7 @@ export default class Mpk {
       return;
     }
 
-    const lineNames = lines.map(l => l.name);
-    const vehicles = await this.vehicleLocationProvider.getVehicleLocations(lineNames);
+    const vehicles = await this.vehicleLocationProvider.getVehicleLocations();
 
     const input = {
       lines: lines,

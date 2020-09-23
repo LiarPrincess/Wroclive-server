@@ -1,9 +1,13 @@
 import { join } from 'path';
 import express, { Request, Response, NextFunction } from 'express';
 
-import { createLogger, isLocal } from './util';
 import { createApiV1Router } from './routers';
 import { FirestoreDatabase } from './cloud-platform';
+import {
+  createLogger,
+  isLocal,
+  second, hour, minute
+} from './util';
 import {
   Mpk,
   LinesProvider, DummyLineProvider, FirestoreLineProvider,
@@ -34,10 +38,6 @@ const mpk: Mpk = (() => {
 /* Update loops */
 /* ------------ */
 
-const second = 1000;
-const minute = 60 * second;
-const hour = 60 * minute;
-
 (async function updateFirestoreData() {
   try {
     await mpk.updateLines();
@@ -67,7 +67,7 @@ let vehicleLocationUpdateErrorCounter = 0;
     const failedFor = vehicleLocationUpdateErrorCounter * vehicleLocationUpdateInterval;
     if (failedFor >= reportVehicleLocationUpdateErrorAfter) {
       vehicleLocationUpdateErrorCounter = 0;
-      logger.error('Error while updating mpk vehicle locations.', error)
+      logger.error('Error while updating mpk vehicle locations.', error);
     } else {
       vehicleLocationUpdateErrorCounter += 1;
     }

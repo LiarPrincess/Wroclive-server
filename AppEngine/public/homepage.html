@@ -2,19 +2,212 @@
 <html class="no-js" lang="en">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wroclive</title>
-  <meta name="apple-itunes-app" content="app-id=888422857">
   <meta name="author" content="nopoint">
+  <meta name="description" content="Check real-time locations of public transport vehicles in Wrocław.">
   <meta name="keywords" content="iOS,wroclaw,mpk,komunikacja miejska,jak dojade">
-  <link rel="stylesheet" type="text/css" href="static/style1.css">
   <meta name="apple-itunes-app" content="app-id=888422857">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
+  <style>
+    body {
+      color: #fff;
+      background-color: #0092F2;
+      font-family: 'Lato', sans-serif !important;
+    }
+
+    @media (max-width: 768px) {
+      .only-mobile {
+        display: block;
+      }
+
+      .only-desktop {
+        display: none;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .only-mobile {
+        display: none;
+      }
+
+      .only-desktop {
+        display: block;
+      }
+    }
+
+    /* Main */
+
+    .main {
+      margin-top: 20px;
+    }
+
+    .main .row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Screenshot */
+
+    .app-screenshot {
+      padding: 0 15px;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .app-screenshot {
+        width: 80%;
+        margin: 0 auto 20px auto;
+        display: block;
+      }
+    }
+
+    /* Icon */
+
+    .app-icon {
+      border-radius: 20%;
+    }
+
+    .only-desktop .app-icon {
+      width: 80px;
+      margin-bottom: 10px;
+    }
+
+    .only-mobile .app-icon {
+      width: 150px;
+      display: block;
+      margin: 0 auto 10px auto;
+    }
+
+    /* Title, subtitle, description */
+
+    .main .app-title {
+      font-size: 3em;
+      font-weight: 300;
+    }
+
+    .main .app-subtitle {
+      font-size: 2.25em;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+
+    .only-mobile .app-title {
+      text-align: center;
+    }
+
+    .only-mobile .app-subtitle {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .main .app-description {
+      font-size: 1.4em;
+      font-weight: 300;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .main .app-description {
+        display: block;
+        margin-bottom: 30px;
+      }
+    }
+
+    /* Store badge */
+
+    .store-badge img {
+      height: 60px;
+    }
+
+    @media (max-width: 768px) {
+      .store-badge img {
+        display: block;
+        margin: 0 auto 30px auto;
+      }
+    }
+
+    /* Footer */
+
+    footer {
+      background: #fff;
+      z-index: 1000;
+      display: block;
+      padding-bottom: env(safe-area-inset-top);
+    }
+
+    footer .container {
+      padding: 15px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    footer a {
+      color: #0092F2;
+      font-size: 1em;
+      margin-left: 15px;
+      vertical-align: middle;
+      text-decoration: none;
+    }
+
+    @media (min-width: 768px) {
+      footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+    }
+
+  </style>
 </head>
 
 <body>
-  Oh no!
-  This page is empty.
+  <section class="main">
+    <div class="only-mobile">
+      <img src="/static/icon.svg" class="app-icon">
+      <h1 class="app-title">Wroclive</h1>
+      <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-md-6 col-lg-5">
+          <img src="/static/main_screen.png" class="app-screenshot">
+        </div>
+        <div class="col-xs-12 col-md-6 col-lg-7">
+          <div class="only-desktop">
+            <img src="/static/icon.svg" class="app-icon">
+            <h1 class="app-title app-title-desktop">Wroclive</h1>
+            <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
+          </div>
+          <div class="app-description">
+            <p>Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.</p>
+            <p>Dzięki Wroclive już nigdy nie ucieknie Ci autobus!</p>
+          </div>
+          <a href="https://itunes.apple.com/app/id888422857?mt=8" class="store-badge">
+            <img src="/static/App-Store-badge.svg">
+          </a>
+          <!-- <a href="#" class="store-badge">
+            <img src="/static/Google-Play-badge.svg">
+          </a> -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <a href="mailto:mail@wroclive.app">Wsparcie</a>
+      <a href="/privacy">Polityka prywatności</a>
+    </div>
+  </footer>
+  </div>
 </body>
 
 </html>

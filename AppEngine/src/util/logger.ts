@@ -8,7 +8,6 @@ export interface Logger {
   error(message?: any, ...optionalParams: any[]): void;
 }
 
-
 export function createLogger(serviceName: string): Logger {
   const logger = winston.createLogger({
     handleExceptions: true,

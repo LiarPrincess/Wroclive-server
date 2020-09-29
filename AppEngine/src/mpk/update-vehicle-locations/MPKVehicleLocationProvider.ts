@@ -1,25 +1,57 @@
-import { default as axios, AxiosRequestConfig } from 'axios';
+import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { MPKVehicle } from '../models';
 import { VehicleLocationProvider } from './VehicleLocationProvider';
 import { hour, minute } from '../../util';
 
-const resourceRefreshInterval = 15 * minute;
+/* ============== */
+/* === Config === */
+/* ============== */
+
+const refreshResourceIdEvery = 15 * minute;
+const reportResourceIdErrorInterval = 15 * minute;
+
 const staleVehicleCutoff = 3 * hour;
+
+/* ============= */
+/* === Types === */
+/* ============= */
+
+type ResourceId = string;
+
+interface ResourceIdCache {
+  id: ResourceId;
+  date: Date;
+}
+
+/* ============ */
+/* === Main === */
+/* ============ */
 
 export class MPKVehicleLocationProvider implements VehicleLocationProvider {
 
-  private resource: ResourceDescription | undefined;
-  private resourceSetDate: Date | undefined;
+  /**
+   * Cache resource id, so that we do not have to re-download it every time.
+   */
+  private resourceIdCache?: ResourceIdCache;
+  /**
+   * If the resource id refresh fails then send mail.
+   * But if we did that on EVERY error then we would never update vehicle locations.
+   */
+  private resourceIdLastError?: Date;
+
+/* ============================= */
+/* === Get vehicle locations === */
+/* ============================= */
 
   async getVehicleLocations(): Promise<MPKVehicle[]> {
-    const resource = await this.getResourceDescription();
+    const resourceId = await this.getResourceId();
 
     try {
       const url = `https://www.wroclaw.pl/open-data/api/action/datastore_search`;
 
       const params = new URLSearchParams();
-      params.append('resource_id', resource.id);
+      params.append('resource_id', resourceId);
       params.append('limit', '99999'); // Required, otherwise 100
       params.append('fields', 'Nr_Boczny'); // Id
       params.append('fields', 'Nazwa_Linii'); // Line
@@ -70,63 +102,106 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
     }
   }
 
-  private async getResourceDescription(): Promise<ResourceDescription> {
+  /* =================== */
+  /* === Resource id === */
+  /* =================== */
+
+  private async getResourceId(): Promise<ResourceId> {
     const now = new Date();
 
-    if (this.resource && this.resourceSetDate) {
-      const timeSinceLastUpdate = now.getTime() - this.resourceSetDate.getTime();
-      if (timeSinceLastUpdate < resourceRefreshInterval) {
-        return this.resource;
+    if (this.resourceIdCache) {
+      const timeSinceLastUpdate = now.getTime() - this.resourceIdCache.date.getTime();
+      if (timeSinceLastUpdate <= refreshResourceIdEvery) {
+        return this.resourceIdCache.id;
       }
     }
 
+    // Try to get resource id from 'wroclaw.pl/open-data'
     try {
       const url = 'https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data.jsonld';
       const config: AxiosRequestConfig = {};
 
       const response = await axios.get(url, config);
-      const result = parseResourceDescription(response.data);
-      this.resource = result;
-      this.resourceSetDate = now;
-      return result;
-    } catch (error) {
-      if (error.statusCode) {
-        throw new Error(`Failed to download resource description: ${error.statusCode}.`);
+      const id = this.getResourceIdFromResponse(response);
+
+      if (id) {
+        this.resourceIdCache = { id, date: now };
+        return id;
       }
+    } catch (error) {
+      const lastErrorDate = this.resourceIdLastError || new Date(2000, 1, 1);
+      const timeSinceLastError = now.getTime() - lastErrorDate.getTime();
 
-      throw error;
+      if (timeSinceLastError > reportResourceIdErrorInterval) {
+        this.resourceIdLastError = now;
+        throw new Error(`Failed to download resource description: ${error}`);
+      }
     }
+
+    // Response does not contain Id!
+    // Try to re-use cached one.
+    if (this.resourceIdCache) {
+      return this.resourceIdCache.id;
+    }
+
+    // Use hard-coded one.
+    // Let's hope that it has not changed!
+    return '17308285-3977-42f7-81b7-fdd168c210a2';
   }
-}
 
-/* -------------------- */
-/* Resource description */
-/* -------------------- */
+  private getResourceIdFromResponse(response: AxiosResponse<any>): ResourceId | undefined {
+    const data = response.data;
+    const graph: any[] = data['@graph'];
 
-interface ResourceDescription {
-  id: string;
-  title: string;
-  url: string;
-  issued: string;
-  modified: string;
-}
+    // Try: [@graph][dcat:Dataset][dcat:distribution][@id]
+    try {
+      const dataset: any = graph.find(node => node['@type'] === 'dcat:Dataset');
+      const url = dataset['dcat:distribution']['@id'];
+      const id = this.getSuffixAfterLastSlash(url);
 
-function parseResourceDescription(description: any): ResourceDescription {
-  const graph: any[] = description['@graph'];
-  const dataset: any = graph.find(node => node['@type'] === 'dcat:Dataset');
-  const url = dataset['dcat:distribution']['@id'];
+      if (id) {
+        return id;
+      }
+    } catch (error) {
+      // Ignore
+    }
 
-  const lastSlashIndex = url.lastIndexOf('/');
-  if (lastSlashIndex == -1) {
-    throw `Unable to obtain resource id from '${url}'`;
+    // Try: [@graph][dcat:Distribution][dcat:accessURL][@id]
+    try {
+      const distribution: any = graph.find(node => node['@type'] === 'dcat:Distribution');
+      const url = distribution['dcat:accessURL']['@id'];
+      const id = this.getSuffixAfterLastSlash(url);
+
+      if (id) {
+        return id;
+      }
+    } catch (error) {
+      // Ignore
+    }
+
+    // Try: [@graph][dcat:Distribution][@id]
+    try {
+      const distribution: any = graph.find(node => node['@type'] === 'dcat:Distribution');
+      const url = distribution['@id'];
+      const id = this.getSuffixAfterLastSlash(url);
+
+      if (id) {
+        return id;
+      }
+    } catch (error) {
+      // Ignore
+    }
+
+    return undefined;
   }
-  const id = url.slice(lastSlashIndex + 1);
 
-  return {
-    id,
-    title: dataset['dct:title'],
-    url,
-    issued: dataset['dct:issued']['@value'],
-    modified: dataset['dct:modified']['@value'],
-  };
+  private getSuffixAfterLastSlash(url: string): string | undefined {
+    const lastSlashIndex = url.lastIndexOf('/');
+
+    if (lastSlashIndex == -1) {
+      return undefined;
+    }
+
+    return url.slice(lastSlashIndex + 1);
+  }
 }

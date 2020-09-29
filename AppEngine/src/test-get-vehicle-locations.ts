@@ -2,6 +2,8 @@ import { MPKVehicleLocationProvider } from './mpk/update-vehicle-locations';
 
 (async () => {
   try {
+    const logger = { info: console.log, error: console.error };
+
     const provider = new MPKVehicleLocationProvider();
     const response = await provider.getVehicleLocations();
 

@@ -10,8 +10,7 @@ import { hour, minute } from '../../util';
 
 const refreshResourceIdEvery = 15 * minute;
 const reportResourceIdErrorInterval = 15 * minute;
-
-const staleVehicleCutoff = 3 * hour;
+const removeVehiclesThatAreOlderThan = 10 * minute;
 
 /* ============= */
 /* === Types === */
@@ -53,7 +52,7 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
       const params = new URLSearchParams();
       params.append('resource_id', resourceId);
       params.append('limit', '99999'); // Required, otherwise 100
-      params.append('fields', 'Nr_Boczny'); // Id
+      params.append('fields', 'Nr_Boczny'); // Part of id
       params.append('fields', 'Nazwa_Linii'); // Line
       params.append('fields', 'Ostatnia_Pozycja_Szerokosc'); // Lat
       params.append('fields', 'Ostatnia_Pozycja_Dlugosc'); // Lng
@@ -73,22 +72,28 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
       const now = new Date();
       const result: MPKVehicle[] = [];
       for (const vehicle of response.data.result.records) {
-        const id = vehicle.Nr_Boczny;
+        // You can preview the data at:
+        // https://www.wroclaw.pl/open-data/dataset/93f26958-c0f3-4b27-a153-619e26080442/resource/17308285-3977-42f7-81b7-fdd168c210a2
+        const sideNumber = vehicle.Nr_Boczny;
         const line = vehicle.Nazwa_Linii;
         const lat = vehicle.Ostatnia_Pozycja_Szerokosc;
         const lng = vehicle.Ostatnia_Pozycja_Dlugosc;
+        const dateString = vehicle.Data_Aktualizacji;
 
         if (line == 'None') {
           continue;
         }
 
-        const dateString = vehicle.Data_Aktualizacji;
+        // We can ignore time zone, because both 'now' and 'date' are in the same time zone.
+        // Note that this does not mean that it is 'Europe/Warsaw', but it should work anyway
+        // (well, most of the time).
         const date = new Date(dateString);
         const dateDiff = now.getTime() - date.getTime();
-        if (dateDiff > staleVehicleCutoff) {
+        if (dateDiff > removeVehiclesThatAreOlderThan) {
           continue;
         }
 
+        const id = line + '_' + sideNumber;
         result.push({ id, line, lat, lng });
       }
 

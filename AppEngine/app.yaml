@@ -5,9 +5,39 @@ runtime: nodejs12
 instance_class: F1
 
 automatic_scaling:
-  max_instances: 0 # disable
+  # max_instances
+  # Maximum number of instances for App Engine to create for this module version
+  max_instances: 1
+  # target_cpu_utilization:
+  # Value of 0.7 means that new instances will be started after CPU usage reaches 70 percent.
+  target_cpu_utilization: 0.95
+  # target_cpu_utilization & max_concurrent_requests
+  # When the number of concurrent requests reaches a value equal to
+  # 'max_concurrent_requests times target_throughput_utilization',
+  # the scheduler tries to start a new instance.
+  target_throughput_utilization: 0.95
+  max_concurrent_requests: 30
+  # max_pending_latency
+  # The maximum amount of time that App Engine should allow a request to wait
+  # in the pending queue before starting additional instances to handle requests
+  # so that pending latency is reduced.
+  max_pending_latency: 60ms
 
 handlers:
-- url: /.*
+- url: /api/*
   script: auto
+  secure: always
+
+- url: /
+  static_files: public/homepage.html
+  upload: public/homepage.html
+  secure: always
+
+- url: /privacy
+  static_files: public/privacy.html
+  upload: public/privacy.html
+  secure: always
+
+- url: /static
+  static_dir: public
   secure: always

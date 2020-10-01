@@ -1,5 +1,4 @@
-import { join } from 'path';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 
 import { createApiV1Router } from './routers';
 import { FirestoreDatabase } from './cloud-platform';
@@ -85,37 +84,10 @@ app.disable('etag');
 app.disable('x-powered-by');
 
 // Routes:
-// - wroclive.app/api -> always respond with 200 (used in cron.yaml)
+// - wroclive.app/api -> always respond with 200 (used for uptime testing)
 // - wroclive.app/api/v1 -> use more precise router
-// - wroclive.app/$FILE -> 'public' directory
-// - wroclive.app/static -> 'public' directory
-// - 404 and 500
 
 app.get('/api', (req: Request, res: Response) => res.status(200).end());
 app.use('/api/v1', createApiV1Router(mpk));
-
-// Static
-type RequestHandler = (req: Request, res: Response, next: NextFunction) => void;
-function serveFile(file: string): RequestHandler {
-  const root = join(__dirname, '..');
-  return (req: Request, res: Response, next: NextFunction) => {
-    res.sendFile(file, { root });
-  };
-}
-
-app.get('/', serveFile('public/homepage.html'));
-app.get('/privacy', serveFile('public/privacy.html'));
-app.use('/static', express.static('public'));
-
-// 404 and 500
-app.use((req: Request, res: Response) => {
-  logger.info(`404: File Not Found: ${req.originalUrl}`);
-  res.status(404).send('404: File Not Found');
-});
-
-app.use((error: any, req: Request, res: Response, next: NextFunction) => {
-  logger.error(`500: Internal Server Error: ${req.originalUrl}`, error);
-  res.status(500).send('500: Internal Server Error');
-});
 
 module.exports = app;

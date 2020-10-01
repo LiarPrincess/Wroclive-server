@@ -76,6 +76,17 @@ Anyway, this is how it works:
       - Roles: Editor, Pub/Sub Publisher, Pub/Sub Subscriber
       - Key should be exported and placed in [ComputeEngine-PubSub](ComputeEngine-PubSub)
 
+
+- [Monitoring](https://cloud.google.com/service-monitoring)
+  - SSL certificate expiring soon
+    - Alert: 7 days prior
+  - uptime check on wroclive.app/api
+    - protocol: HTTPS
+    - hostname: wroclive.app
+    - path: api
+    - check frequency: 10 minutes
+    - regions: Europe
+
 - [Cloud Logging](https://cloud.google.com/logging)
   - we use [winstonjs/winston](https://github.com/winstonjs/winston) with `@google-cloud/logging-winston` backend
 

@@ -6,7 +6,7 @@ tsconfig.json
 tslint.json
 
 .vscode/
-dist/**.map
+dist/**/*.map
 dist/**/__tests__
 docs/
 node_modules/

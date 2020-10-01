@@ -4,6 +4,6 @@
 Makefile
 
 .vscode/
-dist/**.map
+dist/**/*.map
 src/
 node_modules/

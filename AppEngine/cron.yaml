@@ -1,4 +1,0 @@
-cron:
-- description: "Prevent server from sleeping"
-  url: /api
-  schedule: every 10 minutes

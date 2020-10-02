@@ -18,7 +18,7 @@ watch:
 .PHONY: deploy log describe browse
 
 deploy: build
-	gcloud app deploy app.yaml cron.yaml
+	gcloud app deploy app.yaml
 
 log:
 	gcloud app logs tail

@@ -1,15 +1,28 @@
 import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { MPKVehicle } from '../models';
 import { VehicleLocationProvider } from './VehicleLocationProvider';
+import { MPKVehicle } from '../models';
 import { hour, minute } from '../../util';
 
 /* ============== */
 /* === Config === */
 /* ============== */
 
+/**
+ * Cache resource id, so that we do not have to re-download it every time.
+ */
 const refreshResourceIdEvery = 15 * minute;
+
+/**
+ * If the resource id refresh fails then send mail.
+ * But if we did that on EVERY error then we would never update vehicle locations.
+ */
 const reportResourceIdErrorInterval = 15 * minute;
+
+/**
+ * Our data source contains some very old data (think 2012, 2014 etc.).
+ * We will remove those entries.
+ */
 const removeVehiclesThatAreOlderThan = 10 * minute;
 
 /* ============= */
@@ -29,14 +42,7 @@ interface ResourceIdCache {
 
 export class MPKVehicleLocationProvider implements VehicleLocationProvider {
 
-  /**
-   * Cache resource id, so that we do not have to re-download it every time.
-   */
   private resourceIdCache?: ResourceIdCache;
-  /**
-   * If the resource id refresh fails then send mail.
-   * But if we did that on EVERY error then we would never update vehicle locations.
-   */
   private resourceIdLastError?: Date;
 
 /* ============================= */
@@ -88,12 +94,12 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
         // Note that this does not mean that it is 'Europe/Warsaw', but it should work anyway
         // (well, most of the time).
         const date = new Date(dateString);
-        const dateDiff = now.getTime() - date.getTime();
+        const dateDiff = this.subtract(now, date);
         if (dateDiff > removeVehiclesThatAreOlderThan) {
           continue;
         }
 
-        const id = line + '_' + sideNumber;
+        const id = `${line}${sideNumber}`;
         result.push({ id, line, lat, lng });
       }
 
@@ -107,6 +113,15 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
     }
   }
 
+  /**
+   * Returns difference in milliseconds.
+   */
+  private subtract(lhs: Date, rhs: Date): number {
+    const lhsMilliseconds = lhs.getTime();
+    const rhsMilliseconds = rhs.getTime();
+    return lhsMilliseconds - rhsMilliseconds;
+  }
+
   /* =================== */
   /* === Resource id === */
   /* =================== */
@@ -115,7 +130,7 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
     const now = new Date();
 
     if (this.resourceIdCache) {
-      const timeSinceLastUpdate = now.getTime() - this.resourceIdCache.date.getTime();
+      const timeSinceLastUpdate = this.subtract(now, this.resourceIdCache.date);
       if (timeSinceLastUpdate <= refreshResourceIdEvery) {
         return this.resourceIdCache.id;
       }

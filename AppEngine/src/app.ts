@@ -1,4 +1,5 @@
-import express, { Request, Response } from 'express';
+import { join } from 'path';
+import express, { Request, Response, NextFunction } from 'express';
 
 import { createApiV1Router } from './routers';
 import { FirestoreDatabase } from './cloud-platform';
@@ -89,5 +90,21 @@ app.disable('x-powered-by');
 
 app.get('/api', (req: Request, res: Response) => res.status(200).end());
 app.use('/api/v1', createApiV1Router(mpk));
+
+// In production the GCP is responsible for serving static files (it is faster/easier this way).
+// Locally we have to do it ourselves.
+if (isLocal) {
+  type RequestHandler = (req: Request, res: Response, next: NextFunction) => void;
+  function serveFile(file: string): RequestHandler {
+    const root = join(__dirname, '..');
+    return (req: Request, res: Response, next: NextFunction) => {
+      res.sendFile(file, { root });
+    };
+  }
+
+  app.get('/', serveFile('public/homepage.html'));
+  app.get('/privacy', serveFile('public/privacy.html'));
+  app.use('/static', express.static('public'));
+}
 
 module.exports = app;

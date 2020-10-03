@@ -12,47 +12,47 @@
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
+
   <style>
     body {
       color: #fff;
       background-color: #0092F2;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       font-family: 'Lato', sans-serif !important;
+      min-height: 100vh;
     }
 
     @media (max-width: 768px) {
-      .only-mobile {
+      .mobile-only {
         display: block;
       }
 
-      .only-desktop {
+      .desktop-only {
         display: none;
       }
     }
 
     @media (min-width: 768px) {
-      .only-mobile {
+      .mobile-only {
         display: none;
       }
 
-      .only-desktop {
+      .desktop-only {
         display: block;
       }
     }
+    /* Language selection */
 
-    /* Language */
-
-    .language-container {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      z-index: 9999;
+    .language-selection {
+      padding: 15px 15px 30px 0;
     }
 
     .language-button {
       display: inline-block;
       text-align: center;
       vertical-align: middle;
-      user-select: none;
       background-color: transparent;
       border: 1px solid transparent;
       padding: .5rem 1rem;
@@ -66,96 +66,92 @@
       border-bottom: 2px solid #fff;
     }
 
-    /* Main */
+    /* Content */
 
-    .main {
-      margin-top: 20px;
+    .content {
+      flex-grow: 1;
+      margin-bottom: 20px;
     }
 
-    .main .row {
+    .content-column {
       display: flex;
-      flex-direction: row;
-      align-items: center;
+      flex-direction: column;
       justify-content: center;
     }
 
     /* Screenshot */
 
     .app-screenshot {
-      padding: 0 15px;
-      width: 100%;
+      width: 80%;
+      margin: 0 auto;
+      display: block;
     }
 
     @media (max-width: 768px) {
       .app-screenshot {
-        width: 80%;
-        margin: 0 auto 20px auto;
-        display: block;
+        margin-bottom: 20px;
       }
     }
 
-    /* Icon */
+    /* App info */
 
     .app-icon {
-      border-radius: 20%;
-    }
-
-    .only-desktop .app-icon {
       width: 80px;
+      border-radius: 20%;
       margin-bottom: 10px;
     }
 
-    .only-mobile .app-icon {
-      width: 150px;
-      display: block;
-      margin: 0 auto 10px auto;
-    }
-
-    /* Title, subtitle, description */
-
-    .main .app-title {
+    .app-title {
       font-size: 3em;
       font-weight: 300;
     }
 
-    .main .app-subtitle {
+    .app-subtitle {
       font-size: 2.25em;
       font-weight: 300;
       margin-bottom: 20px;
     }
 
-    .only-mobile .app-title {
-      text-align: center;
-    }
-
-    .only-mobile .app-subtitle {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .main .app-description {
-      font-size: 1.4em;
-      font-weight: 300;
-      margin-bottom: 20px;
-    }
-
     @media (max-width: 768px) {
-      .main .app-description {
+      .app-icon {
+        width: 150px;
         display: block;
-        margin-bottom: 30px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .app-title {
+        text-align: center;
+      }
+
+      .app-subtitle {
+        text-align: center;
       }
     }
 
-    /* Store badge */
+    /* Description */
+
+    .app-description-container {
+      font-size: 1.4em;
+      font-weight: 300;
+    }
+
+    @media (max-width: 768px) {
+      .app-description-container {
+        text-align: center;
+      }
+    }
+
+    /* Store badges */
 
     .store-badge img {
       height: 60px;
+      display: block;
     }
 
     @media (max-width: 768px) {
       .store-badge img {
-        display: block;
-        margin: 0 auto 30px auto;
+        margin: 0 auto;
       }
     }
 
@@ -163,9 +159,7 @@
 
     footer {
       background: #fff;
-      z-index: 1000;
-      display: block;
-      padding-bottom: env(safe-area-inset-top);
+      flex-shrink: 0;
     }
 
     footer .container {
@@ -177,61 +171,53 @@
     footer a {
       color: #0092F2;
       font-size: 1em;
-      margin-left: 15px;
-      vertical-align: middle;
-      text-decoration: none;
+      margin: 0 10px;
     }
-
-    @media (min-width: 768px) {
-      footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-      }
-    }
-
   </style>
 </head>
 
 <body>
-  <div class="language-container">
-    <button id="language-pl" class="language-button" onclick="setLanguagePl()">PL</button>
-    <button id="language-en" class="language-button" onclick="setLanguageEn()">EN</button>
+  <div class="language-selection">
+    <div class="float-right">
+      <button id="language-pl" class="language-button" onclick="setLanguagePl()">PL</button>
+      <button id="language-en" class="language-button" onclick="setLanguageEn()">EN</button>
+    </div>
   </div>
 
-  <section class="main">
-    <div class="only-mobile">
-      <img src="/static/icon.svg" class="app-icon">
+  <div class="content container">
+    <section class="mobile-only">
+      <img class="app-icon" src="/static/icon.svg">
       <h1 class="app-title">Wroclive</h1>
       <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
-    </div>
+    </section>
 
-    <div class="container">
-      <div class="row">
-        <div class="col-xs-12 col-md-6 col-lg-5">
-          <img src="/static/main_screen.png" class="app-screenshot">
-        </div>
-        <div class="col-xs-12 col-md-6 col-lg-7">
-          <div class="only-desktop">
-            <img src="/static/icon.svg" class="app-icon">
-            <h1 class="app-title app-title-desktop">Wroclive</h1>
-            <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
-          </div>
-          <div class="app-description">
-            <p id="app-description0">Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.</p>
-            <p id="app-description1">Dzięki Wroclive już nigdy nie ucieknie Ci autobus!</p>
-          </div>
+    <div class="row">
+      <div class="content-column col-xs-12 col-md-6 col-lg-5">
+        <img src="/static/main_screen.png" class="app-screenshot">
+      </div>
+      <div class="content-column col-xs-12 col-md-6 col-lg-7">
+        <section class="desktop-only">
+          <img class="app-icon" src="/static/icon.svg">
+          <h1 class="app-title">Wroclive</h1>
+          <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
+        </section>
+        
+        <section class="app-description-container">
+          <p id="app-description0">Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.</p>
+          <p id="app-description1">Dzięki Wroclive już nigdy nie ucieknie Ci autobus!</p>
+        </section>
+        
+        <section class="store-badge-container">
           <a href="https://itunes.apple.com/app/id1533532240?mt=8" class="store-badge">
             <img id="app-store-badge" src="/static/App-Store-badge-pl.svg">
           </a>
-          <!-- <a href="#" class="store-badge">
-            <img src="/static/Google-Play-badge.svg">
-          </a> -->
-        </div>
+            <!-- <a href="#" class="store-badge">
+              <img src="/static/Google-Play-badge.svg">
+            </a> -->
+        </section>
       </div>
     </div>
-  </section>
+  </div>
 
   <footer>
     <div class="container">
@@ -239,7 +225,7 @@
       <a href="/privacy" id="privacy-policy">Polityka prywatności</a>
     </div>
   </footer>
-  </div>
+
   <script>
     const translations = {
       pl: {

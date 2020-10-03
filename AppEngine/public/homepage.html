@@ -39,6 +39,33 @@
       }
     }
 
+    /* Language */
+
+    .language-container {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 9999;
+    }
+
+    .language-button {
+      display: inline-block;
+      text-align: center;
+      vertical-align: middle;
+      user-select: none;
+      background-color: transparent;
+      border: 1px solid transparent;
+      padding: .5rem 1rem;
+      font-weight: bold;
+      line-height: 1.5;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .language-selected {
+      border-bottom: 2px solid #fff;
+    }
+
     /* Main */
 
     .main {
@@ -168,6 +195,11 @@
 </head>
 
 <body>
+  <div class="language-container">
+    <button id="language-pl" class="language-button" onclick="setLanguagePl()">PL</button>
+    <button id="language-en" class="language-button" onclick="setLanguageEn()">EN</button>
+  </div>
+
   <section class="main">
     <div class="only-mobile">
       <img src="/static/icon.svg" class="app-icon">
@@ -187,11 +219,11 @@
             <h2 class="app-subtitle">Komunikacja miejska na żywo</h2>
           </div>
           <div class="app-description">
-            <p>Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.</p>
-            <p>Dzięki Wroclive już nigdy nie ucieknie Ci autobus!</p>
+            <p id="app-description0">Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.</p>
+            <p id="app-description1">Dzięki Wroclive już nigdy nie ucieknie Ci autobus!</p>
           </div>
           <a href="https://itunes.apple.com/app/id1533532240?mt=8" class="store-badge">
-            <img src="/static/App-Store-badge.svg">
+            <img id="app-store-badge" src="/static/App-Store-badge-pl.svg">
           </a>
           <!-- <a href="#" class="store-badge">
             <img src="/static/Google-Play-badge.svg">
@@ -203,11 +235,68 @@
 
   <footer>
     <div class="container">
-      <a href="mailto:mail@wroclive.app">Wsparcie</a>
-      <a href="/privacy">Polityka prywatności</a>
+      <a href="mailto:mail@wroclive.app" id="support">Wsparcie</a>
+      <a href="/privacy" id="privacy-policy">Polityka prywatności</a>
     </div>
   </footer>
   </div>
+  <script>
+    const translations = {
+      pl: {
+        title: 'Wroclive',
+        subtitle: 'Komunikacja miejska na żywo',
+        description0: 'Wroclive umożliwia sprawdzenie bieżącej lokalizacji pojazdów komunikacji miejskiej. Pomoże Ci to zdecydować, czy warto pośpieszyć na przystanek, czy może spokojnie dokończyć kawę.',
+        description1: 'Dzięki Wroclive już nigdy nie ucieknie Ci autobus!',
+        appStoreBadge: '/static/App-Store-badge-pl.svg',
+        support: 'Wsparcie',
+        privacy: 'Polityka prywatności'
+      },
+      en: {
+        title: 'Wroclive',
+        subtitle: 'Real-time public transport in Wrocław',
+        description0: 'Wroclive allows you to check the current location of public transport vehicles. This will help you decide whether it is worth rushing to a stop or to calmly finish your coffee.',
+        description1: 'With Wroclive you will never miss a bus!',
+        appStoreBadge: '/static/App-Store-badge-en.svg',
+        support: 'Support',
+        privacy: 'Privacy policy'
+      }
+    };
+
+    function setLanguage(translation) {
+      for (const node of document.getElementsByClassName('app-title')) {
+        node.textContent = translation.title;
+      }
+
+      for (const node of document.getElementsByClassName('app-subtitle')) {
+        node.textContent = translation.subtitle;
+      }
+
+      document.getElementById('app-description0').textContent = translation.description0;
+      document.getElementById('app-description1').textContent = translation.description1;
+
+      document.getElementById('app-store-badge').src = translation.appStoreBadge;
+
+      document.getElementById('support').textContent = translation.support;
+      document.getElementById('privacy-policy').textContent = translation.privacy;
+    }
+
+    const languageButtonPl = document.getElementById("language-pl");
+    const languageButtonEn = document.getElementById("language-en");
+
+    function setLanguagePl() {
+      setLanguage(translations.pl);
+      languageButtonPl.classList.add('language-selected');
+      languageButtonEn.classList.remove('language-selected');
+    }
+
+    function setLanguageEn() {
+      setLanguage(translations.en);
+      languageButtonPl.classList.remove('language-selected');
+      languageButtonEn.classList.add('language-selected');
+    }
+
+    setLanguagePl();
+  </script>
 </body>
 
 </html>

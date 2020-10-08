@@ -2,6 +2,8 @@
 # -- Build --
 # -----------
 
+.PHONY: start build watch test
+
 start:
 	npm start
 
@@ -10,6 +12,9 @@ build:
 
 watch:
 	./node_modules/.bin/tsc -w
+
+test:
+	npm run-script test
 
 # ------------
 # -- Google --

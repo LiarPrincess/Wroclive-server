@@ -146,10 +146,10 @@ export default class Mpk {
   /**
    * Get vehicle locations for selected lines.
    */
-  getVehicleLocations(lineNames: string[]): Timestamped<LineLocations[]> {
+  getVehicleLocations(lineNamesLowerCase: Set<string>): Timestamped<LineLocations[]> {
     const { timestamp, data } = this.vehicleLocations;
     const filteredLocations = data.filter(lineLoc =>
-      lineNames.some(name => name === lineLoc.line.name.toLowerCase())
+      lineNamesLowerCase.has(lineLoc.line.name.toLowerCase())
     );
 
     return { timestamp, data: filteredLocations };
@@ -158,7 +158,7 @@ export default class Mpk {
   /**
    * Update locations for all of the vehicles.
    */
-  async updateVehicleLocations() {
+  async updateVehicleLocations(timestamp?: string) {
     const lines = this.lines.data;
     if (!lines || lines.length === 0) {
       return;
@@ -174,8 +174,8 @@ export default class Mpk {
     };
 
     const result = calculateVehicleLocationUpdates(input);
-    const timestamp = this.createTimestamp();
-    this.vehicleLocations = { timestamp, data: result.lineLocations };
+    const ts = timestamp || this.createTimestamp();
+    this.vehicleLocations = { timestamp: ts, data: result.lineLocations };
     this.lastHeadingUpdate = result.headingUpdates;
   }
 

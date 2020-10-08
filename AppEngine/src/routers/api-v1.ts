@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
 import { Mpk } from '../mpk';
+import { splitLowerCase } from './helpers';
 
 enum Cache {
   Store12h = 'max-age=43200',
@@ -44,7 +45,7 @@ export function createApiV1Router(mpk: Mpk): Router {
       standardHeaders(res, Cache.Disable);
 
       const query = req.query.lines as string || '';
-      const lineNames = query.toLowerCase().split(';').map(n => n.trim());
+      const lineNames = splitLowerCase(query, ';');
       const data = mpk.getVehicleLocations(lineNames);
       res.json(data);
     } catch (err) {

@@ -11,19 +11,19 @@ import { hour, minute } from '../../util';
 /**
  * Cache resource id, so that we do not have to re-download it every time.
  */
-const refreshResourceIdEvery = 15 * minute;
+export const refreshResourceIdEvery = 15 * minute;
 
 /**
  * If the resource id refresh fails then send mail.
  * But if we did that on EVERY error then we would never update vehicle locations.
  */
-const reportResourceIdErrorInterval = 15 * minute;
+export const reportResourceIdErrorInterval = 15 * minute;
 
 /**
  * Our data source contains some very old data (think 2012, 2014 etc.).
  * We will remove those entries.
  */
-const removeVehiclesThatAreOlderThan = 10 * minute;
+export const removeVehiclesThatAreOlderThan = 10 * minute;
 
 /* ============= */
 /* === Types === */
@@ -45,15 +45,26 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
   private resourceIdCache?: ResourceIdCache;
   private resourceIdLastError?: Date;
 
-/* ============================= */
-/* === Get vehicle locations === */
-/* ============================= */
+  /* ============================= */
+  /* === Get vehicle locations === */
+  /* ============================= */
 
   async getVehicleLocations(): Promise<MPKVehicle[]> {
-    const resourceId = await this.getResourceId();
+    const resourceCheckDate = new Date();
+    const resourceId = await this.getResourceId(resourceCheckDate);
 
+    const oldVehiclesCheckDate = new Date();
+    return this.queryVehicleLocations(resourceId, oldVehiclesCheckDate);
+  }
+
+  /* =============================== */
+  /* === Query vehicle locations === */
+  /* =============================== */
+
+  async queryVehicleLocations(resourceId: string, now: Date): Promise<MPKVehicle[]> {
     try {
-      const url = `https://www.wroclaw.pl/open-data/api/action/datastore_search`;
+      // https://docs.ckan.org/en/latest/api/index.html#making-an-api-request
+      const url = 'https://www.wroclaw.pl/open-data/api/action/datastore_search';
 
       const params = new URLSearchParams();
       params.append('resource_id', resourceId);
@@ -71,13 +82,13 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
         throw response.data.error;
       }
 
-      if (!response.data.result.records) {
+      const records = response.data?.result?.records;
+      if (!records) {
         throw new Error(`Response does not contain 'response.data.result.records'`);
       }
 
-      const now = new Date();
       const result: MPKVehicle[] = [];
-      for (const vehicle of response.data.result.records) {
+      for (const vehicle of records) {
         // You can preview the data at:
         // https://www.wroclaw.pl/open-data/dataset/93f26958-c0f3-4b27-a153-619e26080442/resource/17308285-3977-42f7-81b7-fdd168c210a2
         const sideNumber = vehicle.Nr_Boczny;
@@ -105,30 +116,20 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
 
       return result;
     } catch (error) {
-      if (error.statusCode) {
-        throw new Error(`Failed to get vehicle locations: ${error.statusCode}.`);
+      const statusCode = error.statusCode || (error.response && error.response.status);
+      if (statusCode) {
+        throw new Error(`Failed to get vehicle locations: ${statusCode}.`);
       }
 
       throw error;
     }
   }
 
-  /**
-   * Returns difference in milliseconds.
-   */
-  private subtract(lhs: Date, rhs: Date): number {
-    const lhsMilliseconds = lhs.getTime();
-    const rhsMilliseconds = rhs.getTime();
-    return lhsMilliseconds - rhsMilliseconds;
-  }
-
   /* =================== */
   /* === Resource id === */
   /* =================== */
 
-  private async getResourceId(): Promise<ResourceId> {
-    const now = new Date();
-
+  async getResourceId(now: Date): Promise<ResourceId> {
     if (this.resourceIdCache) {
       const timeSinceLastUpdate = this.subtract(now, this.resourceIdCache.date);
       if (timeSinceLastUpdate <= refreshResourceIdEvery) {
@@ -215,6 +216,22 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
     return undefined;
   }
 
+  /* =============== */
+  /* === Helpers === */
+  /* =============== */
+
+  /**
+   * Returns difference in milliseconds.
+   */
+  private subtract(lhs: Date, rhs: Date): number {
+    const lhsMilliseconds = lhs.getTime();
+    const rhsMilliseconds = rhs.getTime();
+    return lhsMilliseconds - rhsMilliseconds;
+  }
+
+/**
+ * Look for the last '/' in the string and return the part after it.
+ */
   private getSuffixAfterLastSlash(url: string): string | undefined {
     const lastSlashIndex = url.lastIndexOf('/');
 

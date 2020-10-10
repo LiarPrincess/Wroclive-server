@@ -9,8 +9,11 @@ cd ./updater-new/
 npm i
 cd ..
 
+# Create empty 'data' dir
+mkdir ./updater-new/data
+
 # Replace old
-rm -r ./updater
+rm -rf ./updater
 mv ./updater-new ./updater
 
 # Copy scripts to HOME

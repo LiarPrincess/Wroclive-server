@@ -11,6 +11,7 @@ export interface Line {
   readonly name: string;
   readonly type: string;
   readonly subtype: string;
+  readonly stopArrivalTimes: { min: number, max: number } | undefined;
 }
 
 export interface LineShapePoint {
@@ -95,16 +96,40 @@ export class LocalDatabase {
   async getAllLines(): Promise<Line[]> {
     const query: Query = {
       sql: `
-select
-  Name    as name
-, Type    as type
-, Subtype as subtype
-from Lines`,
+  select
+  line.Name       as name
+, line.Type       as type
+, line.Subtype    as subtype
+, stopArrival.min as minStopArrivalTime
+, stopArrival.max as maxStopArrivalTime
+from Lines line
+left join (
+  select
+    Line as line
+  , min(ArrivalTime) as min
+  , max(ArrivalTime) as max
+  from StopArrivals
+  group by Line
+) stopArrival on stopArrival.line = line.name`,
       params: undefined
     };
 
     const rows = await this.db.all(query);
-    return rows as Line[];
+    const lines: Line[] = rows.map(row => {
+      const stopArrivalTimes = (row.minStopArrivalTime && row.maxStopArrivalTime) ? {
+        min: row.minStopArrivalTime,
+        max: row.maxStopArrivalTime
+      } : undefined;
+
+      return {
+        name: row.name,
+        type: row.type,
+        subtype: row.subtype,
+        stopArrivalTimes
+      };
+    });
+
+    return lines;
   }
 
   async getShapePointsByLineName(lineName: string): Promise<LineShapePoint[]> {

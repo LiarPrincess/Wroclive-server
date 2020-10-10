@@ -24,7 +24,7 @@ select
     when 'Pospieszna autobusowa' then 'Express'
     when 'Strefowa autobusowa'   then 'Zone'
     when 'Nocna autobusowa'      then 'Night'
-    when 'Okresowa autobusowa'   then 'Temporary' -- Add to Client
+    when 'Okresowa autobusowa'   then 'Temporary'
     else 'Regular' end as route_subtype
 -- agency
 , agency.agency_id
@@ -127,27 +127,27 @@ order by stop_code
 
 delete from StopArrivals;
 
--- insert into StopArrivals (Stop, Line, LineType, LineSubtype, Headsign, ArrivalTime, Sequence, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
--- select distinct
---   stop_code
--- , route_name
--- , route_type
--- , route_subtype
--- , trip_headsign
--- -- we store 8:40 as 840, because it is easier to use
--- , 100 * cast(substr(arrival_time, 1, 2) as integer)
---       + cast(substr(arrival_time, 4, 2) as integer) as ArrivalTime
--- , cast(stop_sequence as integer) as Sequence
--- , monday
--- , tuesday
--- , wednesday
--- , thursday
--- , friday
--- , saturday
--- , sunday
--- from gtfs_stop_schedule
--- order by stop_code, arrival_time
--- ;
+insert into StopArrivals (Stop, Line, LineType, LineSubtype, Headsign, ArrivalTime, Sequence, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday)
+select distinct
+  stop_code
+, route_name
+, route_type
+, route_subtype
+, trip_headsign
+-- we store 8:40 as 840, because it is easier to use
+, 100 * cast(substr(arrival_time, 1, 2) as integer)
+      + cast(substr(arrival_time, 4, 2) as integer) as ArrivalTime
+, cast(stop_sequence as integer) as Sequence
+, monday
+, tuesday
+, wednesday
+, thursday
+, friday
+, saturday
+, sunday
+from gtfs_stop_schedule
+order by stop_code, arrival_time
+;
 
 ------------
 -- Shapes --

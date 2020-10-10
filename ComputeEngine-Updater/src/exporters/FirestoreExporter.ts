@@ -1,7 +1,11 @@
 import { Exporter } from './Exporter';
 import { Logger } from '../util';
-import { FirestoreDatabase } from '../cloud-platform';
-import { Line, Stop } from '../models';
+import { Line, Stop } from '../local-database';
+import {
+  FirestoreDatabase,
+  FirestoreAllLinesDocument,
+  FirestoreAllStopsDocument
+} from '../cloud-platform';
 
 export class FirestoreExporter extends Exporter {
 
@@ -13,10 +17,20 @@ export class FirestoreExporter extends Exporter {
   }
 
   async exportLines(timestamp: string, lines: Line[]): Promise<void> {
-    await this.db.setAllLinesDocument(timestamp, lines);
+    const document: FirestoreAllLinesDocument = {
+      timestamp,
+      data: lines
+    };
+
+    await this.db.saveAllLines(document);
   }
 
   async exportStops(timestamp: string, stops: Stop[]): Promise<void> {
-    await this.db.setAllStopsDocument(timestamp, stops);
+    const document: FirestoreAllStopsDocument = {
+      timestamp,
+      data: stops
+    };
+
+    await this.db.saveAllStops(document);
   }
 }

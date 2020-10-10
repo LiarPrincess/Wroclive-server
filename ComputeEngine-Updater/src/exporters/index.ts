@@ -1,3 +1,3 @@
 export * from './Exporter';
-export * from './CsvExporter';
+export * from './FileExporter';
 export * from './FirestoreExporter';

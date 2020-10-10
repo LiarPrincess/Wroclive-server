@@ -2,22 +2,23 @@ import { join, resolve } from 'path';
 import { promises as fs } from 'fs';
 
 import { downloadGTFS, uploadGTFSToLocalDatabase } from './gtfs';
-import { createLogger, isLocal } from './util';
+import { createLogger, isLocal, getRootDir } from './util';
 import { LocalDatabase } from './local-database';
-import { Exporter, CsvExporter, FirestoreExporter } from './exporters';
 import { FirestoreDatabase } from './cloud-platform';
+import { Exporter, FileExporter, FirestoreExporter } from './exporters';
 
 (async function() {
   const logger = createLogger('CE-Updater');
 
   let db: LocalDatabase | undefined;
   try {
-    const dir = './data';
-    const gtfsFile = join(dir, 'gtfs.zip');
-    const databaseFile = resolve(join(dir, 'database.db'));
+    const rootDir = await getRootDir();
+    const dataDir = join(rootDir, 'data');
+    const gtfsFile = join(dataDir, 'gtfs.zip');
+    const databaseFile = resolve(join(dataDir, 'database.db'));
 
     logger.info('Starting data update');
-    await ensureThatDirIsEmpty(dir);
+    await ensureThatDirIsEmpty(dataDir);
     await downloadGTFS(gtfsFile, logger);
 
     db = new LocalDatabase(databaseFile, logger);
@@ -25,7 +26,7 @@ import { FirestoreDatabase } from './cloud-platform';
 
     let exporter: Exporter;
     if (isLocal) {
-      exporter = new CsvExporter(dir, logger);
+      exporter = new FileExporter(dataDir, logger);
     } else {
       const firestoreDb = new FirestoreDatabase();
       exporter = new FirestoreExporter(firestoreDb, logger);

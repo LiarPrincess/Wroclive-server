@@ -1,9 +1,9 @@
 import extract from 'extract-zip';
 import { promises as fs } from 'fs';
-import { join, resolve, parse, basename, dirname } from 'path';
+import { join, resolve, parse, dirname } from 'path';
 
 import { Logger } from '../util';
-import { LocalDatabase, queries } from '../local-database';
+import { LocalDatabase } from '../local-database';
 
 /**
  * Upload all of the GTFS files to SQLite database.
@@ -19,8 +19,7 @@ export async function uploadGTFSToLocalDatabase(db: LocalDatabase, gtfsFile: str
   logger.info('Removing old data from database');
   for (const file of gtfsFiles) {
     const tableName = toTableName(file);
-    const drop = queries.dropTable(tableName);
-    await db.exec(drop);
+    await db.dropTable(tableName);
   }
 
   logger.info('Uploading new GTFS data to database');
@@ -30,12 +29,10 @@ export async function uploadGTFSToLocalDatabase(db: LocalDatabase, gtfsFile: str
   }
 
   logger.info('Creating final tables');
-  const createMpkTablesScriptPath = queries.createMpkTablesScriptPath;
-  await db.execFile(createMpkTablesScriptPath);
+  await db.executeMpkCreateSchemaScript();
 
   logger.info('Filling final tables');
-  const fillMpkTablesScriptPath = queries.fillMpkTablesScriptPath;
-  await db.execFile(fillMpkTablesScriptPath);
+  await db.executeMpkProcessGTFSScript();
 }
 
 async function listGtfsFiles(gtfsDir: string): Promise<string[]> {

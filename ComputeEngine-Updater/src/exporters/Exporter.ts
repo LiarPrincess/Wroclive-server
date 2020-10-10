@@ -1,6 +1,5 @@
 import { Logger } from '../util';
-import { LocalDatabase, queries } from '../local-database';
-import { Line, Stop } from '../models';
+import { LocalDatabase, Line, Stop } from '../local-database';
 
 export abstract class Exporter {
 
@@ -13,11 +12,11 @@ export abstract class Exporter {
   async exportData(db: LocalDatabase): Promise<void> {
     const timestamp = new Date().toISOString();
 
-    const lines = await db.all(queries.getAllLines) as Line[];
+    const lines = await db.getAllLines();
     this.logger.info(`Exporting ${lines.length} lines`);
     await this.exportLines(timestamp, lines);
 
-    const stops = await db.all(queries.getAllStops) as Stop[];
+    const stops = await db.getAllStops();
     this.logger.info(`Exporting ${stops.length} stops`);
     await this.exportStops(timestamp, stops);
   }

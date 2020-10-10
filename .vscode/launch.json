@@ -38,7 +38,8 @@
       "program": "${workspaceFolder}/ComputeEngine-Updater/dist/app.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
-      ]
+      ],
+      "outputCapture": "std"
     },
     {
       "type": "node",

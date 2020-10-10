@@ -1,7 +1,35 @@
 import * as fs from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
-import { Line, Stop } from '../models';
+
+/* ============= */
+/* === Types === */
+/* ============= */
+
+export interface FirestoreLine {
+  readonly name: string;
+  readonly type: string;
+  readonly subtype: string;
+}
+
+export interface FirestoreStop {
+  readonly code: string;
+  readonly name: string;
+  readonly lat: number;
+  readonly lon: number;
+}
+
+export interface Timestamped<T> {
+  readonly timestamp: string;
+  readonly data: T;
+}
+
+export type FirestoreAllLinesDocument = Timestamped<FirestoreLine[]>;
+export type FirestoreAllStopsDocument = Timestamped<FirestoreStop[]>;
+
+/* ================ */
+/* === Database === */
+/* ================ */
 
 export class FirestoreDatabase {
 
@@ -18,31 +46,43 @@ export class FirestoreDatabase {
   /* Lines */
   /* ----- */
 
-  get linesCollection(): fs.CollectionReference<fs.DocumentData> {
+  private get linesCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Lines');
   }
 
-  get allLinesDocument(): fs.DocumentReference<any> {
-    return this.linesCollection.doc('all');
+  private get allLinesDocumentRef(): fs.DocumentReference<any> {
+    return this.linesCollectionRef.doc('all');
   }
 
-  async setAllLinesDocument(timestamp: string, data: Line[]): Promise<void> {
-    await this.allLinesDocument.set({ timestamp, data });
+  async getAllLines(): Promise<FirestoreAllLinesDocument> {
+    const doc = await this.allLinesDocumentRef.get();
+    const data = doc.data() as FirestoreAllLinesDocument;
+    return data;
+  }
+
+  async saveAllLines(document: FirestoreAllLinesDocument): Promise<void> {
+    await this.allLinesDocumentRef.set(document);
   }
 
   /* ----- */
   /* Stops */
   /* ----- */
 
-  get stopsCollection(): fs.CollectionReference<fs.DocumentData> {
+  private get stopsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Stops');
   }
 
-  get allStopsDocument(): fs.DocumentReference<any> {
-    return this.stopsCollection.doc('all');
+  private get allStopsDocumentRef(): fs.DocumentReference<any> {
+    return this.stopsCollectionRef.doc('all');
   }
 
-  async setAllStopsDocument(timestamp: string, data: Stop[]): Promise<void> {
-    await this.allStopsDocument.set({ timestamp, data });
+  async getAllStops(): Promise<FirestoreAllStopsDocument> {
+    const doc = await this.allStopsDocumentRef.get();
+    const data = doc.data() as FirestoreAllStopsDocument;
+    return data;
+  }
+
+  async saveAllStops(document: FirestoreAllStopsDocument): Promise<void> {
+    await this.allStopsDocumentRef.set(document);
   }
 }

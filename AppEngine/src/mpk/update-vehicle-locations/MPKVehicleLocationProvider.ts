@@ -1,29 +1,34 @@
 import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import { VehicleLocationProvider } from './VehicleLocationProvider';
+import { subtractMilliseconds } from '../math';
 import { MPKVehicle } from '../models';
-import { hour, minute } from '../../util';
+import { minute } from '../../util';
 
 /* ============== */
 /* === Config === */
 /* ============== */
 
-/**
- * Cache resource id, so that we do not have to re-download it every time.
- */
-export const refreshResourceIdEvery = 15 * minute;
+export const ResourceIdRefresh = {
+  /**
+   * Cache resource id, so that we do not have to re-download it every time.
+   */
+  cacheDuration: 15 * minute,
+  /**
+   * If the refresh fails then report error.
+   * But if we did that on EVERY error then we would never actually get to
+   * update vehicle locations.
+   */
+  reportErrorInterval: 15 * minute
+};
 
 /**
- * If the resource id refresh fails then send mail.
- * But if we did that on EVERY error then we would never update vehicle locations.
+ * Our data source contains some very old entries (think 2012, 2014 etc.).
+ * We will remove them.
  */
-export const reportResourceIdErrorInterval = 15 * minute;
-
-/**
- * Our data source contains some very old data (think 2012, 2014 etc.).
- * We will remove those entries.
- */
-export const removeVehiclesThatAreOlderThan = 10 * minute;
+export const RemoveOldVehicles = {
+  maxTimeSinceLastUpdate: 10 * minute
+};
 
 /* ============= */
 /* === Types === */
@@ -32,8 +37,8 @@ export const removeVehiclesThatAreOlderThan = 10 * minute;
 type ResourceId = string;
 
 interface ResourceIdCache {
-  id: ResourceId;
-  date: Date;
+  readonly id: ResourceId;
+  readonly date: Date;
 }
 
 /* ============ */
@@ -105,8 +110,8 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
         // Note that this does not mean that it is 'Europe/Warsaw', but it should work anyway
         // (well, most of the time).
         const date = new Date(dateString);
-        const dateDiff = this.subtract(now, date);
-        if (dateDiff > removeVehiclesThatAreOlderThan) {
+        const timeSinceUpdate = subtractMilliseconds(now, date);
+        if (timeSinceUpdate > RemoveOldVehicles.maxTimeSinceLastUpdate) {
           continue;
         }
 
@@ -131,8 +136,8 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
 
   async getResourceId(now: Date): Promise<ResourceId> {
     if (this.resourceIdCache) {
-      const timeSinceLastUpdate = this.subtract(now, this.resourceIdCache.date);
-      if (timeSinceLastUpdate <= refreshResourceIdEvery) {
+      const timeSinceLastUpdate = subtractMilliseconds(now, this.resourceIdCache.date);
+      if (timeSinceLastUpdate <= ResourceIdRefresh.cacheDuration) {
         return this.resourceIdCache.id;
       }
     }
@@ -153,7 +158,7 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
       const lastErrorDate = this.resourceIdLastError || new Date(2000, 1, 1);
       const timeSinceLastError = now.getTime() - lastErrorDate.getTime();
 
-      if (timeSinceLastError > reportResourceIdErrorInterval) {
+      if (timeSinceLastError > ResourceIdRefresh.reportErrorInterval) {
         this.resourceIdLastError = now;
         throw new Error(`Failed to download resource description: ${error}`);
       }
@@ -216,22 +221,9 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
     return undefined;
   }
 
-  /* =============== */
-  /* === Helpers === */
-  /* =============== */
-
   /**
-   * Returns difference in milliseconds.
+   * Look for the last '/' in the string and return the part after it.
    */
-  private subtract(lhs: Date, rhs: Date): number {
-    const lhsMilliseconds = lhs.getTime();
-    const rhsMilliseconds = rhs.getTime();
-    return lhsMilliseconds - rhsMilliseconds;
-  }
-
-/**
- * Look for the last '/' in the string and return the part after it.
- */
   private getSuffixAfterLastSlash(url: string): string | undefined {
     const lastSlashIndex = url.lastIndexOf('/');
 

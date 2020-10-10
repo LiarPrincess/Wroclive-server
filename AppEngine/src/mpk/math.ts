@@ -1,4 +1,13 @@
 /**
+ * Returns difference in milliseconds.
+ */
+export function subtractMilliseconds(lhs: Date, rhs: Date): number {
+  const lhsMilliseconds = lhs.getTime();
+  const rhsMilliseconds = rhs.getTime();
+  return lhsMilliseconds - rhsMilliseconds;
+}
+
+/**
  * Radian to degree conversion
  */
 export function radToDeg(rad: number): number {
@@ -17,11 +26,11 @@ export function degToRad(deg: number): number {
  * You can optionally specify a custom radius. The radius defaults to the radius of the Earth.
  * Source: google.maps.geometry.spherical.computeDistanceBetween(loc1, loc2, radius)
  */
-export function calculateDistance(fromLat: number,
-                                  fromLng: number,
-                                  toLat: number,
-                                  toLng: number,
-                                  earthRadius?: number): number {
+export function calculateDistanceInMeters(fromLat: number,
+                                          fromLng: number,
+                                          toLat: number,
+                                          toLng: number,
+                                          earthRadius?: number): number {
   const radius = earthRadius || 6378137;
   const c = degToRad(fromLat);
   const a = degToRad(fromLng);

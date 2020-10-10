@@ -2,7 +2,7 @@ import { default as nock } from 'nock';
 
 import {
   MPKVehicleLocationProvider,
-  refreshResourceIdEvery
+  ResourceIdRefresh
 } from './../update-vehicle-locations';
 
 /* ============ */
@@ -165,7 +165,7 @@ describe('getResourceId', () => {
     expect(networkResourceId).toEqual(resourceId);
 
     // nock will fake only the 1st response, so if we hit network then test will fail
-    const beforeCacheExpireMilliseconds = cacheDate.getTime() + refreshResourceIdEvery - 5;
+    const beforeCacheExpireMilliseconds = cacheDate.getTime() + ResourceIdRefresh.cacheDuration - 5;
     const beforeCacheExpire = new Date(beforeCacheExpireMilliseconds);
     const cachedResourceId = await provider.getResourceId(beforeCacheExpire);
     expect(cachedResourceId).toEqual(resourceId);
@@ -188,7 +188,7 @@ describe('getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const cacheExpireMilliseconds = cacheDate.getTime() + refreshResourceIdEvery + 5;
+    const cacheExpireMilliseconds = cacheDate.getTime() + ResourceIdRefresh.cacheDuration + 5;
     const cacheExpire = new Date(cacheExpireMilliseconds);
     const networkResourceId2 = await provider.getResourceId(cacheExpire);
     expect(networkResourceId2).toEqual(resourceId);

@@ -1,7 +1,7 @@
 import {
   degToRad,
   radToDeg,
-  calculateDistance,
+  calculateDistanceInMeters,
   calculateHeading
 } from '../math';
 
@@ -51,33 +51,33 @@ describe('calculateDistance', () => {
   const precision = 5;
 
   it('should return 0 for the same location', function () {
-    expect(calculateDistance(cityLat, cityLng, cityLat, cityLng)).toBeCloseTo(0.0, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat, cityLng)).toBeCloseTo(0.0, precision);
   });
 
   it('should work for long distances', function () {
     const d = 0.1;
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(11131.949079327373, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(13140.812938294554, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(6990.452244075236, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(11131.949079327373, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(13140.812938294554, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(6990.452244075236, precision);
   });
 
   it('should work for mid distances', function () {
     const d = 0.01;
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(1113.1949079326664, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(1314.4434181967610, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(699.0452776070259, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(1113.1949079326664, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(1314.4434181967610, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(699.0452776070259, precision);
   });
 
   it('should work for short distances', function () {
     const d = 0.001;
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(111.31949079298340, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(131.44796057758487, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(69.90452781245780, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat - d, cityLng + d)).toBeCloseTo(131.44876468489514, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat - d, cityLng)).toBeCloseTo(111.31949079298340, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat - d, cityLng - d)).toBeCloseTo(131.44876468477688, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat, cityLng - d)).toBeCloseTo(69.90452781223546, precision);
-    expect(calculateDistance(cityLat, cityLng, cityLat + d, cityLng - d)).toBeCloseTo(131.44796057746663, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng)).toBeCloseTo(111.31949079298340, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng + d)).toBeCloseTo(131.44796057758487, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat, cityLng + d)).toBeCloseTo(69.90452781245780, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat - d, cityLng + d)).toBeCloseTo(131.44876468489514, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat - d, cityLng)).toBeCloseTo(111.31949079298340, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat - d, cityLng - d)).toBeCloseTo(131.44876468477688, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat, cityLng - d)).toBeCloseTo(69.90452781223546, precision);
+    expect(calculateDistanceInMeters(cityLat, cityLng, cityLat + d, cityLng - d)).toBeCloseTo(131.44796057746663, precision);
   });
 });
 

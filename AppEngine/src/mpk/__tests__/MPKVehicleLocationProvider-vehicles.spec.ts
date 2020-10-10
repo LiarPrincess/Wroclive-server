@@ -2,7 +2,7 @@ import { default as nock } from 'nock';
 
 import {
   MPKVehicleLocationProvider,
-  removeVehiclesThatAreOlderThan
+  RemoveOldVehicles
 } from './../update-vehicle-locations';
 
 /* ============ */
@@ -119,7 +119,7 @@ describe('queryVehicleLocations', () => {
 
   it('should remove old vehicles', async () => {
     const now = new Date('2020-01-01 10:01:00');
-    const oldMilliseconds = now.getTime() - removeVehiclesThatAreOlderThan - 5;
+    const oldMilliseconds = now.getTime() - RemoveOldVehicles.maxTimeSinceLastUpdate - 5;
     const old = new Date(oldMilliseconds);
 
     intercept()

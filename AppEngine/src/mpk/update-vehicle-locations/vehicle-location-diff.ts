@@ -1,4 +1,4 @@
-import { calculateDistance, calculateHeading } from './math';
+import { calculateDistanceInMeters, calculateHeading } from '../math';
 import { Line, LineLocations, VehicleLocation, MPKVehicle } from '../models';
 
 export interface VehicleUpdatesInput {
@@ -9,7 +9,15 @@ export interface VehicleUpdatesInput {
 }
 
 export interface VehicleUpdatesResult {
+
+/**
+ * Current vehicle location.
+ */
   readonly lineLocations: LineLocations[];
+
+/**
+ * Last location at which heading was updated.
+ */
   readonly headingUpdates: VehicleLocation[];
 }
 
@@ -49,7 +57,7 @@ function calculateAngle(minDistanceToUpdate: number, vehicle: MPKVehicle, lastLo
     return 0.0;
   }
 
-  const movement = calculateDistance(lastLocation.lat, lastLocation.lng, vehicle.lat, vehicle.lng);
+  const movement = calculateDistanceInMeters(lastLocation.lat, lastLocation.lng, vehicle.lat, vehicle.lng);
   if (movement < minDistanceToUpdate) {
     return lastLocation.angle;
   }

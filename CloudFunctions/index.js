@@ -1,3 +1,3 @@
-const { backendStart, backendStop } = require('./dist/app');
-exports.backendStart = backendStart;
-exports.backendStop = backendStop;
+const app = require('./dist/app');
+exports.backendStart = app.backendStart;
+exports.backendStop = app.backendStop;

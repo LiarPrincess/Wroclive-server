@@ -1,6 +1,10 @@
+INTERNAL_FUNCTION=--runtime nodejs12 --region europe-west3 --ingress-settings internal-only
+
 # -----------
 # -- Build --
 # -----------
+
+.PHONY: start build watch
 
 start:
 	npm start
@@ -15,11 +19,12 @@ watch:
 # -- Google --
 # ------------
 
-.PHONY: deploy log describe browse
+.PHONY: deploy log
 
+# Remember to add entry in 'index.js'!
 deploy: build
-	gcloud functions deploy backendStart --trigger-topic backend-start --runtime nodejs12 --region europe-west3 --ingress-settings internal-only
-	gcloud functions deploy backendStop  --trigger-topic backend-stop  --runtime nodejs12 --region europe-west3 --ingress-settings internal-only
+	gcloud functions deploy backendStart --trigger-topic backend-start $(INTERNAL_FUNCTION)
+	gcloud functions deploy backendStop  --trigger-topic backend-stop  $(INTERNAL_FUNCTION)
 
-log:
-	gcloud functions logs
+logs:
+	gcloud functions logs read

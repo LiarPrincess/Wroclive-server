@@ -1,16 +1,21 @@
 import { createLogger, isLocal } from './util';
 import { Message, Context, VM, VMStatus } from './types';
 
-const Compute = require('@google-cloud/compute');
+const logger = createLogger('CloudFunctions');
 
-const options: any = {};
+const computeOptions: any = {};
 if (isLocal) {
-  options.projectId = 'wroclive';
-  options.keyFilename = './CloudFunctions/GCP-Credentials.json';
+  computeOptions.projectId = 'wroclive';
+  computeOptions.keyFilename = './CloudFunctions/GCP-Credentials.json';
 }
 
-const compute = new Compute(options);
-const logger = createLogger('CloudFunctions');
+const Compute = require('@google-cloud/compute');
+const compute = new Compute(computeOptions);
+
+/* ========================== */
+/* === Backend start/stop === */
+/* ========================== */
+
 const backend = 'backend';
 
 async function getVMs(name: string): Promise<VM[]> {

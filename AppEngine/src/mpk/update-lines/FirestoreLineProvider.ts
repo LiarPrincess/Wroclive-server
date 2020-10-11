@@ -11,6 +11,6 @@ export class FirestoreLineProvider implements LinesProvider {
   }
 
   async getLines(): Promise<Timestamped<Line[]>> {
-    return this.db.getAllLinesDocument()
+    return this.db.getAllLines();
   }
 }

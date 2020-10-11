@@ -11,7 +11,7 @@ export interface Line {
   readonly name: string;
   readonly type: string;
   readonly subtype: string;
-  readonly stopArrivalTimes: { min: number, max: number } | undefined;
+  readonly stopArrivalTimes?: { min: number, max: number };
 }
 
 export interface LineShapePoint {

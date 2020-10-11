@@ -11,6 +11,6 @@ export class FirestoreStopProvider implements StopsProvider {
   }
 
   getStops(): Promise<Timestamped<Stop[]>> {
-    return this.db.getAllStopsDocument();
+    return this.db.getAllStops();
   }
 }

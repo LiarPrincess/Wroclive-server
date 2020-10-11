@@ -22,7 +22,7 @@ export interface FirestoreLine {
    *  240 | 2333 | 2920 | Night line that starts during the day
    *  206 | 2405 | 2938 | Night line that starts after midnight
    */
-  readonly stopArrivalTimes: { min: number, max: number } | undefined;
+  readonly stopArrivalTimes?: { min: number, max: number };
 }
 
 export interface FirestoreStop {

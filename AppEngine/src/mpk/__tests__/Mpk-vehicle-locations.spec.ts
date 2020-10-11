@@ -16,9 +16,9 @@ describe('getVehicleLocations', () => {
     linesProvider.data = {
       timestamp: 'TIMESTAMP_LINES',
       data: [
-        { name: 'A', type: 'Bus', subtype: 'Express' },
-        { name: '124', type: 'Bus', subtype: 'Regular' },
-        { name: '257', type: 'Bus', subtype: 'Night' }
+        { name: 'A', type: 'Bus', subtype: 'Express', stopArrivalTimes: undefined },
+        { name: '124', type: 'Bus', subtype: 'Regular', stopArrivalTimes: undefined },
+        { name: '257', type: 'Bus', subtype: 'Night', stopArrivalTimes: undefined }
       ]
     };
 

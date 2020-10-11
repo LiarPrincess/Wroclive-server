@@ -1,19 +1,55 @@
-import {
-  Firestore,
-  CollectionReference,
-  DocumentReference,
-  DocumentData
-} from '@google-cloud/firestore';
+import * as fs from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
-import { Line, Stop, Timestamped } from '../mpk/models';
+
+/* ============= */
+/* === Types === */
+/* ============= */
+
+export interface FirestoreLine {
+  readonly name: string;
+  readonly type: string;
+  readonly subtype: string;
+  /**
+   * First and last appearance of this line in schedule.
+   * Number computed as '100 * hour + minute', so that 950 means 9:50.
+   *
+   * Example:
+   * Line |  Min |  Max | Comment
+   * -----+------+------+----------------------------------------------------
+   *   0L |  447 | 2341 | Daily line that starts and finishes at the same day
+   *    4 |  402 | 2407 | Daily line that finishes after midnight
+   *  240 | 2333 | 2920 | Night line that starts during the day
+   *  206 | 2405 | 2938 | Night line that starts after midnight
+   */
+  readonly stopArrivalTimes?: { min: number, max: number };
+}
+
+export interface FirestoreStop {
+  readonly code: string;
+  readonly name: string;
+  readonly lat: number;
+  readonly lon: number;
+}
+
+export interface Timestamped<T> {
+  readonly timestamp: string;
+  readonly data: T;
+}
+
+export type FirestoreAllLinesDocument = Timestamped<FirestoreLine[]>;
+export type FirestoreAllStopsDocument = Timestamped<FirestoreStop[]>;
+
+/* ================ */
+/* === Database === */
+/* ================ */
 
 export class FirestoreDatabase {
 
-  private db: Firestore;
+  private db: fs.Firestore;
 
   constructor() {
-    this.db = new Firestore({
+    this.db = new fs.Firestore({
       projectId: CloudPlatform.projectId(),
       keyFilename: CloudPlatform.credentialsFile()
     });
@@ -23,43 +59,43 @@ export class FirestoreDatabase {
   /* Lines */
   /* ----- */
 
-  private get linesCollection(): CollectionReference<DocumentData> {
+  private get linesCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Lines');
   }
 
-  private get allLinesDocument(): DocumentReference<any> {
-    return this.linesCollection.doc('all');
+  private get allLinesDocumentRef(): fs.DocumentReference<any> {
+    return this.linesCollectionRef.doc('all');
   }
 
-  async getAllLinesDocument(): Promise<Timestamped<Line[]>> {
-    const doc = await this.allLinesDocument.get();
-    const data =  doc.data() as Timestamped<Line[]>
+  async getAllLines(): Promise<FirestoreAllLinesDocument> {
+    const doc = await this.allLinesDocumentRef.get();
+    const data = doc.data() as FirestoreAllLinesDocument;
     return data;
   }
 
-  async setAllLinesDocument(timestamp: string, data: Line[]): Promise<void> {
-    await this.allLinesDocument.set({ timestamp, data });
+  async saveAllLines(document: FirestoreAllLinesDocument): Promise<void> {
+    await this.allLinesDocumentRef.set(document);
   }
 
   /* ----- */
   /* Stops */
   /* ----- */
 
-  private get stopsCollection(): CollectionReference<DocumentData> {
+  private get stopsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Stops');
   }
 
-  private get allStopsDocument(): DocumentReference<any> {
-    return this.stopsCollection.doc('all');
+  private get allStopsDocumentRef(): fs.DocumentReference<any> {
+    return this.stopsCollectionRef.doc('all');
   }
 
-  async getAllStopsDocument(): Promise<Timestamped<Stop[]>> {
-    const doc = await this.allStopsDocument.get();
-    const data =  doc.data() as Timestamped<Stop[]>
+  async getAllStops(): Promise<FirestoreAllStopsDocument> {
+    const doc = await this.allStopsDocumentRef.get();
+    const data = doc.data() as FirestoreAllStopsDocument;
     return data;
   }
 
-  async setAllStopsDocument(timestamp: string, data: Stop[]): Promise<void> {
-    await this.allStopsDocument.set({ timestamp, data });
+  async saveAllStops(document: FirestoreAllStopsDocument): Promise<void> {
+    await this.allStopsDocumentRef.set(document);
   }
 }

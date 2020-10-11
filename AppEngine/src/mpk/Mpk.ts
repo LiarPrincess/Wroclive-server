@@ -11,13 +11,14 @@ import {
 } from './models';
 import { LinesProvider, DummyLineProvider } from './update-lines';
 import { StopsProvider, DummyStopProvider } from "./update-stops";
-import { VehicleLocationProvider, calculateVehicleLocationUpdates } from './update-vehicle-locations';
+import { VehicleLocationProvider, VehicleLocationUpdater } from './update-vehicle-locations';
 
 export default class Mpk {
 
   private linesProvider: LinesProvider;
   private stopsProvider: StopsProvider;
   private vehicleLocationProvider: VehicleLocationProvider;
+  private vehicleLocationUpdater: VehicleLocationUpdater;
   private logger: Logger;
 
   /**
@@ -35,11 +36,6 @@ export default class Mpk {
    */
   private vehicleLocations: Timestamped<LineLocations[]>;
 
-  /**
-   * Last place at which we updated vehicle angle/heading.
-   */
-  private lastHeadingUpdate: VehicleLocation[];
-
   constructor(
     linesProvider: LinesProvider,
     stopsProvider: StopsProvider,
@@ -49,6 +45,7 @@ export default class Mpk {
     this.linesProvider = linesProvider;
     this.stopsProvider = stopsProvider;
     this.vehicleLocationProvider = vehicleLocationProvider;
+    this.vehicleLocationUpdater = new VehicleLocationUpdater();
     this.logger = logger;
 
     const timestamp = '';
@@ -56,7 +53,8 @@ export default class Mpk {
     this.lines = { timestamp, data: DummyLineProvider.data };
     this.stops = { timestamp, data: DummyStopProvider.data };
     this.vehicleLocations = { timestamp, data: [] };
-    this.lastHeadingUpdate = [];
+
+    this.vehicleLocationUpdater.setLines(this.lines.data);
   }
 
   /* ----- */
@@ -83,6 +81,7 @@ export default class Mpk {
       // - If at some point we got valid response then it is still valid
       if (timestampedLines.data) {
         this.lines = timestampedLines;
+        this.vehicleLocationUpdater.setLines(timestampedLines.data);
       }
     } catch (error) {
       // Leave 'this.lines' as they are, see comment in try block.
@@ -164,19 +163,10 @@ export default class Mpk {
       return;
     }
 
-    const vehicles = await this.vehicleLocationProvider.getVehicleLocations();
-
-    const input = {
-      lines: lines,
-      currentVehicleLocations: vehicles,
-      lastHeadingUpdates: this.lastHeadingUpdate,
-      minMovementToUpdateHeading: 50, // meters
-    };
-
-    const result = calculateVehicleLocationUpdates(input);
     const ts = timestamp || this.createTimestamp();
-    this.vehicleLocations = { timestamp: ts, data: result.lineLocations };
-    this.lastHeadingUpdate = result.headingUpdates;
+    const vehicles = await this.vehicleLocationProvider.getVehicleLocations();
+    const lineLocations = this.vehicleLocationUpdater.calculateVehicleLocations(vehicles);
+    this.vehicleLocations = { timestamp: ts, data: lineLocations };
   }
 
   /* ------- */

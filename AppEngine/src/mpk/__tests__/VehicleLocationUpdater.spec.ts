@@ -1,0 +1,145 @@
+import { Line, MPKVehicle } from '../models';
+import { calculateDistanceInMeters } from '../math';
+
+import {
+  VehicleLocationUpdater,
+  minMovementToUpdateHeading
+} from '../update-vehicle-locations/VehicleLocationUpdater';
+
+const lineA: Line = { name: 'A', type: 'Bus', subtype: 'Express' };
+const line124: Line = { name: '124', type: 'Bus', subtype: 'Regular' };
+const line257: Line = { name: '257', type: 'Bus', subtype: 'Night' };
+
+describe('calculateVehicleLocationUpdates', function () {
+
+  it('should point north if no previous location is present', function () {
+    const updater = new VehicleLocationUpdater();
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles: MPKVehicle[] = [
+      { id: '1', line: '124', lat: 1, lng: 2 },
+      { id: '2', line: 'A', lat: 3, lng: 4 }
+    ];
+
+    const result = updater.calculateVehicleLocations(vehicles);
+    expect(result).toStrictEqual([
+      { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+    ]);
+  });
+
+  it('should calculate new heading if vehicle has moved', function () {
+    // Check if values in this test are correct:
+    const coordinateBefore = 5.0;
+    const coordinateAfter = 6.0;
+    const movement = calculateDistanceInMeters(coordinateBefore, coordinateBefore, coordinateAfter, coordinateAfter);
+    expect(movement).toBeGreaterThan(minMovementToUpdateHeading);
+
+    // Start real test:
+    const updater = new VehicleLocationUpdater();
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles1: MPKVehicle[] = [
+      { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
+      { id: '2', line: 'A', lat: 10, lng: 15 }
+    ];
+
+    const result1 = updater.calculateVehicleLocations(vehicles1);
+    expect(result1).toStrictEqual([
+      { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    ]);
+
+    const vehicles2: MPKVehicle[] = [
+      { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter }, // this one has moved
+      { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
+    ];
+
+    const result2 = updater.calculateVehicleLocations(vehicles2);
+    expect(result2).toStrictEqual([
+      { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 44.82097166321205 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    ]);
+  });
+
+  it('should use previous heading if vehicle has not moved (or moved a little)', function () {
+    // Check if values in this test are correct:
+    const coordinateBefore = 5.0;
+    const coordinateAfter = 5.0001;
+    const movement = calculateDistanceInMeters(coordinateBefore, coordinateBefore, coordinateAfter, coordinateAfter);
+    expect(movement).toBeLessThan(minMovementToUpdateHeading);
+
+    // Start real test:
+    const updater = new VehicleLocationUpdater();
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles1: MPKVehicle[] = [
+      { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
+      { id: '2', line: 'A', lat: 10, lng: 15 }
+    ];
+
+    const result1 = updater.calculateVehicleLocations(vehicles1);
+    expect(result1).toStrictEqual([
+      { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    ]);
+
+    const vehicles2: MPKVehicle[] = [
+      { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter },
+      { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
+    ];
+
+    const result2 = updater.calculateVehicleLocations(vehicles2);
+    expect(result2).toStrictEqual([
+      { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 0 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    ]);
+  });
+
+  it('should group vehicles for the same line', function () {
+    const updater = new VehicleLocationUpdater();
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles: MPKVehicle[] = [
+      { id: '1', line: '124', lat: 1, lng: 2 },
+      { id: '2', line: 'A', lat: 3, lng: 4 },
+      { id: '3', line: '124', lat: 5, lng: 6 },
+      { id: '4', line: '257', lat: 7, lng: 8 }
+    ];
+
+    const result = updater.calculateVehicleLocations(vehicles);
+    expect(result).toStrictEqual([
+      {
+        line: line124,
+        vehicles: [
+          { id: '1', lat: 1, lng: 2, angle: 0 },
+          { id: '3', lat: 5, lng: 6, angle: 0 }
+        ]
+      },
+      {
+        line: lineA,
+        vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }]
+      },
+      {
+        line: line257,
+        vehicles: [{ id: '4', lat: 7, lng: 8, angle: 0 }]
+      },
+    ]);
+  });
+
+  it('should skip vehicle for which line was not found', function () {
+    const updater = new VehicleLocationUpdater();
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles: MPKVehicle[] = [
+      { id: '1', line: 'X', lat: 1, lng: 2 },
+      { id: '2', line: 'A', lat: 3, lng: 4 },
+      { id: '3', line: 'Y', lat: 5, lng: 6 }
+    ];
+
+    const result = updater.calculateVehicleLocations(vehicles);
+    expect(result).toStrictEqual([
+      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+    ]);
+  });
+});

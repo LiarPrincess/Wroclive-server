@@ -3,7 +3,7 @@ import { default as nock } from 'nock';
 import {
   MPKVehicleLocationProvider,
   ResourceIdRefresh
-} from './../update-vehicle-locations';
+} from './../update-vehicle-locations/MPKVehicleLocationProvider';
 
 /* ============ */
 /* === Nock === */

@@ -1,3 +1,3 @@
 export * from './VehicleLocationProvider';
-export * from './MPKVehicleLocationProvider';
-export { calculateVehicleLocationUpdates } from './vehicle-location-diff';
+export { MPKVehicleLocationProvider } from './MPKVehicleLocationProvider';
+export { VehicleLocationUpdater } from './VehicleLocationUpdater';

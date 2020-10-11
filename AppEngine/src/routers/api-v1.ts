@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { LineLocations, Mpk, Stop, Timestamped } from '../mpk';
+import { Mpk, Line, Stop, Timestamped } from '../mpk';
 import { splitLowerCase } from './helpers';
 
-/* =============== */
-/* === Headers === */
-/* =============== */
+/* ================ */
+/* === Response === */
+/* ================ */
 
 enum Cache {
   Store12h = 'max-age=43200',
@@ -19,19 +19,53 @@ function standardHeaders(res: Response, cache: Cache) {
   res.append('Cache-Control', cache);
 }
 
-/* ============== */
-/* === Types === */
-/* ============== */
-
-interface LinesResponseEntry {
-  name: string;
-  type: string;
-  subtype: string;
+function jsonBody(res: Response, json: string) {
+  res.set('Content-Type', 'application/json');
+  res.send(json);
 }
 
-type LinesResponse = Timestamped<LinesResponseEntry[]>;
-type StopsResponse = Timestamped<Stop[]>;
-type VehiclesResponse = Timestamped<LineLocations[]>;
+/* ============= */
+/* === Cache === */
+/* ============= */
+
+type CacheEntry = Timestamped<string>;
+
+/**
+ * A lot of our data is static (it does not change very often), we will cache
+ * stringified responses to avoid expensive serialization.
+ */
+class ResponseCache {
+
+  private linesResponse?: CacheEntry = undefined;
+  private stopsResponse?: CacheEntry = undefined;
+
+  getLinesResponse(mpk: Timestamped<Line[]>): string {
+    if (this.linesResponse && this.linesResponse.timestamp == mpk.timestamp) {
+      return this.linesResponse.data;
+    }
+
+    // 'mpk.models.Line' has more properties than we should return,
+    // so first we have to narrow it.
+    const data = {
+      timestamp: mpk.timestamp,
+      data: mpk.data.map(l => ({ name: l.name, type: l.type, subtype: l.subtype }))
+    };
+
+    const json = JSON.stringify(data);
+    this.linesResponse = { timestamp: mpk.timestamp, data: json };
+    return json;
+  }
+
+  getStopsResponse(mpk: Timestamped<Stop[]>): string {
+    if (this.stopsResponse && this.stopsResponse.timestamp == mpk.timestamp) {
+      return this.stopsResponse.data;
+    }
+
+    const json = JSON.stringify(mpk);
+    this.stopsResponse = { timestamp: mpk.timestamp, data: json };
+    return json;
+  }
+}
 
 /* ===================== */
 /* === Create router === */
@@ -39,30 +73,15 @@ type VehiclesResponse = Timestamped<LineLocations[]>;
 
 export function createApiV1Router(mpk: Mpk): Router {
   const router = express.Router();
-
-  // 'mpk.models.Line' has more properties than 'LinesResponseEntry', we have to narrow it.
-  // We will cache the result, so that we do not filter/alloc on every response.
-  let cachedLinesResponse: LinesResponse | undefined;
+  const cache = new ResponseCache();
 
   router.get('/lines', async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const data = mpk.getLines();
+      const json = cache.getLinesResponse(data);
+
       standardHeaders(res, Cache.Store12h);
-
-      const mpkLines = mpk.getLines();
-
-      let data: LinesResponse;
-      if (cachedLinesResponse && cachedLinesResponse.timestamp == mpkLines.timestamp) {
-        data = cachedLinesResponse;
-      } else {
-        data = {
-          timestamp: mpkLines.timestamp,
-          data: mpkLines.data.map(l => ({ name: l.name, type: l.type, subtype: l.subtype }))
-        };
-
-        cachedLinesResponse = data;
-      }
-
-      res.json(data);
+      jsonBody(res, json);
     } catch (err) {
       next(err);
     }
@@ -70,10 +89,11 @@ export function createApiV1Router(mpk: Mpk): Router {
 
   router.get('/stops', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      standardHeaders(res, Cache.Store3d);
+      const data = mpk.getStops();
+      const json = cache.getStopsResponse(data);
 
-      const data: StopsResponse = mpk.getStops();
-      res.json(data);
+      standardHeaders(res, Cache.Store3d);
+      jsonBody(res, json);
     } catch (err) {
       next(err);
     }
@@ -81,11 +101,11 @@ export function createApiV1Router(mpk: Mpk): Router {
 
   router.get('/vehicles', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      standardHeaders(res, Cache.Disable);
-
       const query = req.query.lines as string || '';
       const lineNames = splitLowerCase(query, ';');
-      const data: VehiclesResponse = mpk.getVehicleLocations(lineNames);
+      const data = mpk.getVehicleLocations(lineNames);
+
+      standardHeaders(res, Cache.Disable);
       res.json(data);
     } catch (err) {
       next(err);

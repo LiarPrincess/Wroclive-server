@@ -14,7 +14,8 @@
       "program": "${workspaceFolder}/AppEngine/app.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
-      ]
+      ],
+      "outputCapture": "std"
     },
     {
       "type": "node",
@@ -26,7 +27,8 @@
       "program": "${workspaceFolder}/AppEngine/dist/test-get-vehicle-locations.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
-      ]
+      ],
+      "outputCapture": "std"
     },
     {
       "type": "node",

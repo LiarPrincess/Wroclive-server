@@ -24,6 +24,7 @@ automatic_scaling:
   max_pending_latency: 60ms
 
 handlers:
+# Api has to be first
 - url: /api/*
   script: auto
   secure: always

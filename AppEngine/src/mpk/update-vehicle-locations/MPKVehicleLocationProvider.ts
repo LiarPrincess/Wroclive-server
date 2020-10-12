@@ -136,6 +136,7 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
 
   async getResourceId(now: Date): Promise<ResourceId> {
     if (this.resourceIdCache) {
+      // Ignore DST and other nonsense.
       const timeSinceLastUpdate = subtractMilliseconds(now, this.resourceIdCache.date);
       if (timeSinceLastUpdate <= ResourceIdRefresh.cacheDuration) {
         return this.resourceIdCache.id;

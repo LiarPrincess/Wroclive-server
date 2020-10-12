@@ -134,9 +134,9 @@ select distinct
 , route_type
 , route_subtype
 , trip_headsign
--- we store 8:40 as 840, because it is easier to use
-, 100 * cast(substr(arrival_time, 1, 2) as integer)
-      + cast(substr(arrival_time, 4, 2) as integer) as ArrivalTime
+-- we store time as number of minutes since midnight
+, 60 * cast(substr(arrival_time, 1, 2) as integer)
+     + cast(substr(arrival_time, 4, 2) as integer) as ArrivalTime
 , cast(stop_sequence as integer) as Sequence
 , monday
 , tuesday

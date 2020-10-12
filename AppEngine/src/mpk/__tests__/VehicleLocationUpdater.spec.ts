@@ -5,15 +5,21 @@ import {
   VehicleLocationUpdater,
   minMovementToUpdateHeading
 } from '../update-vehicle-locations/VehicleLocationUpdater';
+import {
+  VehicleFilter,
+  AcceptAllVehicles
+} from '../update-vehicle-locations/VehicleFilters';
 
 const lineA: Line = { name: 'A', type: 'Bus', subtype: 'Express' };
 const line124: Line = { name: '124', type: 'Bus', subtype: 'Regular' };
 const line257: Line = { name: '257', type: 'Bus', subtype: 'Night' };
 
+const acceptAllVehiclesFilter = new AcceptAllVehicles();
+
 describe('calculateVehicleLocationUpdates', function () {
 
   it('should point north if no previous location is present', function () {
-    const updater = new VehicleLocationUpdater();
+    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
     updater.setLines([lineA, line124, line257]);
 
     const vehicles: MPKVehicle[] = [
@@ -36,7 +42,7 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(movement).toBeGreaterThan(minMovementToUpdateHeading);
 
     // Start real test:
-    const updater = new VehicleLocationUpdater();
+    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
     updater.setLines([lineA, line124, line257]);
 
     const vehicles1: MPKVehicle[] = [
@@ -70,7 +76,7 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(movement).toBeLessThan(minMovementToUpdateHeading);
 
     // Start real test:
-    const updater = new VehicleLocationUpdater();
+    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
     updater.setLines([lineA, line124, line257]);
 
     const vehicles1: MPKVehicle[] = [
@@ -97,7 +103,7 @@ describe('calculateVehicleLocationUpdates', function () {
   });
 
   it('should group vehicles for the same line', function () {
-    const updater = new VehicleLocationUpdater();
+    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
     updater.setLines([lineA, line124, line257]);
 
     const vehicles: MPKVehicle[] = [
@@ -128,7 +134,7 @@ describe('calculateVehicleLocationUpdates', function () {
   });
 
   it('should skip vehicle for which line was not found', function () {
-    const updater = new VehicleLocationUpdater();
+    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
     updater.setLines([lineA, line124, line257]);
 
     const vehicles: MPKVehicle[] = [
@@ -141,5 +147,39 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(result).toStrictEqual([
       { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
     ]);
+  });
+
+  it('should use provided vehicle filter', function () {
+    class AcceptOnlyA implements VehicleFilter {
+      prepareForFilteringCallCount = 0;
+      isAcceptedCallCount = 0;
+
+      prepareForFiltering(): void {
+        this.prepareForFilteringCallCount += 1;
+      }
+
+      isAccepted(vehicle: MPKVehicle, line: Line): boolean {
+        this.isAcceptedCallCount += 1;
+        return line.name == lineA.name;
+      }
+    }
+
+    const filter = new AcceptOnlyA();
+    const updater = new VehicleLocationUpdater(filter);
+    updater.setLines([lineA, line124, line257]);
+
+    const vehicles: MPKVehicle[] = [
+      { id: '1', line: '124', lat: 1, lng: 2 },
+      { id: '2', line: 'A', lat: 3, lng: 4 },
+      { id: '4', line: '257', lat: 5, lng: 6 }
+    ];
+
+    const result = updater.calculateVehicleLocations(vehicles);
+    expect(result).toStrictEqual([
+      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+    ]);
+
+    expect(filter.prepareForFilteringCallCount).toEqual(1);
+    expect(filter.isAcceptedCallCount).toEqual(3);
   });
 });

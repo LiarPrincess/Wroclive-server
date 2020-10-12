@@ -1,3 +1,4 @@
+import { VehicleFilter, DefaultVehicleFilter } from './VehicleFilters';
 import { calculateDistanceInMeters, calculateHeading } from '../math';
 import { Line, LineLocations, VehicleLocation, MPKVehicle } from '../models';
 
@@ -34,6 +35,12 @@ export class VehicleLocationUpdater {
    */
   private lastVehicleHeadingUpdatesById: VehicleLocationById = {};
 
+  private filter: VehicleFilter;
+
+  constructor(filter?: VehicleFilter) {
+    this.filter = filter || (new DefaultVehicleFilter());
+  }
+
   /* ============== */
   /* === Lines === */
   /* ============== */
@@ -55,12 +62,19 @@ export class VehicleLocationUpdater {
     const result: LineLocations[] = [];
     const headingUpdateAcc: VehicleLocationById = {};
 
+    this.filter.prepareForFiltering();
     for (const vehicle of currentVehicleLocations) {
       const lineName = vehicle.line.toLowerCase();
       const line = this.linesByName[lineName];
 
-      if (!line)
+      if (!line) {
         continue;
+      }
+
+      const isAccepted = this.filter.isAccepted(vehicle, line);
+      if (!isAccepted) {
+        continue;
+      }
 
       let lineLocations = result.find(p => p.line.name === line.name);
       if (!lineLocations) {

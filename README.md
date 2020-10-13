@@ -80,7 +80,7 @@ Anyway, this is how it works:
 - [Monitoring](https://cloud.google.com/service-monitoring)
   - SSL certificate expiring soon
     - Alert: 7 days prior
-  - uptime check on wroclive.app/api
+  - uptime check on wroclive.app/api (this will also keep our `App Engine` instance alive)
     - protocol: HTTPS
     - hostname: wroclive.app
     - path: api
@@ -89,6 +89,9 @@ Anyway, this is how it works:
 
 - [Cloud Logging](https://cloud.google.com/logging)
   - we use [winstonjs/winston](https://github.com/winstonjs/winston) with `@google-cloud/logging-winston` backend
+  - Add following filer:
+    - Name: `App Engine life cycle`
+    - Query: `resource.type="gae_app" AND (textPayload=~"(Starting app|Quitting on terminated signal)$" OR protoPayload.methodName="google.appengine.v1.Versions.CreateVersion")`
 
 - [Error reporting](https://cloud.google.com/error-reporting)
   - standard reporting by mail

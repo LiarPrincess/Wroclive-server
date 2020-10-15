@@ -96,6 +96,14 @@ Anyway, this is how it works:
 - [Error reporting](https://cloud.google.com/error-reporting)
   - standard reporting by mail
 
+## Additional files
+
+- [siege](siege)
+  - preset to `Unix siege` tool + baseline - used to check burst performance
+  - tiny module written in Python to check sustained performance
+
+- [postman.json](postman.json) - configuration file to import into [postman](https://www.postman.com) app (it contains our endpoints + some basic tests)
+
 ## License
 
 Wroclive is licensed under the Mozilla Public License 2.0 license.

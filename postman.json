@@ -1,0 +1,166 @@
+{
+	"info": {
+		"_postman_id": "fc184c4a-2979-46ff-893f-11c12a0bc164",
+		"name": "Wroclive.app - https",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Lines",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "772c7654-e42e-4c8e-bb0b-61dc7bb3c1fc",
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Content-Type is \\'application/json\\'', function () {",
+							"    pm.response.to.have.header('Content-Type');",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+							"});",
+							"",
+							"pm.test('Content-Encoding is \\'gzip\\'', function () {",
+							"    pm.response.to.have.header('Content-Encoding', 'gzip');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://wroclive.app/api/v1/lines",
+					"protocol": "https",
+					"host": [
+						"wroclive",
+						"app"
+					],
+					"path": [
+						"api",
+						"v1",
+						"lines"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vehicles",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "06e2a2d1-99a2-4fa3-9eb3-ca86841e8b3d",
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Content-Type is \\'application/json\\'', function () {",
+							"    pm.response.to.have.header('Content-Type');",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+							"});",
+							"",
+							"pm.test('Content-Encoding is \\'gzip\\'', function () {",
+							"    pm.response.to.have.header('Content-Encoding', 'gzip');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://wroclive.app/api/v1/vehicles?lines=D;C;A;110;119;114;131;241;32;9;6",
+					"protocol": "https",
+					"host": [
+						"wroclive",
+						"app"
+					],
+					"path": [
+						"api",
+						"v1",
+						"vehicles"
+					],
+					"query": [
+						{
+							"key": "lines",
+							"value": "D;C;A;110;119;114;131;241;32;9;6"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Stops",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5b1458bb-4041-4b37-9396-7a7d665c2c30",
+						"exec": [
+							"pm.test('Status code is 200', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('Content-Type is \\'application/json\\'', function () {",
+							"    pm.response.to.have.header('Content-Type');",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+							"});",
+							"",
+							"pm.test('Content-Encoding is \\'gzip\\'', function () {",
+							"    pm.response.to.have.header('Content-Encoding', 'gzip');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://wroclive.app/api/v1/stops",
+					"protocol": "https",
+					"host": [
+						"wroclive",
+						"app"
+					],
+					"path": [
+						"api",
+						"v1",
+						"stops"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

@@ -5,9 +5,9 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "AppEngine",
       "type": "node",
       "request": "launch",
-      "name": "AppEngine",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -18,9 +18,9 @@
       "outputCapture": "std"
     },
     {
+      "name": "AppEngine - Test MPKVehicleLocationProvider",
       "type": "node",
       "request": "launch",
-      "name": "AppEngine - Test MPKVehicleLocationProvider",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -31,9 +31,9 @@
       "outputCapture": "std"
     },
     {
+      "name": "ComputeEngine-Updater",
       "type": "node",
       "request": "launch",
-      "name": "ComputeEngine-Updater",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -44,9 +44,9 @@
       "outputCapture": "std"
     },
     {
+      "name": "CloudFunctions",
       "type": "node",
       "request": "launch",
-      "name": "CloudFunctions",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -54,6 +54,12 @@
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]
-    }
+    },
+    {
+      "name": "Python: siege",
+      "type": "python",
+      "request": "launch",
+      "program": "./siege/run.py"
+    },
   ]
 }

@@ -1,6 +1,9 @@
 import { DateTime } from 'luxon';
 
+import { isInDepot } from './depots';
+import { calculateDistanceInMeters, subtractMilliseconds } from '../math';
 import { MPKVehicle, Line } from '../models';
+import { minute } from '../../util';
 
 export interface VehicleFilter {
   /**
@@ -23,17 +26,25 @@ export class AcceptAllVehicles implements VehicleFilter {
   }
 }
 
-/* ============================ */
-/* === DefaultVehicleFilter === */
-/* ============================ */
+/* ============================== */
+/* === Default vehicle filter === */
+/* ============================== */
 
 export class DefaultVehicleFilter implements VehicleFilter {
 
   private filters: VehicleFilter[];
 
   constructor() {
+    // We actually need both of those filters, even though they may seem redundant:
+    // - scheduleFilter - will remove lines outside of the schedule, but sometimes
+    //   vehicles stay in depot during the day even though the line is operating
+    //   (for example during saturday/sunday).
+    // - depotFilter - will remove vehicles that say in depot, but some vehicles
+    //   do not stay in depot during the night (they stay in some random places
+    //   like 'John Paul II Square' etc.).
     const scheduleFilter = new ScheduleVehicleFilter();
-    this.filters = [scheduleFilter];
+    const depotFilter = new DepotVehicleFilter();
+    this.filters = [scheduleFilter, depotFilter];
   }
 
   prepareForFiltering(): void {
@@ -54,9 +65,9 @@ export class DefaultVehicleFilter implements VehicleFilter {
   }
 }
 
-/* ============================= */
-/* === ScheduleVehicleFilter === */
-/* ============================= */
+/* =============================== */
+/* === Schedule vehicle filter === */
+/* =============================== */
 
 export type Time = { hour: number, minute: number };
 export type TimeProvider = () => Time;
@@ -117,5 +128,98 @@ export class ScheduleVehicleFilter implements VehicleFilter {
     const isVisibleNextDay = min <= currentTimeNextDay && currentTimeNextDay <= max;
 
     return isVisible || isVisibleNextDay;
+  }
+}
+
+/* ============================ */
+/* === Depot vehicle filter === */
+/* ============================ */
+
+interface VehicleLocation {
+  readonly isAccepted: boolean;
+  readonly lat: number;
+  readonly lng: number;
+  readonly date: Date;
+}
+
+interface PreviousVehicleLocations {
+  [key: string]: VehicleLocation;
+}
+
+/**
+ * Our data source updates location even when the vehicle is not in use.
+ * The worst case is during the night when all of the 'daily' vehicles are still visible.
+ *
+ * We will remove vehicles that:
+ * - have not moved in the last few minutes
+ * - are close to some tram/bus depot
+ *
+ * We need to check depot proximity because we need to allow situation when tram broke
+ * and all other trams are in 'traffic jam'.
+ */
+export class DepotVehicleFilter implements VehicleFilter {
+
+  /**
+   * How often do we check if vehicle is in depot?
+   */
+  movementCheckInterval = 5 * minute;
+  /**
+   * Min movement (in meters) to classify vehicle as 'not in depot'.
+   */
+  minMovement = 30;
+  /**
+   * Vehicle location at the start of the interval.
+   */
+  private previousVehicleLocations: PreviousVehicleLocations = {};
+  private now = new Date();
+
+  prepareForFiltering(): void {
+    this.now = new Date();
+  }
+
+  isAccepted(vehicle: MPKVehicle, line: Line): boolean {
+    const self = this;
+
+    function saveLocationAndReturn(isAccepted: boolean) {
+      self.previousVehicleLocations[vehicle.id] = {
+        isAccepted: isAccepted,
+        lat: vehicle.lat,
+        lng: vehicle.lng,
+        date: self.now
+      };
+
+      return isAccepted;
+    }
+
+    // If this is a new vehicle then we will show it
+    const previousLocation = this.previousVehicleLocations[vehicle.id];
+    if (!previousLocation) {
+      return saveLocationAndReturn(true);
+    }
+
+    // We can ignore time zone, because both 'now' and 'date' should be in the same time zone.
+    // Note that this does not mean that it is 'Europe/Warsaw', but it should work anyway
+    // (well, most of the time).
+    const timeSinceSaved = subtractMilliseconds(this.now, previousLocation.date);
+    if (timeSinceSaved < this.movementCheckInterval) {
+      return previousLocation.isAccepted;
+    }
+
+    // If we are moving then we are not in depot.
+    const distance = calculateDistanceInMeters(
+      previousLocation.lat,
+      previousLocation.lng,
+      vehicle.lat,
+      vehicle.lng
+    );
+
+    const hasMoved = distance > this.minMovement;
+    if (hasMoved) {
+      return saveLocationAndReturn(true);
+    }
+
+    const isDepot = isInDepot(vehicle.lat, vehicle.lng);
+    const isAccepted = !isDepot;
+    return saveLocationAndReturn(isAccepted);
   }
 }

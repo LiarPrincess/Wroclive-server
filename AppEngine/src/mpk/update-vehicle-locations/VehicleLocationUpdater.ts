@@ -9,7 +9,7 @@ import { Line, LineLocations, VehicleLocation, MPKVehicle } from '../models';
 /**
  * Min distance that vehicle has to move to update its heading (in meters).
  */
-export const minMovementToUpdateHeading = 50;
+export const minMovementToUpdateHeading = 30;
 
 /* ================================ */
 /* === Vehicle location updater === */

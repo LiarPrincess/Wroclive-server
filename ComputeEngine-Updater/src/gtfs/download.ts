@@ -48,13 +48,38 @@ interface ResourceDescription {
 function parseResourceDescription(description: any): ResourceDescription {
   const graph: any[] = description['@graph'];
   const dataset: any = graph.find(node => node['@type'] === 'dcat:Dataset');
+  const url = getGTFSUrlFromResourceDescriptionDataset(dataset);
 
   return {
     title: dataset['dct:title'],
-    url: dataset['dcat:distribution']['@id'],
+    url,
     issued: dataset['dct:issued']['@value'],
     modified: dataset['dct:modified']['@value'],
   };
+}
+
+function getGTFSUrlFromResourceDescriptionDataset(dataset: any): string {
+  const distribution = dataset['dcat:distribution'];
+
+  // 'distribution' may be an array, or just a single resource.
+  if (distribution.length) {
+    // Try to find 'canonical' GTFS file.
+    // Example of other possible urls: '/AAOtwartyWroclaw_rozklad_jazdy_GTFS.zip'.
+    for (const dist of distribution) {
+      const url = dist['@id'];
+      if (url && url.includes('/OtwartyWroclaw_rozklad_jazdy_GTFS.zip')) {
+        return url;
+      }
+    }
+
+    // The 1st one is the correct one?
+    const url = distribution[0]['@id'];
+    if (url) {
+      return url;
+    }
+  }
+
+  return distribution['@id'];
 }
 
 /* -------- */

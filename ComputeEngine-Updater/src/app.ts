@@ -1,9 +1,9 @@
 import { join, resolve } from 'path';
 import { promises as fs } from 'fs';
 
-import { downloadGTFS, uploadGTFSToLocalDatabase } from './gtfs';
-import { createLogger, isLocal, getRootDir } from './util';
 import { LocalDatabase } from './local-database';
+import { createLogger, isLocal, getRootDir } from './util';
+import { downloadGTFS, uploadGTFSToLocalDatabase } from './gtfs';
 import { FirestoreDatabase } from './cloud-platform';
 import { Exporter, FileExporter, FirestoreExporter } from './exporters';
 
@@ -14,13 +14,12 @@ import { Exporter, FileExporter, FirestoreExporter } from './exporters';
   try {
     const rootDir = await getRootDir();
     const dataDir = join(rootDir, 'data');
-    const gtfsFile = join(dataDir, 'gtfs.zip');
-    const databaseFile = resolve(join(dataDir, 'database.db'));
 
     logger.info('Starting data update');
     await ensureThatDirIsEmpty(dataDir);
-    await downloadGTFS(gtfsFile, logger);
+    const gtfsFile = await downloadGTFS(dataDir, logger);
 
+    const databaseFile = resolve(join(dataDir, 'database.db'));
     db = new LocalDatabase(databaseFile, logger);
     await uploadGTFSToLocalDatabase(db, gtfsFile, logger);
 
@@ -39,7 +38,7 @@ import { Exporter, FileExporter, FirestoreExporter } from './exporters';
       await db.close();
     }
 
-    logger.error('Error when running update', error);
+    logger.error('Error when running update:', error);
   }
 })();
 

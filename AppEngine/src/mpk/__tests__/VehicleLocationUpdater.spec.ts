@@ -133,19 +133,21 @@ describe('calculateVehicleLocationUpdates', function () {
     ]);
   });
 
-  it('should skip vehicle for which line was not found', function () {
+  it('should create artificial line if line was not found', function () {
     const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA, line124, line257]);
+    updater.setLines([lineA]);
 
     const vehicles: MPKVehicle[] = [
-      { id: '1', line: 'X', lat: 1, lng: 2 },
+      { id: '1', line: '124', lat: 1, lng: 2 },
       { id: '2', line: 'A', lat: 3, lng: 4 },
-      { id: '3', line: 'Y', lat: 5, lng: 6 }
+      { id: '3', line: '257', lat: 5, lng: 6 }
     ];
 
     const result = updater.calculateVehicleLocations(vehicles);
     expect(result).toStrictEqual([
-      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+      { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
+      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] },
+      { line: line257, vehicles: [{ id: '3', lat: 5, lng: 6, angle: 0 }] }
     ]);
   });
 

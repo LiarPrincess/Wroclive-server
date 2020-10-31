@@ -8,6 +8,7 @@ import { splitLowerCase } from './helpers';
 /* ================ */
 
 enum Cache {
+  Store6h = 'max-age=21600',
   Store12h = 'max-age=43200',
   Store3d = 'max-age=259200',
   Disable = 'no-store'
@@ -80,7 +81,7 @@ export function createApiV1Router(mpk: Mpk): Router {
       const data = mpk.getLines();
       const json = cache.getLinesResponse(data);
 
-      standardHeaders(res, Cache.Store12h);
+      standardHeaders(res, Cache.Store6h);
       jsonBody(res, json);
     } catch (err) {
       next(err);

@@ -22,15 +22,15 @@ describe('parseResourceDescription', function () {
   });
 
   it('does not crash on description with invalid @graph', function () {
-    try {
-      const json = '{ "@graph": [] }';
-      const description = JSON.parse(json);
-      parseResourceDescription(description, logger);
-      fail();
-    } catch (error) {
-      const errorString = String(error);
-      expect(errorString).toEqual('Error: Parsed resource description does not contain any file uris.');
-    }
+    const json = '{ "@graph": [] }';
+    const description = JSON.parse(json);
+    const result = parseResourceDescription(description, logger);
+
+    expect(result).toStrictEqual({
+      title: undefined,
+      modified: undefined,
+      fileUris: []
+    });
   });
 
   it('parses standard description', function () {

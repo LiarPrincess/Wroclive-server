@@ -1,6 +1,6 @@
 import {
-  VehicleLocationUpdater
-} from '../update-vehicle-locations/VehicleLocationUpdater';
+  createLineFromName
+} from '../update-vehicle-locations/createLineFromName';
 
 describe('createArtificialLine', function () {
 
@@ -13,8 +13,7 @@ describe('createArtificialLine', function () {
     ];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -29,8 +28,7 @@ describe('createArtificialLine', function () {
     const lineNames = ['E1', 'E2'];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -53,8 +51,7 @@ describe('createArtificialLine', function () {
     ];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -69,8 +66,7 @@ describe('createArtificialLine', function () {
     const lineNames = ['A', 'C', 'D', 'K', 'N'];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -89,8 +85,7 @@ describe('createArtificialLine', function () {
     ];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -105,8 +100,7 @@ describe('createArtificialLine', function () {
     const lineNames = ['602', '607', '609', '612'];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,
@@ -121,8 +115,7 @@ describe('createArtificialLine', function () {
     const lineNames = ['701', '714'];
 
     for (const name of lineNames) {
-      const updater = new VehicleLocationUpdater();
-      const line = updater.createArtificialLine(name);
+      const line = createLineFromName(name);
 
       expect(line).toEqual({
         name,

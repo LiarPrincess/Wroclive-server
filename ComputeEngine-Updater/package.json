@@ -15,11 +15,13 @@
     "@google-cloud/firestore": "^4.2.0",
     "@google-cloud/logging-winston": "^4.0.0",
     "axios": "^0.19.2",
+    "cheerio": "^1.0.0-rc.3",
     "extract-zip": "^2.0.1",
     "sqlite3": "^5.0.0",
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@types/cheerio": "^0.22.22",
     "@types/sqlite3": "^3.1.6",
     "@types/node": "^12.6.0",
     "@types/jest": "^26.0.14",

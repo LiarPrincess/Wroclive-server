@@ -6,6 +6,7 @@ import { createLogger, isLocal, getRootDir } from './util';
 import { downloadGTFS, uploadGTFSToLocalDatabase } from './gtfs';
 import { FirestoreDatabase } from './cloud-platform';
 import { Exporter, FileExporter, FirestoreExporter } from './exporters';
+import { getAvailableLines as getAvailableLinesFromSchedule } from './wroclaw-pl-rozklad-jazdy';
 
 (async function() {
   const logger = createLogger('CE-Updater');
@@ -22,6 +23,13 @@ import { Exporter, FileExporter, FirestoreExporter } from './exporters';
     const databaseFile = resolve(join(dataDir, 'database.db'));
     db = new LocalDatabase(databaseFile, logger);
     await uploadGTFSToLocalDatabase(db, gtfsFile, logger);
+
+    // Sometimes (but often enough) GTFS file will not contain some lines.
+    // We will use https://www.wroclaw.pl/rozklady-jazdy to add them.
+    logger.info(`Getting line definitions from 'https://www.wroclaw.pl/rozklady-jazdy'`);
+    const additionalLines = await getAvailableLinesFromSchedule();
+    logger.info(`Found ${additionalLines.length} lines, merging them with GTFS lines`);
+    await db.insertLinesSkippingDuplicates(additionalLines);
 
     let exporter: Exporter;
     if (isLocal) {

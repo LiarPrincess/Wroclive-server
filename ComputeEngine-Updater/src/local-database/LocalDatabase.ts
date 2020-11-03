@@ -132,6 +132,25 @@ left join (
     return lines;
   }
 
+  async insertLinesSkippingDuplicates(lines: Line[]) {
+    for (const line of lines) {
+      const query: Query = {
+        sql: `
+insert into Lines (Name, Type, Subtype)
+select ?, ?, ?
+where not exists(
+  select 1
+  from Lines
+  where Name = ?
+);
+`,
+        params: [line.name, line.type, line.subtype, line.name]
+      };
+
+      await this.db.exec(query);
+    }
+  }
+
   async getShapePointsByLineName(lineName: string): Promise<LineShapePoint[]> {
     const query: Query = {
       sql: `
@@ -150,9 +169,9 @@ where Line = ?`,
     return rows as LineShapePoint[];
   }
 
-/* ============= */
-/* === Stops === */
-/* ============= */
+  /* ============= */
+  /* === Stops === */
+  /* ============= */
 
   async getAllStops(): Promise<Stop[]> {
     const query: Query = {

@@ -55,6 +55,11 @@ export class FirestoreDatabase {
       projectId: CloudPlatform.projectId(),
       keyFilename: CloudPlatform.credentialsFile()
     });
+
+    // We need 'ignoreUndefinedProperties' to allow lines without 'stopArrivalTimes'.
+    this.db.settings({
+      ignoreUndefinedProperties: true
+    });
   }
 
   /* ----- */

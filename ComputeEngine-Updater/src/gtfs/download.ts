@@ -1,4 +1,4 @@
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { promises as fs, createWriteStream } from 'fs';
 import { default as axios, AxiosRequestConfig } from 'axios';
 

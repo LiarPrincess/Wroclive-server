@@ -54,7 +54,7 @@ export class OpenDataVehicleLocationProvider implements VehicleLocationProvider 
   /* === Get vehicle locations === */
   /* ============================= */
 
-  async getVehicleLocations(): Promise<MPKVehicle[]> {
+  async getVehicleLocations(lineNames: string[]): Promise<MPKVehicle[]> {
     const resourceCheckDate = new Date();
     const resourceId = await this.getResourceId(resourceCheckDate);
 

@@ -1,5 +1,5 @@
 import { MPKVehicle } from '../models';
 
 export interface VehicleLocationProvider {
-  getVehicleLocations(): Promise<MPKVehicle[]>;
+  getVehicleLocations(lineNames: string[]): Promise<MPKVehicle[]>;
 }

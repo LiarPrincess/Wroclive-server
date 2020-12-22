@@ -31,6 +31,19 @@
       "outputCapture": "std"
     },
     {
+      "name": "AppEngine - Test MpkVehicleLocationProvider",
+      "type": "node",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/AppEngine/dist/test-mpk-vehicle-location-provider.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "outputCapture": "std"
+    },
+    {
       "name": "ComputeEngine-Updater",
       "type": "node",
       "request": "launch",

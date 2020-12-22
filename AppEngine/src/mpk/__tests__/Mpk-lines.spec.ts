@@ -10,7 +10,7 @@ describe('getLines', () => {
     const linesProvider = new FakeLinesProvider();
     const stopsProvider = new FakeStopsProvider();
     const vehicleLocationProvider = new FakeVehicleLocationProvider();
-    const mpk = new Mpk(linesProvider, stopsProvider, vehicleLocationProvider, logger);
+    const mpk = new Mpk(linesProvider, stopsProvider, [vehicleLocationProvider], logger);
 
     linesProvider.data = {
       timestamp: 'TIMESTAMP',

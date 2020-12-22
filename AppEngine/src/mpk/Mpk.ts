@@ -17,7 +17,8 @@ export default class Mpk {
 
   private linesProvider: LinesProvider;
   private stopsProvider: StopsProvider;
-  private vehicleLocationProvider: VehicleLocationProvider;
+  /// Sources of vehicle locations, the first source to return non-empty result wins.
+  private vehicleLocationProviders: VehicleLocationProvider[];
   private vehicleLocationUpdater: VehicleLocationUpdater;
   private logger: Logger;
 
@@ -39,12 +40,12 @@ export default class Mpk {
   constructor(
     linesProvider: LinesProvider,
     stopsProvider: StopsProvider,
-    vehicleLocationProvider: VehicleLocationProvider,
+    vehicleLocationProviders: VehicleLocationProvider[],
     logger: Logger
   ) {
     this.linesProvider = linesProvider;
     this.stopsProvider = stopsProvider;
-    this.vehicleLocationProvider = vehicleLocationProvider;
+    this.vehicleLocationProviders = vehicleLocationProviders;
     this.vehicleLocationUpdater = new VehicleLocationUpdater();
     this.logger = logger;
 
@@ -164,9 +165,20 @@ export default class Mpk {
     }
 
     const ts = timestamp || this.createTimestamp();
-    const vehicles = await this.vehicleLocationProvider.getVehicleLocations();
-    const lineLocations = this.vehicleLocationUpdater.calculateVehicleLocations(vehicles);
-    this.vehicleLocations = { timestamp: ts, data: lineLocations };
+    const lineNames = lines.map(line => line.name);
+
+    for (const provider of this.vehicleLocationProviders) {
+      const vehicles = await provider.getVehicleLocations(lineNames);
+      const hasResponse = vehicles.length;
+
+      if (hasResponse) {
+        const lineLocations = this.vehicleLocationUpdater.calculateVehicleLocations(vehicles);
+        this.vehicleLocations = { timestamp: ts, data: lineLocations };
+        return; // Do not check other providers
+      }
+    }
+
+    throw new Error('Failed to obtain current vehicle locations from all providers!');
   }
 
   /* ------- */

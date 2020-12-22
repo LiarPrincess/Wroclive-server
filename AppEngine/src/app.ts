@@ -12,7 +12,7 @@ import {
   Mpk,
   LinesProvider, DummyLineProvider, FirestoreLineProvider,
   StopsProvider, DummyStopProvider, FirestoreStopProvider,
-  OpenDataVehicleLocationProvider
+  OpenDataVehicleLocationProvider, MpkVehicleLocationProvider
 } from './mpk';
 
 const logger = createLogger('AppEngine');
@@ -30,8 +30,12 @@ const mpk: Mpk = (() => {
     stopsProvider = new FirestoreStopProvider(db);
   }
 
-  const vehicleLocationProvider = new OpenDataVehicleLocationProvider();
-  return new Mpk(linesProvider, stopsProvider, vehicleLocationProvider, logger);
+  // 1st source to return non-empty result wins.
+  const openDataVehicleProvider = new OpenDataVehicleLocationProvider();
+  const mpkVehicleProvider = new MpkVehicleLocationProvider();
+  const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider];
+
+  return new Mpk(linesProvider, stopsProvider, vehicleProviders, logger);
 })();
 
 /* ------------ */

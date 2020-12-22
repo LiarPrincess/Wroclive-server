@@ -1,3 +1,3 @@
 export * from './VehicleLocationProvider';
-export { MPKVehicleLocationProvider } from './MPKVehicleLocationProvider';
+export { OpenDataVehicleLocationProvider } from './OpenDataVehicleLocationProvider';
 export { VehicleLocationUpdater } from './VehicleLocationUpdater';

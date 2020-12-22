@@ -1,9 +1,9 @@
 import { default as nock } from 'nock';
 
 import {
-  MPKVehicleLocationProvider,
+  OpenDataVehicleLocationProvider,
   ResourceIdRefresh
-} from './../update-vehicle-locations/MPKVehicleLocationProvider';
+} from './../update-vehicle-locations/OpenDataVehicleLocationProvider';
 
 /* ============ */
 /* === Nock === */
@@ -114,7 +114,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -129,7 +129,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -144,7 +144,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -158,7 +158,7 @@ describe('getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResourceId = await provider.getResourceId(cacheDate);
@@ -179,7 +179,7 @@ describe('getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResourceId = await provider.getResourceId(cacheDate);
@@ -201,7 +201,7 @@ describe('getResourceId', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('Some error...');
@@ -215,7 +215,7 @@ describe('getResourceId', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('Failed to download resource description: Error: Request failed with status code 404');
@@ -228,7 +228,7 @@ describe('getResourceId', () => {
 
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('17308285-3977-42f7-81b7-fdd168c210a2');

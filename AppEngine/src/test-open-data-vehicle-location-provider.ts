@@ -1,8 +1,8 @@
-import { MPKVehicleLocationProvider } from './mpk/update-vehicle-locations';
+import { OpenDataVehicleLocationProvider } from './mpk/update-vehicle-locations';
 
 (async () => {
   try {
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
     const response = await provider.getVehicleLocations();
 
     for (const vehicle of response) {

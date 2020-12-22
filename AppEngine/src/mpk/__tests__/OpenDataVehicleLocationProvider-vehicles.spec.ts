@@ -1,9 +1,9 @@
 import { default as nock } from 'nock';
 
 import {
-  MPKVehicleLocationProvider,
+  OpenDataVehicleLocationProvider,
   RemoveOldVehicles
-} from './../update-vehicle-locations/MPKVehicleLocationProvider';
+} from './../update-vehicle-locations/OpenDataVehicleLocationProvider';
 
 /* ============ */
 /* === Nock === */
@@ -80,7 +80,7 @@ describe('queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
 
     const result = await provider.queryVehicleLocations(resourceId, now);
     expect(result).toEqual([
@@ -109,7 +109,7 @@ describe('queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
 
     const result = await provider.queryVehicleLocations(resourceId, now);
     expect(result).toEqual([
@@ -140,7 +140,7 @@ describe('queryVehicleLocations', () => {
         }
       ]));
 
-    const provider = new MPKVehicleLocationProvider();
+    const provider = new OpenDataVehicleLocationProvider();
     const result = await provider.queryVehicleLocations(resourceId, now);
 
     expect(result).toEqual([
@@ -155,7 +155,7 @@ describe('queryVehicleLocations', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
       expect(e.message).toMatch("Response does not contain 'response.data.result.records'");
@@ -170,7 +170,7 @@ describe('queryVehicleLocations', () => {
 
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
       expect(e.message).toMatch('Access denied');
@@ -184,7 +184,7 @@ describe('queryVehicleLocations', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
       expect(e.message).toMatch('Some error...');
@@ -198,7 +198,7 @@ describe('queryVehicleLocations', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
       expect(e.message).toMatch('Failed to get vehicle locations: 404.');
@@ -212,7 +212,7 @@ describe('queryVehicleLocations', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new MPKVehicleLocationProvider();
+      const provider = new OpenDataVehicleLocationProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
       expect(e.message).toMatch("Response does not contain 'response.data.result.records'");

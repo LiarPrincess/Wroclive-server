@@ -45,7 +45,7 @@ interface ResourceIdCache {
 /* === Main === */
 /* ============ */
 
-export class MPKVehicleLocationProvider implements VehicleLocationProvider {
+export class OpenDataVehicleLocationProvider implements VehicleLocationProvider {
 
   private resourceIdCache?: ResourceIdCache;
   private resourceIdLastError?: Date;
@@ -96,11 +96,11 @@ export class MPKVehicleLocationProvider implements VehicleLocationProvider {
       for (const vehicle of records) {
         // You can preview the data at:
         // https://www.wroclaw.pl/open-data/dataset/93f26958-c0f3-4b27-a153-619e26080442/resource/17308285-3977-42f7-81b7-fdd168c210a2
-        const sideNumber = vehicle.Nr_Boczny;
-        const line = vehicle.Nazwa_Linii;
-        const lat = vehicle.Ostatnia_Pozycja_Szerokosc;
-        const lng = vehicle.Ostatnia_Pozycja_Dlugosc;
-        const dateString = vehicle.Data_Aktualizacji;
+        const sideNumber: string = vehicle.Nr_Boczny;
+        const line: string = vehicle.Nazwa_Linii;
+        const lat: number = vehicle.Ostatnia_Pozycja_Szerokosc;
+        const lng: number = vehicle.Ostatnia_Pozycja_Dlugosc;
+        const dateString: string = vehicle.Data_Aktualizacji;
 
         if (line == 'None') {
           continue;

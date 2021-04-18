@@ -9,15 +9,19 @@ import {
   Timestamped,
   VehicleLocation
 } from './models';
+import {
+  VehicleLocationProvider,
+  VehicleLocationUpdater,
+  PreventStaleResponseFromVehicleLocationProvider
+} from './update-vehicle-locations';
 import { LinesProvider, DummyLineProvider } from './update-lines';
-import { StopsProvider, DummyStopProvider } from "./update-stops";
-import { VehicleLocationProvider, VehicleLocationUpdater } from './update-vehicle-locations';
+import { StopsProvider, DummyStopProvider } from './update-stops';
 
 export default class Mpk {
 
   private linesProvider: LinesProvider;
   private stopsProvider: StopsProvider;
-  /// Sources of vehicle locations, the first source to return non-empty result wins.
+  /// If the 1st provider returns no locations, then try the next one.
   private vehicleLocationProviders: VehicleLocationProvider[];
   private vehicleLocationUpdater: VehicleLocationUpdater;
   private logger: Logger;
@@ -37,6 +41,9 @@ export default class Mpk {
    */
   private vehicleLocations: Timestamped<LineLocations[]>;
 
+  /**
+   * @param vehicleLocationProviders If the 1st provider returns no locations, then try the next one.
+   */
   constructor(
     linesProvider: LinesProvider,
     stopsProvider: StopsProvider,

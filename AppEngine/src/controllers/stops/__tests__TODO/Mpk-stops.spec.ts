@@ -1,3 +1,4 @@
+/*
 import { Mpk } from '../index';
 import { FakeLinesProvider, FakeStopsProvider, FakeVehicleLocationProvider } from './fakes';
 import { createConsoleLogger } from '../../util/index';
@@ -28,3 +29,4 @@ describe('getStops', () => {
     expect(result).toEqual(stopsProvider.data);
   });
 });
+*/

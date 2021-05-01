@@ -1,8 +1,6 @@
 import { Logger } from "../util";
 import {
   Day,
-  Stop,
-  StopArrival,
   Line,
   LineTrip,
   LineLocations,
@@ -15,12 +13,10 @@ import {
   PreventStaleResponseFromVehicleLocationProvider
 } from './update-vehicle-locations';
 import { LinesProvider, DummyLineProvider } from './update-lines';
-import { StopsProvider, DummyStopProvider } from './update-stops';
 
 export default class Mpk {
 
   private linesProvider: LinesProvider;
-  private stopsProvider: StopsProvider;
   /// If the 1st provider returns no locations, then try the next one.
   private vehicleLocationProviders: VehicleLocationProvider[];
   private vehicleLocationUpdater: VehicleLocationUpdater;
@@ -32,11 +28,6 @@ export default class Mpk {
   private lines: Timestamped<Line[]>;
 
   /**
-   * All of the available MPK stops.
-   */
-  private stops: Timestamped<Stop[]>;
-
-  /**
    * Current vehicle locations.
    */
   private vehicleLocations: Timestamped<LineLocations[]>;
@@ -46,12 +37,10 @@ export default class Mpk {
    */
   constructor(
     linesProvider: LinesProvider,
-    stopsProvider: StopsProvider,
     vehicleLocationProviders: VehicleLocationProvider[],
     logger: Logger
   ) {
     this.linesProvider = linesProvider;
-    this.stopsProvider = stopsProvider;
     this.vehicleLocationProviders = vehicleLocationProviders;
     this.vehicleLocationUpdater = new VehicleLocationUpdater();
     this.logger = logger;
@@ -59,7 +48,6 @@ export default class Mpk {
     const timestamp = '';
 
     this.lines = { timestamp, data: DummyLineProvider.data };
-    this.stops = { timestamp, data: DummyStopProvider.data };
     this.vehicleLocations = { timestamp, data: [] };
 
     this.vehicleLocationUpdater.setLines(this.lines.data);
@@ -102,47 +90,6 @@ export default class Mpk {
    */
   // async getLineShape(lineName: string): Promise<Timestamped<LineTrip[]>> {
   //   const data = await this.database.getLineShape(lineName);
-  //   return { timestamp: this.createTimestamp(), data };
-  // }
-
-  /* ----- */
-  /* Stops */
-  /* ----- */
-
-  /**
-   * Get all of the available stops.
-   */
-  getStops(): Timestamped<Stop[]> {
-    return this.stops;
-  }
-
-  /**
-   * Update internal stops definitions.
-   */
-  async updateStops() {
-    try {
-      const timestampedStops = await this.stopsProvider.getStops();
-
-      // If the response doesn't contain any stops, then leave 'this.stops' without changes:
-      // - If every response we got was error then use 'DummyStopProvider.data'
-      //   set in 'constructor'
-      // - If at some point we got valid response then it is still valid
-      if (timestampedStops.data) {
-        this.stops = timestampedStops;
-      }
-    } catch (error) {
-      // Leave 'this.stops' as they are, see comment in try block.
-      throw error;
-    }
-  }
-
-  /**
-   * Get stop schedule for a next few hours.
-   */
-  // async getStopSchedule(stopCode: string, day: Day, time: number): Promise<Timestamped<StopArrival[]>> {
-  //   // query just before user asked, so we also show recent departures
-  //   const queryTime = time - 5;
-  //   const data = await this.database.getStopSchedule(stopCode, day, queryTime);
   //   return { timestamp: this.createTimestamp(), data };
   // }
 

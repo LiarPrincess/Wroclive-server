@@ -2,88 +2,13 @@ import { join } from 'path';
 import express, { Request, Response, NextFunction } from 'express';
 
 import { createApiV1Router } from './routers';
-import { FirestoreDatabase } from './cloud-platform';
-import {
-  createLogger,
-  isLocal,
-  second, hour, minute
-} from './util';
-import {
-  Mpk,
-  LinesProvider, DummyLineProvider, FirestoreLineProvider,
-  StopsProvider, DummyStopProvider, FirestoreStopProvider,
-  OpenDataVehicleLocationProvider, MpkVehicleLocationProvider, PreventStaleResponseFromVehicleLocationProvider
-} from './mpk';
+import { createControllers } from './create-controllers';
+import { startDataUpdateLoops } from './data-update-loops';
+import { isLocal, createLogger } from './util';
 
 const logger = createLogger('AppEngine');
-
-const mpk: Mpk = (() => {
-  let linesProvider: LinesProvider;
-  let stopsProvider: StopsProvider;
-
-  if (isLocal) {
-    linesProvider = new DummyLineProvider();
-    stopsProvider = new DummyStopProvider();
-  } else {
-    const db = new FirestoreDatabase();
-    linesProvider = new FirestoreLineProvider(db);
-    stopsProvider = new FirestoreStopProvider(db);
-  }
-
-  // If the 1st provider returns no locations, then try the next one.
-  const openDataVehicleProvider = new OpenDataVehicleLocationProvider();
-  const mpkVehicleProvider = new MpkVehicleLocationProvider();
-  const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider]
-    .map(p => new PreventStaleResponseFromVehicleLocationProvider(p));
-
-  return new Mpk(linesProvider, stopsProvider, vehicleProviders, logger);
-})();
-
-/* ------------ */
-/* Update loops */
-/* ------------ */
-
-(async function updateFirestoreData() {
-  try {
-    await mpk.updateLines();
-  } catch (error) {
-    logger.error('Failed to update mpk lines', error);
-  }
-
-  try {
-    await mpk.updateStops();
-  } catch (error) {
-    logger.error('Failed to update mpk stops', error);
-  }
-
-  setTimeout(updateFirestoreData, 1 * hour);
-})();
-
-const vehicleLocationUpdateInterval = 5 * second;
-// We will log error if we fail to update locations for X minutes.
-const reportVehicleLocationUpdateErrorAfter = 2 * minute;
-// How many times did we fail in a row?
-let vehicleLocationUpdateErrorCounter = 0;
-
-(async function updateVehicleLocations() {
-  try {
-    await mpk.updateVehicleLocations();
-  } catch (error) {
-    const failedFor = vehicleLocationUpdateErrorCounter * vehicleLocationUpdateInterval;
-    if (failedFor >= reportVehicleLocationUpdateErrorAfter) {
-      vehicleLocationUpdateErrorCounter = 0;
-      logger.error('Error while updating mpk vehicle locations.', error);
-    } else {
-      vehicleLocationUpdateErrorCounter += 1;
-    }
-  }
-
-  setTimeout(updateVehicleLocations, vehicleLocationUpdateInterval);
-}());
-
-/* ------ */
-/* Server */
-/* ------ */
+const controllers = createControllers(logger);
+startDataUpdateLoops(controllers, logger);
 
 const app = express();
 app.disable('etag');
@@ -94,7 +19,7 @@ app.disable('x-powered-by');
 // - wroclive.app/api/v1 -> use more precise router
 
 app.get('/api', (req: Request, res: Response) => res.status(200).end());
-app.use('/api/v1', createApiV1Router(mpk));
+app.use('/api/v1', createApiV1Router(controllers));
 
 // In production the GCP is responsible for serving static files (it is faster/easier this way).
 // Locally we have to do it ourselves.

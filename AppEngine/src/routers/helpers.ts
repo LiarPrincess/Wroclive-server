@@ -1,3 +1,6 @@
+/**
+ * Split lowercased 'input' according to 'delimiter'.
+ */
 export function splitLowerCase(input: string, delimiter: string): Set<string> {
   const result = new Set<string>();
 

@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { Mpk, Line, Stop, Timestamped } from '../mpk';
+import { Line, Timestamped } from '../mpk';
+import { Controllers, Stop } from '../controllers';
 import { splitLowerCase } from './helpers';
 
 /* ================ */
@@ -10,7 +11,7 @@ import { splitLowerCase } from './helpers';
 enum Cache {
   Store6h = 'max-age=21600',
   Store12h = 'max-age=43200',
-  Store3d = 'max-age=259200',
+  Store3days = 'max-age=259200',
   Disable = 'no-store'
 }
 
@@ -29,41 +30,39 @@ function jsonBody(res: Response, json: string) {
 /* === Cache === */
 /* ============= */
 
-type CacheEntry = Timestamped<string>;
-
 /**
  * A lot of our data is static (it does not change very often), we will cache
  * stringified responses to avoid expensive serialization.
  */
-class ResponseCache {
+class JSONCache {
 
-  private linesResponse?: CacheEntry = undefined;
-  private stopsResponse?: CacheEntry = undefined;
+  private cachedLines?: Timestamped<string> = undefined;
+  private cachedStops?: Timestamped<string> = undefined;
 
-  getLinesResponse(mpk: Timestamped<Line[]>): string {
-    if (this.linesResponse && this.linesResponse.timestamp == mpk.timestamp) {
-      return this.linesResponse.data;
+  stringifyLines(newValue: Timestamped<Line[]>): string {
+    if (this.cachedLines && this.cachedLines.timestamp == newValue.timestamp) {
+      return this.cachedLines.data;
     }
 
     // 'mpk.models.Line' has more properties than we should return,
     // so first we have to narrow it.
     const data = {
-      timestamp: mpk.timestamp,
-      data: mpk.data.map(l => ({ name: l.name, type: l.type, subtype: l.subtype }))
+      timestamp: newValue.timestamp,
+      data: newValue.data.map(l => ({ name: l.name, type: l.type, subtype: l.subtype }))
     };
 
     const json = JSON.stringify(data);
-    this.linesResponse = { timestamp: mpk.timestamp, data: json };
+    this.cachedLines = { timestamp: newValue.timestamp, data: json };
     return json;
   }
 
-  getStopsResponse(mpk: Timestamped<Stop[]>): string {
-    if (this.stopsResponse && this.stopsResponse.timestamp == mpk.timestamp) {
-      return this.stopsResponse.data;
+  stringifyStops(newValue: Timestamped<Stop[]>): string {
+    if (this.cachedStops && this.cachedStops.timestamp == newValue.timestamp) {
+      return this.cachedStops.data;
     }
 
-    const json = JSON.stringify(mpk);
-    this.stopsResponse = { timestamp: mpk.timestamp, data: json };
+    const json = JSON.stringify(newValue);
+    this.cachedStops = { timestamp: newValue.timestamp, data: json };
     return json;
   }
 }
@@ -72,14 +71,14 @@ class ResponseCache {
 /* === Create router === */
 /* ===================== */
 
-export function createApiV1Router(mpk: Mpk): Router {
+export function createApiV1Router(controllers: Controllers): Router {
   const router = express.Router();
-  const cache = new ResponseCache();
+  const cache = new JSONCache();
 
   router.get('/lines', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = mpk.getLines();
-      const json = cache.getLinesResponse(data);
+      const data = controllers.mpk.getLines();
+      const json = cache.stringifyLines(data);
 
       standardHeaders(res, Cache.Store6h);
       jsonBody(res, json);
@@ -90,10 +89,10 @@ export function createApiV1Router(mpk: Mpk): Router {
 
   router.get('/stops', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = mpk.getStops();
-      const json = cache.getStopsResponse(data);
+      const data = controllers.stops.getStops();
+      const json = cache.stringifyStops(data);
 
-      standardHeaders(res, Cache.Store3d);
+      standardHeaders(res, Cache.Store3days);
       jsonBody(res, json);
     } catch (err) {
       next(err);
@@ -104,7 +103,7 @@ export function createApiV1Router(mpk: Mpk): Router {
     try {
       const query = req.query.lines as string || '';
       const lineNames = splitLowerCase(query, ';');
-      const data = mpk.getVehicleLocations(lineNames);
+      const data = controllers.mpk.getVehicleLocations(lineNames);
 
       standardHeaders(res, Cache.Disable);
       res.json(data);

@@ -1,5 +1,5 @@
 import { Mpk } from '../index';
-import { FakeLinesProvider, FakeStopsProvider, FakeVehicleLocationProvider } from './fakes';
+import { FakeLinesProvider, FakeVehicleLocationProvider } from './fakes';
 import { createConsoleLogger } from '../../util/index';
 
 const logger = createConsoleLogger();
@@ -8,9 +8,8 @@ describe('getLines', () => {
 
   it('should return data from provider', async () => {
     const linesProvider = new FakeLinesProvider();
-    const stopsProvider = new FakeStopsProvider();
     const vehicleLocationProvider = new FakeVehicleLocationProvider();
-    const mpk = new Mpk(linesProvider, stopsProvider, [vehicleLocationProvider], logger);
+    const mpk = new Mpk(linesProvider, [vehicleLocationProvider], logger);
 
     linesProvider.data = {
       timestamp: 'TIMESTAMP',

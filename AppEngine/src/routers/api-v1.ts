@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { Line, Timestamped } from '../mpk';
-import { Controllers, Stop } from '../controllers';
+import { Timestamped } from '../mpk';
+import { Line, Stop, Controllers } from '../controllers';
 import { splitLowerCase } from './helpers';
 
 /* ================ */
@@ -77,7 +77,7 @@ export function createApiV1Router(controllers: Controllers): Router {
 
   router.get('/lines', async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = controllers.mpk.getLines();
+      const data = controllers.lines.getLines();
       const json = cache.stringifyLines(data);
 
       standardHeaders(res, Cache.Store6h);

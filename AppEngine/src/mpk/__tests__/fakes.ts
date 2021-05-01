@@ -1,15 +1,16 @@
-import { LinesProvider } from '../update-lines';
+import { MPKVehicle } from '../models';
 import { VehicleLocationProvider, } from '../update-vehicle-locations';
-import { Line, MPKVehicle, Timestamped } from '../models';
+import { LinesProvider } from '../Mpk';
+import { TimestampedLines } from '../../controllers';
 
 export class FakeLinesProvider implements LinesProvider {
 
-  data: Timestamped<Line[]> = { timestamp: '', data: [] };
+  data: TimestampedLines = { timestamp: '', data: [] };
   callCount = 0;
 
-  getLines(): Promise<Timestamped<Line[]>> {
+  getLines(): TimestampedLines {
     this.callCount += 1;
-    return Promise.resolve(this.data);
+    return this.data;
   }
 }
 

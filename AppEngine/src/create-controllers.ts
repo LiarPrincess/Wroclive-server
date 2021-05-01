@@ -2,24 +2,24 @@ import { FirestoreDatabase } from './cloud-platform';
 import { isLocal, Logger } from './util';
 import {
   Mpk,
-  LinesProvider, DummyLineProvider, FirestoreLineProvider,
   OpenDataVehicleLocationProvider, MpkVehicleLocationProvider, PreventStaleResponseFromVehicleLocationProvider
 } from './mpk';
 import {
+  LinesController, FirestoreLineController, DummyLinesController,
   StopsController, FirestoreStopsController, DummyStopsController,
   Controllers
 } from './controllers';
 
 export function createControllers(logger: Logger): Controllers {
-  let linesProvider: LinesProvider;
+  let linesController: LinesController;
   let stopsController: StopsController;
 
   if (isLocal) {
-    linesProvider = new DummyLineProvider();
+    linesController = new DummyLinesController();
     stopsController = new DummyStopsController();
   } else {
     const db = new FirestoreDatabase();
-    linesProvider = new FirestoreLineProvider(db);
+    linesController = new FirestoreLineController(db);
     stopsController = new FirestoreStopsController(db);
   }
 
@@ -29,7 +29,11 @@ export function createControllers(logger: Logger): Controllers {
   const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider]
     .map(p => new PreventStaleResponseFromVehicleLocationProvider(p));
 
-  const mpk = new Mpk(linesProvider, vehicleProviders, logger);
+  const mpk = new Mpk(linesController, vehicleProviders, logger);
 
-  return { mpk, stops: stopsController };
+  return {
+    mpk,
+    lines: linesController,
+    stops: stopsController
+  };
 }

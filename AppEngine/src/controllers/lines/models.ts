@@ -19,6 +19,11 @@ export interface Line {
   readonly stopArrivalTimes?: { min: number, max: number };
 }
 
+export interface TimestampedLines {
+  readonly timestamp: string;
+  readonly data: Line[];
+}
+
 export interface LineTrip {
   readonly id: string;
   readonly isMain: boolean;

@@ -1,7 +1,8 @@
 import { createLineFromName } from './createLineFromName';
 import { VehicleFilter, DefaultVehicleFilter } from './VehicleFilters';
 import { calculateDistanceInMeters, calculateHeading } from '../math';
-import { Line, LineLocations, VehicleLocation, MPKVehicle } from '../models';
+import { LineLocations, VehicleLocation, MPKVehicle } from '../models';
+import { Line } from '../../controllers';
 
 /* ============== */
 /* === Config === */

@@ -1,4 +1,5 @@
-import { Line, MPKVehicle } from '../models';
+import { Line } from '../../controllers';
+import { MPKVehicle } from '../models';
 import { calculateDistanceInMeters } from '../math';
 
 import {

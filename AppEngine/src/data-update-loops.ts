@@ -1,9 +1,9 @@
 import { Mpk } from './mpk';
-import { Controllers, StopsController } from './controllers';
+import { Controllers, LinesController, StopsController } from './controllers';
 import { Logger, second, hour, minute } from './util';
 
 export function startDataUpdateLoops(controllers: Controllers, logger: Logger) {
-  startUpdatingLines(controllers.mpk, logger);
+  startUpdatingLines(controllers.lines, logger);
   startUpdatingStops(controllers.stops, logger);
   startUpdatingVehicleLocations(controllers.mpk, logger);
 }
@@ -14,7 +14,7 @@ export function startDataUpdateLoops(controllers: Controllers, logger: Logger) {
 
 const linesUpdateInterval = 1 * hour;
 
-function startUpdatingLines(controller: Mpk, logger: Logger) {
+function startUpdatingLines(controller: LinesController, logger: Logger) {
   async function update() {
     try {
       await controller.updateLines();

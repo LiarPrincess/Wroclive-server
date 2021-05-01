@@ -21,7 +21,6 @@ describe('getVehicleLocations', () => {
       ]
     };
 
-    await mpk.updateLines();
     expect(linesProvider.callCount).toEqual(1);
 
     vehicleLocationProvider.data = [

@@ -2,7 +2,8 @@ import { DateTime } from 'luxon';
 
 import { isInDepot } from './depots';
 import { calculateDistanceInMeters, subtractMilliseconds } from '../math';
-import { MPKVehicle, Line } from '../models';
+import { MPKVehicle } from '../models';
+import { Line } from '../../controllers';
 import { minute } from '../../util';
 
 export interface VehicleFilter {
@@ -89,9 +90,9 @@ export class ScheduleVehicleFilter implements VehicleFilter {
    * Current time as number of minutes since midnight (in Wroclaw).
    */
   private minutesSinceMidnightInWroclaw = 0;
-/**
- * Get current time in Wroclaw.
- */
+  /**
+   * Get current time in Wroclaw.
+   */
   private getTime: TimeProvider;
 
   constructor(getTimeInWroclaw?: TimeProvider) {

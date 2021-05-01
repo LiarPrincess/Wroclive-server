@@ -1,8 +1,6 @@
 import { Logger } from "../util";
 import {
   Day,
-  Line,
-  LineTrip,
   LineLocations,
   Timestamped,
   VehicleLocation
@@ -12,7 +10,15 @@ import {
   VehicleLocationUpdater,
   PreventStaleResponseFromVehicleLocationProvider
 } from './update-vehicle-locations';
-import { LinesProvider, DummyLineProvider } from './update-lines';
+import { TimestampedLines } from '../controllers';
+
+export interface LinesProvider {
+
+  /**
+   * Get all of the available lines.
+   */
+  getLines(): TimestampedLines;
+}
 
 export default class Mpk {
 
@@ -21,11 +27,6 @@ export default class Mpk {
   private vehicleLocationProviders: VehicleLocationProvider[];
   private vehicleLocationUpdater: VehicleLocationUpdater;
   private logger: Logger;
-
-  /**
-   * All of the available MPK lines.
-   */
-  private lines: Timestamped<Line[]>;
 
   /**
    * Current vehicle locations.
@@ -46,52 +47,11 @@ export default class Mpk {
     this.logger = logger;
 
     const timestamp = '';
-
-    this.lines = { timestamp, data: DummyLineProvider.data };
     this.vehicleLocations = { timestamp, data: [] };
 
-    this.vehicleLocationUpdater.setLines(this.lines.data);
+    const lines = linesProvider.getLines();
+    this.vehicleLocationUpdater.setLines(lines.data);
   }
-
-  /* ----- */
-  /* Lines */
-  /* ----- */
-
-  /**
-   * Get all of the available lines.
-   */
-  getLines(): Timestamped<Line[]> {
-    return this.lines;
-  }
-
-  /**
-   * Update internal line definitions.
-   */
-  async updateLines() {
-    try {
-      const timestampedLines = await this.linesProvider.getLines();
-
-      // If the response doesn't contain any lines, then leave 'this.lines' without changes:
-      // - If every response we got was error then use 'DummyLineProvider.data'
-      //   set in 'constructor'
-      // - If at some point we got valid response then it is still valid
-      if (timestampedLines.data) {
-        this.lines = timestampedLines;
-        this.vehicleLocationUpdater.setLines(timestampedLines.data);
-      }
-    } catch (error) {
-      // Leave 'this.lines' as they are, see comment in try block.
-      throw error;
-    }
-  }
-
-  /**
-   * Get shape of all routes that belong to given line.
-   */
-  // async getLineShape(lineName: string): Promise<Timestamped<LineTrip[]>> {
-  //   const data = await this.database.getLineShape(lineName);
-  //   return { timestamp: this.createTimestamp(), data };
-  // }
 
   /* -------- */
   /* Vehicles */
@@ -113,7 +73,7 @@ export default class Mpk {
    * Update locations for all of the vehicles.
    */
   async updateVehicleLocations(timestamp?: string) {
-    const lines = this.lines.data;
+    const lines = this.linesProvider.getLines().data;
     if (!lines || lines.length === 0) {
       return;
     }

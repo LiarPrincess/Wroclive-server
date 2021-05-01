@@ -1,4 +1,4 @@
-import { Line } from './lines';
+import { Line } from '../../controllers';
 
 export interface VehicleLocation {
   readonly id: string;

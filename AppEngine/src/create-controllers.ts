@@ -1,16 +1,14 @@
+import { isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
-import { isLocal, Logger } from './util';
-import {
-  Mpk,
-  OpenDataVehicleLocationProvider, MpkVehicleLocationProvider, PreventStaleResponseFromVehicleLocationProvider
-} from './mpk';
 import {
   LinesController, FirestoreLineController, DummyLinesController,
   StopsController, FirestoreStopsController, DummyStopsController,
+  VehicleLocationsControllerImpl,
+  OpenDataVehicleProvider, MpkVehicleProvider, PreventStaleDataFromVehicleProvider,
   Controllers
 } from './controllers';
 
-export function createControllers(logger: Logger): Controllers {
+export function createControllers(): Controllers {
   let linesController: LinesController;
   let stopsController: StopsController;
 
@@ -24,16 +22,16 @@ export function createControllers(logger: Logger): Controllers {
   }
 
   // If the 1st provider returns no locations, then try the next one.
-  const openDataVehicleProvider = new OpenDataVehicleLocationProvider();
-  const mpkVehicleProvider = new MpkVehicleLocationProvider();
+  const openDataVehicleProvider = new OpenDataVehicleProvider();
+  const mpkVehicleProvider = new MpkVehicleProvider();
   const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider]
-    .map(p => new PreventStaleResponseFromVehicleLocationProvider(p));
+    .map(p => new PreventStaleDataFromVehicleProvider(p));
 
-  const mpk = new Mpk(linesController, vehicleProviders, logger);
+  const vehicleController = new VehicleLocationsControllerImpl(linesController, vehicleProviders);
 
   return {
-    mpk,
     lines: linesController,
-    stops: stopsController
+    stops: stopsController,
+    vehicleLocation: vehicleController
   };
 }

@@ -18,26 +18,26 @@
       "outputCapture": "std"
     },
     {
-      "name": "AppEngine - Test OpenDataVehicleLocationProvider",
+      "name": "AppEngine - Test OpenDataVehicleProvider",
       "type": "node",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/AppEngine/dist/test-open-data-vehicle-location-provider.js",
+      "program": "${workspaceFolder}/AppEngine/dist/test-open-data-vehicle-provider.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ],
       "outputCapture": "std"
     },
     {
-      "name": "AppEngine - Test MpkVehicleLocationProvider",
+      "name": "AppEngine - Test MpkVehicleProvider",
       "type": "node",
       "request": "launch",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}/AppEngine/dist/test-mpk-vehicle-location-provider.js",
+      "program": "${workspaceFolder}/AppEngine/dist/test-mpk-vehicle-provider.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ],

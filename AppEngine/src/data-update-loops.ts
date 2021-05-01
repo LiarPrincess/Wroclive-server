@@ -1,11 +1,19 @@
-import { Mpk } from './mpk';
-import { Controllers, LinesController, StopsController } from './controllers';
-import { Logger, second, hour, minute } from './util';
+import {
+  LinesController,
+  StopsController,
+  VehicleLocationsController,
+  Controllers
+} from './controllers';
+import { Logger } from './util';
+
+const second = 1000;
+const minute = 60 * second;
+const hour = 60 * minute;
 
 export function startDataUpdateLoops(controllers: Controllers, logger: Logger) {
   startUpdatingLines(controllers.lines, logger);
   startUpdatingStops(controllers.stops, logger);
-  startUpdatingVehicleLocations(controllers.mpk, logger);
+  startUpdatingVehicleLocations(controllers.vehicleLocation, logger);
 }
 
 /* ============= */
@@ -58,7 +66,7 @@ const reportVehicleLocationUpdateErrorAfter = 2 * minute;
 // How many times did we fail in a row?
 let vehicleLocationUpdateErrorCount = 0;
 
-function startUpdatingVehicleLocations(controller: Mpk, logger: Logger) {
+function startUpdatingVehicleLocations(controller: VehicleLocationsController, logger: Logger) {
   async function update() {
     try {
       await controller.updateVehicleLocations();

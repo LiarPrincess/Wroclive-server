@@ -7,7 +7,7 @@ import { startDataUpdateLoops } from './data-update-loops';
 import { isLocal, createLogger } from './util';
 
 const logger = createLogger('AppEngine');
-const controllers = createControllers(logger);
+const controllers = createControllers();
 startDataUpdateLoops(controllers, logger);
 
 const app = express();

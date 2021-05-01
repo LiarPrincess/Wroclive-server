@@ -1,7 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { Timestamped } from '../mpk';
-import { Line, Stop, Controllers } from '../controllers';
+import { TimestampedLines, TimestampedStops, Controllers } from '../controllers';
 import { splitLowerCase } from './helpers';
 
 /* ================ */
@@ -30,16 +29,21 @@ function jsonBody(res: Response, json: string) {
 /* === Cache === */
 /* ============= */
 
+interface TimestampedString {
+  readonly timestamp: string;
+  readonly data: string;
+}
+
 /**
  * A lot of our data is static (it does not change very often), we will cache
  * stringified responses to avoid expensive serialization.
  */
 class JSONCache {
 
-  private cachedLines?: Timestamped<string> = undefined;
-  private cachedStops?: Timestamped<string> = undefined;
+  private cachedLines?: TimestampedString = undefined;
+  private cachedStops?: TimestampedString = undefined;
 
-  stringifyLines(newValue: Timestamped<Line[]>): string {
+  stringifyLines(newValue: TimestampedLines): string {
     if (this.cachedLines && this.cachedLines.timestamp == newValue.timestamp) {
       return this.cachedLines.data;
     }
@@ -56,7 +60,7 @@ class JSONCache {
     return json;
   }
 
-  stringifyStops(newValue: Timestamped<Stop[]>): string {
+  stringifyStops(newValue: TimestampedStops): string {
     if (this.cachedStops && this.cachedStops.timestamp == newValue.timestamp) {
       return this.cachedStops.data;
     }
@@ -103,7 +107,7 @@ export function createApiV1Router(controllers: Controllers): Router {
     try {
       const query = req.query.lines as string || '';
       const lineNames = splitLowerCase(query, ';');
-      const data = controllers.mpk.getVehicleLocations(lineNames);
+      const data = controllers.vehicleLocation.getVehicleLocations(lineNames);
 
       standardHeaders(res, Cache.Disable);
       res.json(data);

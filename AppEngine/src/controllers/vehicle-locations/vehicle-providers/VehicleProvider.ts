@@ -1,4 +1,4 @@
-import { Vehicle } from './models';
+import { Vehicle } from '../models';
 
 export interface VehicleProvider {
 

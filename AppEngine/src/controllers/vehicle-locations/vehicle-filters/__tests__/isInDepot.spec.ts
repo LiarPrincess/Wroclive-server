@@ -1,11 +1,10 @@
-/*
 import {
   isInBorekDepot,
   isInMichalczewskiDepot,
   isInGajDepot,
   isInOlbinDepot,
   isInObornickaDepot
-} from '../update-vehicle-locations/depots';
+} from '../isInDepot';
 
 import {
   vehicles,
@@ -14,7 +13,7 @@ import {
   gajVehicleIds,
   olbinVehicleIds,
   obornickaVehicleIds
-} from './depots-test-data';
+} from './depot-test-data';
 
 type locationFilter = (lat: number, lng: number) => boolean;
 
@@ -75,4 +74,3 @@ describe('isInObornickaDepot', () => {
     expect(result).toEqual(expected);
   });
 });
-*/

@@ -1,5 +1,5 @@
 import { Line } from '../..';
-import { Vehicle } from '../vehicle-providers';
+import { Vehicle } from '../models';
 
 export interface VehicleFilter {
 

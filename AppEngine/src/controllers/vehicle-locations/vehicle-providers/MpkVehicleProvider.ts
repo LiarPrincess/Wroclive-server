@@ -1,6 +1,6 @@
 import { default as axios, AxiosRequestConfig } from 'axios';
 
-import { Vehicle } from './models';
+import { Vehicle } from '../models';
 import { VehicleProvider } from './VehicleProvider';
 
 export class MpkVehicleProvider implements VehicleProvider {
@@ -15,28 +15,34 @@ export class MpkVehicleProvider implements VehicleProvider {
       }
     };
 
+    let responseData: any;
     try {
       const response = await axios.post(url, query, config);
-      const data: any = response.data;
-
-      if (!data) {
-        throw new Error('Received empty response from mpk api.');
-      }
-
-      const vehicles = data.map((v: any) => ({
-        id: v.k.toString(),
-        line: v.name,
-        lat: v.x,
-        lng: v.y,
-      }));
-
-      return vehicles;
+      responseData = response.data;
     } catch (error) {
-      if (error.statusCode) {
-        throw new Error(`Invalid response from mpk api: ${error.statusCode}.`);
+      const statusCode = error.statusCode || (error.response && error.response.status);
+      if (statusCode) {
+        throw new Error(`Invalid response from mpk api: ${statusCode}.`);
       }
 
       throw error;
     }
+
+    if (!responseData) {
+      throw new Error('Received empty response from mpk api.');
+    }
+
+    if (!Array.isArray(responseData)) {
+      throw new Error('Data received from mpk api is not an array.');
+    }
+
+    const vehicles = responseData.map((v: any) => ({
+      id: v.k.toString(),
+      line: v.name,
+      lat: v.x,
+      lng: v.y,
+    }));
+
+    return vehicles;
   }
 }

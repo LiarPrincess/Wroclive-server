@@ -1,4 +1,3 @@
-/*
 // See:
 // https://www.google.com/maps/d/edit?mid=1_Ifse-0qIgk8K_amfbe330kvuJPoGelc&usp=sharing
 
@@ -312,4 +311,3 @@ export const vehicles: Entry[] = [
   { sideNumber: '7310', line: 'K', lat: 51.14932251, lng: 17.02320099, updateDate: '2020-10-02 1:47:25' },
   { sideNumber: '5604', line: 'N', lat: 51.14699936, lng: 17.02448273, updateDate: '2020-10-02 2:06:16' },
 ];
-*/

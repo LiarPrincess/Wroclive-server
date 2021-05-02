@@ -1,5 +1,5 @@
 import { Line } from '../..';
-import { Vehicle } from '../vehicle-providers';
+import { Vehicle } from '../models';
 import { VehicleFilter } from './VehicleFilter';
 import { RemoveVehiclesInDepots } from './RemoveVehiclesInDepots';
 import { RemoveVehicleOutsideOfSchedule } from './RemoveVehicleOutsideOfSchedule';

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import { Line } from '../..';
-import { Vehicle } from '../vehicle-providers';
+import { Vehicle } from '../models';
 import { VehicleFilter } from './VehicleFilter';
 
 export type Time = { hour: number, minute: number };

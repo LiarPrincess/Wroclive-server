@@ -1,40 +1,51 @@
-/*
-import { MPKVehicle } from '../models';
-import { Line } from '../../controllers';
-
+import { Line } from '../../..';
+import { Vehicle } from '../../models';
 import {
   Time,
-  ScheduleVehicleFilter
-} from '../update-vehicle-locations/VehicleFilters';
+  RemoveVehicleOutsideOfSchedule
+} from '../RemoveVehicleOutsideOfSchedule';
 
-describe('ScheduleVehicleFilter', function () {
+/* ============ */
+/* === Time === */
+/* ============ */
 
-  let currentTime: Time = { hour: 0, minute: 0 };
-  function getCurrentTimeMock(): Time {
-    return currentTime;
-  }
+let currentTime: Time = { hour: 0, minute: 0 };
 
-  type StopArrivalTimes = { min: number, max: number };
+function getCurrentTimeMock(): Time {
+  return currentTime;
+}
 
-  function createLineAndVehicle(stopArrivalTimes?: StopArrivalTimes): [Line, MPKVehicle] {
-    const line: Line = { name: 'A', type: 'Bus', subtype: 'Express', stopArrivalTimes };
-    const vehicle: MPKVehicle = { id: '1', line: 'A', lat: 1, lng: 2 };
-    return [line, vehicle];
-  }
+function minutesSinceMidnight(hours: number, minutes: number): number {
+  return 60 * hours + minutes;
+}
 
-  function minutesSinceMidnight(hours: number, minutes: number): number {
-    return 60 * hours + minutes;
-  }
+function createTime(minutesSinceMidnight: number): Time {
+  return {
+    hour: Math.floor(minutesSinceMidnight / 60.0),
+    minute: Math.floor(minutesSinceMidnight % 60.0)
+  };
+}
 
-  function createTime(minutesSinceMidnight: number): Time {
-    return {
-      hour: Math.floor(minutesSinceMidnight / 60.0),
-      minute: Math.floor(minutesSinceMidnight % 60.0)
-    };
-  }
+/* ======================= */
+/* === Stops and lines === */
+/* ======================= */
+
+type StopArrivalTimes = { min: number, max: number };
+
+function createLineAndVehicle(stopArrivalTimes?: StopArrivalTimes): [Line, Vehicle] {
+  const line: Line = { name: 'A', type: 'Bus', subtype: 'Express', stopArrivalTimes };
+  const vehicle: Vehicle = { id: '1', line: 'A', lat: 1, lng: 2 };
+  return [line, vehicle];
+}
+
+/* ============ */
+/* === Main === */
+/* ============ */
+
+describe('RemoveVehicleOutsideOfSchedule', function () {
 
   it('should allow line that has no stop arrival times', function () {
-    const filter = new ScheduleVehicleFilter(getCurrentTimeMock);
+    const filter = new RemoveVehicleOutsideOfSchedule(getCurrentTimeMock);
     filter.prepareForFiltering();
 
     const [line, vehicle] = createLineAndVehicle(undefined);
@@ -42,7 +53,7 @@ describe('ScheduleVehicleFilter', function () {
   });
 
   it('handles line that starts and finishes during the day', function () {
-    const filter = new ScheduleVehicleFilter(getCurrentTimeMock);
+    const filter = new RemoveVehicleOutsideOfSchedule(getCurrentTimeMock);
 
     const lineMinTime = minutesSinceMidnight(5, 30);
     const lineMaxTime = minutesSinceMidnight(20, 48);
@@ -69,7 +80,7 @@ describe('ScheduleVehicleFilter', function () {
   });
 
   it('handles line that starts during the day and finishes after midnight', function () {
-    const filter = new ScheduleVehicleFilter(getCurrentTimeMock);
+    const filter = new RemoveVehicleOutsideOfSchedule(getCurrentTimeMock);
 
     const lineMinTime = minutesSinceMidnight(5, 30);
     const lineMaxTime = minutesSinceMidnight(24 + 4, 48);
@@ -96,7 +107,7 @@ describe('ScheduleVehicleFilter', function () {
   });
 
   it('handles line that starts and finishes during the night', function () {
-    const filter = new ScheduleVehicleFilter(getCurrentTimeMock);
+    const filter = new RemoveVehicleOutsideOfSchedule(getCurrentTimeMock);
 
     const lineMinTime = minutesSinceMidnight(24, 30);
     const lineMaxTime = minutesSinceMidnight(24 + 5, 48);
@@ -123,7 +134,7 @@ describe('ScheduleVehicleFilter', function () {
   });
 
   it('handles line that starts during the night and finishes during the day (degenerate case)', function () {
-    const filter = new ScheduleVehicleFilter(getCurrentTimeMock);
+    const filter = new RemoveVehicleOutsideOfSchedule(getCurrentTimeMock);
 
     const lineMinTime = minutesSinceMidnight(24 + 4, 30);
     const lineMaxTime = minutesSinceMidnight(3, 48);
@@ -149,4 +160,3 @@ describe('ScheduleVehicleFilter', function () {
     expect(filter.isAccepted(vehicle, line)).toBeTruthy();
   });
 });
-*/

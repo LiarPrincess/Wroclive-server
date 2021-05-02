@@ -1,17 +1,17 @@
-/*
-import { Line } from '../../controllers';
-import { MPKVehicle } from '../models';
-import { calculateDistanceInMeters } from '../math';
+import { Line } from '../../..';
+import { Vehicle } from '../../models';
+import { calculateDistanceInMeters } from '../../math';
 
 import {
-  VehicleLocationUpdater,
+  LineLocationsFactory,
   minMovementToUpdateHeading
-} from '../update-vehicle-locations/VehicleLocationUpdater';
+} from '../LineLocationsFactory';
 import {
   VehicleFilter,
   AcceptAllVehicles
-} from '../update-vehicle-locations/VehicleFilters';
+} from '../../vehicle-filters';
 
+const timestamp = 'SOME_UNIQUE_VALUE';
 const lineA: Line = { name: 'A', type: 'Bus', subtype: 'Express' };
 const line124: Line = { name: '124', type: 'Bus', subtype: 'Regular' };
 const line257: Line = { name: '257', type: 'Bus', subtype: 'Night' };
@@ -21,15 +21,15 @@ const acceptAllVehiclesFilter = new AcceptAllVehicles();
 describe('calculateVehicleLocationUpdates', function () {
 
   it('should point north if no previous location is present', function () {
-    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA, line124, line257]);
+    const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
 
-    const vehicles: MPKVehicle[] = [
+    const lines = { timestamp, data: [lineA, line124, line257] };
+    const vehicles: Vehicle[] = [
       { id: '1', line: '124', lat: 1, lng: 2 },
       { id: '2', line: 'A', lat: 3, lng: 4 }
     ];
 
-    const result = updater.calculateVehicleLocations(vehicles);
+    const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
@@ -44,26 +44,26 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(movement).toBeGreaterThan(minMovementToUpdateHeading);
 
     // Start real test:
-    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA, line124, line257]);
+    const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
+    const lines = { timestamp, data: [lineA, line124, line257] };
 
-    const vehicles1: MPKVehicle[] = [
+    const vehicles1: Vehicle[] = [
       { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
       { id: '2', line: 'A', lat: 10, lng: 15 }
     ];
 
-    const result1 = updater.calculateVehicleLocations(vehicles1);
+    const result1 = factory.create(lines, vehicles1);
     expect(result1).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
     ]);
 
-    const vehicles2: MPKVehicle[] = [
+    const vehicles2: Vehicle[] = [
       { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter }, // this one has moved
       { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
     ];
 
-    const result2 = updater.calculateVehicleLocations(vehicles2);
+    const result2 = factory.create(lines, vehicles2);
     expect(result2).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 44.82097166321205 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
@@ -78,26 +78,26 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(movement).toBeLessThan(minMovementToUpdateHeading);
 
     // Start real test:
-    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA, line124, line257]);
+    const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
+    const lines = { timestamp, data: [lineA, line124, line257] };
 
-    const vehicles1: MPKVehicle[] = [
+    const vehicles1: Vehicle[] = [
       { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
       { id: '2', line: 'A', lat: 10, lng: 15 }
     ];
 
-    const result1 = updater.calculateVehicleLocations(vehicles1);
+    const result1 = factory.create(lines, vehicles1);
     expect(result1).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
     ]);
 
-    const vehicles2: MPKVehicle[] = [
+    const vehicles2: Vehicle[] = [
       { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter },
       { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
     ];
 
-    const result2 = updater.calculateVehicleLocations(vehicles2);
+    const result2 = factory.create(lines, vehicles2);
     expect(result2).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 0 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
@@ -105,17 +105,17 @@ describe('calculateVehicleLocationUpdates', function () {
   });
 
   it('should group vehicles for the same line', function () {
-    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA, line124, line257]);
+    const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
+    const lines = { timestamp, data: [lineA, line124, line257] };
 
-    const vehicles: MPKVehicle[] = [
+    const vehicles: Vehicle[] = [
       { id: '1', line: '124', lat: 1, lng: 2 },
       { id: '2', line: 'A', lat: 3, lng: 4 },
       { id: '3', line: '124', lat: 5, lng: 6 },
       { id: '4', line: '257', lat: 7, lng: 8 }
     ];
 
-    const result = updater.calculateVehicleLocations(vehicles);
+    const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
       {
         line: line124,
@@ -136,16 +136,16 @@ describe('calculateVehicleLocationUpdates', function () {
   });
 
   it('should create artificial line if line was not found', function () {
-    const updater = new VehicleLocationUpdater(acceptAllVehiclesFilter);
-    updater.setLines([lineA]);
+    const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
+    const lines = { timestamp, data: [lineA] };
 
-    const vehicles: MPKVehicle[] = [
+    const vehicles: Vehicle[] = [
       { id: '1', line: '124', lat: 1, lng: 2 },
       { id: '2', line: 'A', lat: 3, lng: 4 },
       { id: '3', line: '257', lat: 5, lng: 6 }
     ];
 
-    const result = updater.calculateVehicleLocations(vehicles);
+    const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
       { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
       { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] },
@@ -162,23 +162,23 @@ describe('calculateVehicleLocationUpdates', function () {
         this.prepareForFilteringCallCount += 1;
       }
 
-      isAccepted(vehicle: MPKVehicle, line: Line): boolean {
+      isAccepted(vehicle: Vehicle, line: Line): boolean {
         this.isAcceptedCallCount += 1;
         return line.name == lineA.name;
       }
     }
 
     const filter = new AcceptOnlyA();
-    const updater = new VehicleLocationUpdater(filter);
-    updater.setLines([lineA, line124, line257]);
+    const factory = new LineLocationsFactory(filter);
+    const lines = { timestamp, data: [lineA, line124, line257] };
 
-    const vehicles: MPKVehicle[] = [
+    const vehicles: Vehicle[] = [
       { id: '1', line: '124', lat: 1, lng: 2 },
       { id: '2', line: 'A', lat: 3, lng: 4 },
       { id: '4', line: '257', lat: 5, lng: 6 }
     ];
 
-    const result = updater.calculateVehicleLocations(vehicles);
+    const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
       { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
     ]);
@@ -187,4 +187,3 @@ describe('calculateVehicleLocationUpdates', function () {
     expect(filter.isAcceptedCallCount).toEqual(3);
   });
 });
-*/

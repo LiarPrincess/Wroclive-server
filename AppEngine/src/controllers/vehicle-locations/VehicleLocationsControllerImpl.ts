@@ -55,7 +55,7 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
       return;
     }
 
-    const ts = this.createTimestamp();
+    const timestamp = this.createTimestamp();
     const lineNames = lines.data.map(line => line.name);
 
     for (const provider of this.vehicleProviders) {
@@ -64,7 +64,7 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
 
       if (hasResponse) {
         const lineLocations = this.lineLocationsFactory.create(lines, vehicles);
-        this.lineLocations = { timestamp: ts, data: lineLocations };
+        this.lineLocations = { timestamp, data: lineLocations };
         return; // Do not check other providers
       }
     }

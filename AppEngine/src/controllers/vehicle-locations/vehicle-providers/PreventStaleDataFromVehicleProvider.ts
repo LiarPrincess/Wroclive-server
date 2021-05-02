@@ -1,4 +1,4 @@
-import { Vehicle } from './models';
+import { Vehicle } from '../models';
 import { VehicleProvider } from './VehicleProvider';
 import { subtractMilliseconds } from '../math';
 
@@ -20,6 +20,8 @@ interface PreviousResult {
   readonly date: Date;
 }
 
+type DateProvider = () => Date;
+
 /* ============ */
 /* === Main === */
 /* ============ */
@@ -32,14 +34,16 @@ export class PreventStaleDataFromVehicleProvider implements VehicleProvider {
 
   private inner: VehicleProvider;
   private previousResult?: PreviousResult;
+  private dateProvider: DateProvider;
 
-  constructor(inner: VehicleProvider) {
+  constructor(inner: VehicleProvider, dateProvider?: DateProvider) {
     this.inner = inner;
+    this.dateProvider = dateProvider || (() => new Date());
   }
 
   async getVehicles(lineNames: string[]): Promise<Vehicle[]> {
     const result = await this.inner.getVehicles(lineNames);
-    const now = new Date();
+    const now = this.dateProvider();
 
     // 1st update -> remember result.
     const previousResult = this.previousResult;

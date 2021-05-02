@@ -1,9 +1,9 @@
 import { default as nock } from 'nock';
 
-// import {
-//   OpenDataVehicleLocationProvider,
-//   ResourceIdRefresh
-// } from './../update-vehicle-locations/OpenDataVehicleLocationProvider';
+import {
+  OpenDataVehicleProvider,
+  ResourceIdRefresh
+} from '../OpenDataVehicleProvider';
 
 /* ============ */
 /* === Nock === */
@@ -102,8 +102,8 @@ function createResponse(
 /* ============= */
 /* === Tests === */
 /* ============= */
-/*
-describe('getResourceId', () => {
+
+describe('OpenDataVehicleProvider-getResourceId', () => {
 
   it('should get id from: @graph -> dcat:Distribution -> @id', async () => {
     const distributionId = `https://www.wroclaw.pl/open-data/dataset/93f26958-c0f3-4b27-a153-619e26080442/resource/${resourceId}`;
@@ -114,7 +114,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new OpenDataVehicleLocationProvider();
+    const provider = new OpenDataVehicleProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -129,7 +129,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new OpenDataVehicleLocationProvider();
+    const provider = new OpenDataVehicleProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -144,7 +144,7 @@ describe('getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const provider = new OpenDataVehicleLocationProvider();
+    const provider = new OpenDataVehicleProvider();
     const result = await provider.getResourceId(now);
 
     expect(result).toEqual(resourceId);
@@ -158,7 +158,7 @@ describe('getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const provider = new OpenDataVehicleLocationProvider();
+    const provider = new OpenDataVehicleProvider();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResourceId = await provider.getResourceId(cacheDate);
@@ -179,7 +179,7 @@ describe('getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const provider = new OpenDataVehicleLocationProvider();
+    const provider = new OpenDataVehicleProvider();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResourceId = await provider.getResourceId(cacheDate);
@@ -201,7 +201,7 @@ describe('getResourceId', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new OpenDataVehicleLocationProvider();
+      const provider = new OpenDataVehicleProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('Some error...');
@@ -215,7 +215,7 @@ describe('getResourceId', () => {
     expect.assertions(1);
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new OpenDataVehicleLocationProvider();
+      const provider = new OpenDataVehicleProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('Failed to download resource description: Error: Request failed with status code 404');
@@ -228,11 +228,10 @@ describe('getResourceId', () => {
 
     try {
       const now = new Date('2020-01-01 10:01:00');
-      const provider = new OpenDataVehicleLocationProvider();
+      const provider = new OpenDataVehicleProvider();
       await provider.getResourceId(now);
     } catch (e) {
       expect(e.message).toMatch('17308285-3977-42f7-81b7-fdd168c210a2');
     }
   });
 });
-*/

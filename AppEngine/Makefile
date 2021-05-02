@@ -2,7 +2,7 @@
 # -- Build --
 # -----------
 
-.PHONY: start build watch test
+.PHONY: start build watch test coverage
 
 start:
 	npm start
@@ -15,6 +15,9 @@ watch:
 
 test:
 	npm run-script test
+
+coverage:
+	npm run-script test -- --coverage
 
 # ------------
 # -- Google --

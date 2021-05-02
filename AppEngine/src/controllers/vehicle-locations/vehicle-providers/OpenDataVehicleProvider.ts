@@ -1,6 +1,6 @@
 import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { Vehicle } from './models';
+import { Vehicle } from '../models';
 import { subtractMilliseconds } from '../math';
 import { VehicleProvider } from './VehicleProvider';
 

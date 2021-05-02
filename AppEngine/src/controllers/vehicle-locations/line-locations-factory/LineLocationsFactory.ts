@@ -1,10 +1,8 @@
-import { Line } from '../..';
-import { Vehicle } from '../vehicle-providers';
 import { VehicleFilter } from '../vehicle-filters';
-import { LineLocations, VehicleLocation } from '../models';
+import { LineLocations, VehicleLocation, Vehicle } from '../models';
+import { Line, TimestampedLines } from '../..';
 import { createLineFromName } from './createLineFromName';
 import { calculateDistanceInMeters, calculateHeading } from '../math';
-import { TimestampedLines } from 'controllers/lines';
 
 /* ============== */
 /* === Config === */
@@ -32,9 +30,14 @@ interface VehicleLocationById {
  */
 export class LineLocationsFactory {
 
-  // We will cache 'linesByName' to avoid traversal/object creation.
+  /**
+   * We will cache 'linesByName' to avoid traversal/object creation.
+   * Key is the lowercased (!) line name.
+   */
   private linesByName: LineByName = {};
-  private linesByNameTimestamp = '';
+  // Initial cache key.
+  // 'undefined' will force 1st 'linesByName' update.
+  private linesByNameTimestamp: string | undefined = undefined;
 
   /**
    * Last place at which we updated vehicle angle/heading.
@@ -99,12 +102,14 @@ export class LineLocationsFactory {
 
   private recalculateLinesByName(currentLineDefinitions: TimestampedLines) {
     const timestamp = currentLineDefinitions.timestamp;
-    const isTimestampEqual = this.linesByNameTimestamp == timestamp;
+    const cachedTimestamp = this.linesByNameTimestamp;
+    const isTimestampEqual = cachedTimestamp && cachedTimestamp == timestamp;
     if (isTimestampEqual) {
       return;
     }
 
     this.linesByName = {};
+    this.linesByNameTimestamp = timestamp;
 
     for (const line of currentLineDefinitions.data) {
       const name = line.name.toLowerCase();

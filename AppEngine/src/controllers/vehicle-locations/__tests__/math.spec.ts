@@ -1,4 +1,3 @@
-/*
 import {
   degToRad,
   radToDeg,
@@ -117,4 +116,3 @@ describe('calculateHeading', () => {
     expect(calculateHeading(cityLat, cityLng, cityLat + d, cityLng - d)).toBeCloseTo(-32.126634762916694, precision);
   });
 });
-*/

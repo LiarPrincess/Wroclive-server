@@ -1,9 +1,6 @@
-/*
-import {
-  createLineFromName
-} from '../update-vehicle-locations/createLineFromName';
+import { createLineFromName } from '../createLineFromName';
 
-describe('createArtificialLine', function () {
+describe('createLineFromName', function () {
 
   it('creates artificial trams - regular', function () {
     const lineNames = [
@@ -127,4 +124,3 @@ describe('createArtificialLine', function () {
     }
   });
 });
-*/

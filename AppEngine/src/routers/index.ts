@@ -1,1 +1,1 @@
-export * from './api-v1';
+export { createApiV1Router } from './api-v1';

@@ -89,7 +89,7 @@ describe('MpkVehicleProvider', () => {
       const provider = new MpkVehicleProvider();
       await provider.getVehicles(lines);
     } catch (e) {
-      expect(e.message).toMatch('Received empty response from mpk api.');
+      expect(e.message).toMatch('[MpkVehicleProvider] Response is empty.');
     }
   });
 
@@ -97,12 +97,13 @@ describe('MpkVehicleProvider', () => {
     intercept()
       .replyWithError('Some error...');
 
-    expect.assertions(1);
+    expect.assertions(2);
     try {
       const provider = new MpkVehicleProvider();
       await provider.getVehicles(lines);
     } catch (e) {
-      expect(e.message).toMatch('Some error...');
+      expect(e.message).toMatch("[MpkVehicleProvider] Unknown request error (see 'innerError' for details).");
+      expect(e.innerError.message).toMatch('Some error...');
     }
   });
 
@@ -115,7 +116,7 @@ describe('MpkVehicleProvider', () => {
       const provider = new MpkVehicleProvider();
       await provider.getVehicles(lines);
     } catch (e) {
-      expect(e.message).toMatch('Invalid response from mpk api: 404.');
+      expect(e.message).toMatch('[MpkVehicleProvider] Response with status: 404.');
     }
   });
 
@@ -128,7 +129,7 @@ describe('MpkVehicleProvider', () => {
       const provider = new MpkVehicleProvider();
       await provider.getVehicles(lines);
     } catch (e) {
-      expect(e.message).toMatch('Data received from mpk api is not an array.');
+      expect(e.message).toMatch('[MpkVehicleProvider] Response data is not an array.');
     }
   });
 });

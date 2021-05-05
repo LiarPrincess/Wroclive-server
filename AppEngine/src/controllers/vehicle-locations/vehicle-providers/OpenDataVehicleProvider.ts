@@ -43,6 +43,16 @@ interface ResourceIdCache {
   readonly date: Date;
 }
 
+class OpenDataVehicleProviderError extends Error {
+
+  innerError: any | undefined;
+
+  constructor(message: string, innerError?: any) {
+    super('[OpenDataVehicleProvider] ' + message);
+    this.innerError = innerError;
+  }
+}
+
 /* ============ */
 /* === Main === */
 /* ============ */
@@ -69,6 +79,7 @@ export class OpenDataVehicleProvider implements VehicleProvider {
   /* =============================== */
 
   async queryVehicleLocations(resourceId: string, now: Date): Promise<Vehicle[]> {
+    let responseData: any;
     try {
       // https://docs.ckan.org/en/latest/api/index.html#making-an-api-request
       const url = 'https://www.wroclaw.pl/open-data/api/action/datastore_search';
@@ -84,25 +95,35 @@ export class OpenDataVehicleProvider implements VehicleProvider {
 
       const config: AxiosRequestConfig = { params };
       const response = await axios.get(url, config);
-
-      if (response.data.error) {
-        throw response.data.error;
+      responseData = response.data;
+    } catch (error) {
+      const statusCode = error.statusCode || (error.response && error.response.status);
+      if (statusCode) {
+        throw new OpenDataVehicleProviderError(`Response with status: ${statusCode}.`);
       }
 
-      const records = response.data?.result?.records;
-      if (!records) {
-        throw new Error(`Response does not contain 'response.data.result.records'`);
-      }
+      throw new OpenDataVehicleProviderError("Unknown request error (see 'innerError' for details).", error);
+    }
 
-      const result: Vehicle[] = [];
-      for (const vehicle of records) {
+    if (responseData.error) {
+      throw new OpenDataVehicleProviderError("Response contains error (see 'innerError' for details).", responseData.error);
+    }
+
+    const records = responseData?.result?.records;
+    if (!records) {
+      throw new OpenDataVehicleProviderError(`Response does not contain any records.`);
+    }
+
+    const result: Vehicle[] = [];
+    for (const record of records) {
+      try {
         // You can preview the data at:
         // https://www.wroclaw.pl/open-data/dataset/93f26958-c0f3-4b27-a153-619e26080442/resource/17308285-3977-42f7-81b7-fdd168c210a2
-        const sideNumber: string = vehicle.Nr_Boczny;
-        const line: string = vehicle.Nazwa_Linii;
-        const lat: number = vehicle.Ostatnia_Pozycja_Szerokosc;
-        const lng: number = vehicle.Ostatnia_Pozycja_Dlugosc;
-        const dateString: string = vehicle.Data_Aktualizacji;
+        const sideNumber: string = record.Nr_Boczny;
+        const line: string = record.Nazwa_Linii;
+        const lat: number = record.Ostatnia_Pozycja_Szerokosc;
+        const lng: number = record.Ostatnia_Pozycja_Dlugosc;
+        const dateString: string = record.Data_Aktualizacji;
 
         if (line == 'None') {
           continue;
@@ -119,17 +140,12 @@ export class OpenDataVehicleProvider implements VehicleProvider {
 
         const id = `${line}${sideNumber}`;
         result.push(new Vehicle(id, line, lat, lng));
+      } catch (error) {
+        throw new OpenDataVehicleProviderError("Response contains invalid record (see 'innerError' for details).", { indalidRecord: record });
       }
-
-      return result;
-    } catch (error) {
-      const statusCode = error.statusCode || (error.response && error.response.status);
-      if (statusCode) {
-        throw new Error(`Failed to get vehicle locations: ${statusCode}.`);
-      }
-
-      throw error;
     }
+
+    return result;
   }
 
   /* =================== */
@@ -163,7 +179,12 @@ export class OpenDataVehicleProvider implements VehicleProvider {
 
       if (timeSinceLastError > ResourceIdRefresh.reportErrorInterval) {
         this.resourceIdLastError = now;
-        throw new Error(`Failed to download resource description: ${error}`);
+        const statusCode = error.statusCode || (error.response && error.response.status);
+        if (statusCode) {
+          throw new OpenDataVehicleProviderError(`Resource id response with status: ${statusCode}.`);
+        }
+
+        throw new OpenDataVehicleProviderError("Unknown resource id request error (see 'innerError' for details).", error);
       }
     }
 

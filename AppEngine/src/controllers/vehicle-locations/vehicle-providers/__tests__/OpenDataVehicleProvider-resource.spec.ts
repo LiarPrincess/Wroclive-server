@@ -194,17 +194,28 @@ describe('OpenDataVehicleProvider-getResourceId', () => {
     expect(networkResourceId2).toEqual(resourceId);
   });
 
+  it('should use hard-coded value on handle json error', async () => {
+    intercept()
+      .reply(200, 'invalid json'); // Well… valid, but not the one we are looking for.
+
+    const now = new Date('2020-01-01 10:01:00');
+    const provider = new OpenDataVehicleProvider();
+    const result = await provider.getResourceId(now);
+    expect(result).toEqual('17308285-3977-42f7-81b7-fdd168c210a2');
+  });
+
   it('should handle node error', async () => {
     intercept()
       .replyWithError('Some error...');
 
-    expect.assertions(1);
+    expect.assertions(2);
     try {
       const now = new Date('2020-01-01 10:01:00');
       const provider = new OpenDataVehicleProvider();
       await provider.getResourceId(now);
     } catch (e) {
-      expect(e.message).toMatch('Some error...');
+      expect(e.message).toMatch("[OpenDataVehicleProvider] Unknown resource id request error (see 'innerError' for details).");
+      expect(e.innerError.message).toMatch('Some error...');
     }
   });
 
@@ -218,20 +229,7 @@ describe('OpenDataVehicleProvider-getResourceId', () => {
       const provider = new OpenDataVehicleProvider();
       await provider.getResourceId(now);
     } catch (e) {
-      expect(e.message).toMatch('Failed to download resource description: Error: Request failed with status code 404');
-    }
-  });
-
-  it('should use hard-coded value on handle json error', async () => {
-    intercept()
-      .reply(200, 'invalid json');
-
-    try {
-      const now = new Date('2020-01-01 10:01:00');
-      const provider = new OpenDataVehicleProvider();
-      await provider.getResourceId(now);
-    } catch (e) {
-      expect(e.message).toMatch('17308285-3977-42f7-81b7-fdd168c210a2');
+      expect(e.message).toMatch('[OpenDataVehicleProvider] Resource id response with status: 404.');
     }
   });
 });

@@ -3,6 +3,16 @@ import { default as axios, AxiosRequestConfig } from 'axios';
 import { Vehicle } from '../models';
 import { VehicleProvider } from './VehicleProvider';
 
+class MpkVehicleProviderError extends Error {
+
+  innerError: any | undefined;
+
+  constructor(message: string, innerError?: any) {
+    super('[MpkVehicleProvider] ' + message);
+    this.innerError = innerError;
+  }
+}
+
 export class MpkVehicleProvider implements VehicleProvider {
 
   async getVehicles(lineNames: string[]): Promise<Vehicle[]> {
@@ -22,18 +32,18 @@ export class MpkVehicleProvider implements VehicleProvider {
     } catch (error) {
       const statusCode = error.statusCode || (error.response && error.response.status);
       if (statusCode) {
-        throw new Error(`Invalid response from mpk api: ${statusCode}.`);
+        throw new MpkVehicleProviderError(`Response with status: ${statusCode}.`);
       }
 
-      throw error;
+      throw new MpkVehicleProviderError("Unknown request error (see 'innerError' for details).", error);
     }
 
     if (!responseData) {
-      throw new Error('Received empty response from mpk api.');
+      throw new MpkVehicleProviderError('Response is empty.');
     }
 
     if (!Array.isArray(responseData)) {
-      throw new Error('Data received from mpk api is not an array.');
+      throw new MpkVehicleProviderError('Response data is not an array.');
     }
 
     const vehicles = responseData.map(v => {

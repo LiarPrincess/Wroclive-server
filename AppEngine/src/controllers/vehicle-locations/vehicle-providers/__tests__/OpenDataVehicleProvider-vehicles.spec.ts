@@ -158,7 +158,7 @@ describe('OpenDataVehicleProvider-queryVehicleLocations', () => {
       const provider = new OpenDataVehicleProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
-      expect(e.message).toMatch("Response does not contain 'response.data.result.records'");
+      expect(e.message).toMatch('[OpenDataVehicleProvider] Response does not contain any records.');
     }
   });
 
@@ -166,14 +166,15 @@ describe('OpenDataVehicleProvider-queryVehicleLocations', () => {
     intercept()
       .reply(200, createResponseError('Authorization Error', 'Access denied'));
 
-    expect.assertions(1);
+    expect.assertions(2);
 
     try {
       const now = new Date('2020-01-01 10:01:00');
       const provider = new OpenDataVehicleProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
-      expect(e.message).toMatch('Access denied');
+      expect(e.message).toMatch("[OpenDataVehicleProvider] Response contains error (see 'innerError' for details).");
+      expect(e.innerError.message).toMatch('Access denied');
     }
   });
 
@@ -181,13 +182,14 @@ describe('OpenDataVehicleProvider-queryVehicleLocations', () => {
     intercept()
       .replyWithError('Some error...');
 
-    expect.assertions(1);
+    expect.assertions(2);
     try {
       const now = new Date('2020-01-01 10:01:00');
       const provider = new OpenDataVehicleProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
-      expect(e.message).toMatch('Some error...');
+      expect(e.message).toMatch("[OpenDataVehicleProvider] Unknown request error (see 'innerError' for details).");
+      expect(e.innerError.message).toMatch('Some error...');
     }
   });
 
@@ -201,7 +203,7 @@ describe('OpenDataVehicleProvider-queryVehicleLocations', () => {
       const provider = new OpenDataVehicleProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
-      expect(e.message).toMatch('Failed to get vehicle locations: 404.');
+      expect(e.message).toMatch('[OpenDataVehicleProvider] Response with status: 404.');
     }
   });
 
@@ -215,7 +217,7 @@ describe('OpenDataVehicleProvider-queryVehicleLocations', () => {
       const provider = new OpenDataVehicleProvider();
       await provider.queryVehicleLocations(resourceId, now);
     } catch (e) {
-      expect(e.message).toMatch("Response does not contain 'response.data.result.records'");
+      expect(e.message).toMatch('[OpenDataVehicleProvider] Response does not contain any records.');
     }
   });
 });

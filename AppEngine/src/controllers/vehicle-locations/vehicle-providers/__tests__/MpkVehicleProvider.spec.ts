@@ -74,9 +74,9 @@ describe('MpkVehicleProvider', () => {
     const provider = new MpkVehicleProvider();
     const result = await provider.getVehicles(lines);
     expect(result).toEqual([
-      { id: '17659902', lat: 51.100864, line: '4', lng: 17.006762 },
-      { id: '17668767', lat: 51.14168, line: 'a', lng: 17.064621 },
-      { id: '17554153', lat: 51.093807, line: '125', lng: 16.98693 }
+      { id: '417659902', lat: 51.100864, line: '4', lng: 17.006762 },
+      { id: 'a17668767', lat: 51.14168, line: 'a', lng: 17.064621 },
+      { id: '12517554153', lat: 51.093807, line: '125', lng: 16.98693 }
     ]);
   });
 

@@ -19,14 +19,14 @@ export interface LineShapePoint {
   readonly isTripMain: string; // TODO: integer?
   readonly sequence: string; // TODO: integer?
   readonly lat: number;
-  readonly lon: number;
+  readonly lng: number;
 }
 
 export interface Stop {
   readonly code: string;
   readonly name: string;
   readonly lat: number;
-  readonly lon: number;
+  readonly lng: number;
 }
 
 export enum Day {
@@ -159,7 +159,7 @@ select
 , IsTripMain as isTripMain
 , Sequence   as sequence
 , Lat        as lat
-, Lon        as lon
+, Lon        as lng
 from Shapes
 where Line = ?`,
       params: lineName
@@ -180,7 +180,7 @@ select
   Code as code
 , Name as name
 , Lat  as lat
-, Lon  as lon
+, Lon  as lng
 from Stops`,
       params: undefined
     };

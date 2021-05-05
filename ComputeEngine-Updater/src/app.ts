@@ -8,7 +8,7 @@ import { FirestoreDatabase } from './cloud-platform';
 import { Exporter, FileExporter, FirestoreExporter } from './exporters';
 import { getAvailableLines as getAvailableLinesFromSchedule } from './wroclaw-pl-rozklad-jazdy';
 
-(async function() {
+(async function () {
   const logger = createLogger('CE-Updater');
 
   let db: LocalDatabase | undefined;

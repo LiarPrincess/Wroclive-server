@@ -31,7 +31,7 @@ export interface FirestoreStop {
   readonly code: string;
   readonly name: string;
   readonly lat: number;
-  readonly lon: number;
+  readonly lng: number;
 }
 
 export interface Timestamped<T> {

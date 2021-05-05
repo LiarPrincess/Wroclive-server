@@ -14,7 +14,7 @@ watch:
 # -- Google --
 # ------------
 
-.PHONY: connect deploy
+.PHONY: connect deploy restart
 
 connect:
 	gcloud compute ssh backend

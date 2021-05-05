@@ -21,6 +21,6 @@ export abstract class Exporter {
     await this.exportStops(timestamp, stops);
   }
 
-  abstract async exportLines(timestamp: string, lines: Line[]): Promise<void>;
-  abstract async exportStops(timestamp: string, stops: Stop[]): Promise<void> ;
+  abstract exportLines(timestamp: string, lines: Line[]): Promise<void>;
+  abstract exportStops(timestamp: string, stops: Stop[]): Promise<void>;
 }

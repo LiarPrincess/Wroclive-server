@@ -38,7 +38,7 @@ export class FirestoreStopsController extends StopsController {
 
     if (hasAnyStops && hasTimestampChanged) {
       const timestamp = dbStops.timestamp;
-      const stops = dbStops.data.map(s => new Stop(s.code, s.name, s.lat, s.lon));
+      const stops = dbStops.data.map(s => new Stop(s.code, s.name, s.lat, s.lng));
       this.stops = new StopCollection(timestamp, stops);
     }
   }

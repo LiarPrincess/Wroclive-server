@@ -31,7 +31,7 @@ export interface FirestoreStop {
   readonly code: string;
   readonly name: string;
   readonly lat: number;
-  readonly lon: number;
+  readonly lng: number;
 }
 
 export interface Timestamped<T> {
@@ -54,6 +54,11 @@ export class FirestoreDatabase {
     this.db = new fs.Firestore({
       projectId: CloudPlatform.projectId(),
       keyFilename: CloudPlatform.credentialsFile()
+    });
+
+    // We need 'ignoreUndefinedProperties' to allow lines without 'stopArrivalTimes'.
+    this.db.settings({
+      ignoreUndefinedProperties: true
     });
   }
 

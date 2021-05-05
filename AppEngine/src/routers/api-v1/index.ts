@@ -66,7 +66,7 @@ export function createApiV1Router(controllers: Controllers): Router {
 
   router.get('/vehicles', (req: Request, res: Response, next: NextFunction) => {
     try {
-      const query = (req.query && req.query.lines) ? (req.query.lines as string) : '';
+      const query = req.query?.lines as string || '';
       const lineNames = splitLowerCase(query, ';');
       const data = controllers.vehicleLocation.getVehicleLocations(lineNames);
       const stringified = json.stringifyVehicleLocations(data);

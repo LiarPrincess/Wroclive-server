@@ -3,13 +3,13 @@ export class Stop {
   readonly code: string;
   readonly name: string;
   readonly lat: number;
-  readonly lon: number;
+  readonly lng: number;
 
-  constructor(code: string, name: string, lat: number, lon: number) {
+  constructor(code: string, name: string, lat: number, lng: number) {
     this.code = code;
     this.name = name;
     this.lat = lat;
-    this.lon = lon;
+    this.lng = lng;
   }
 }
 

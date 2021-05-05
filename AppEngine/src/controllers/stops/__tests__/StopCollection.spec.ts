@@ -12,7 +12,7 @@ describe('calculateVehicleLocationUpdates', function () {
 
     const collection = new StopCollection(timestamp, data);
     const json = JSON.stringify(collection);
-    const expected = `{"timestamp":"TIMESTAMP","data":[{"code":"Code1","name":"Name1","lat":1,"lon":2},{"code":"Code2","name":"Name2","lat":3,"lon":4},{"code":"Code3","name":"Name3","lat":5,"lon":6}]}`;
+    const expected = `{"timestamp":"TIMESTAMP","data":[{"code":"Code1","name":"Name1","lat":1,"lng":2},{"code":"Code2","name":"Name2","lat":3,"lng":4},{"code":"Code3","name":"Name3","lat":5,"lng":6}]}`;
     expect(json).toEqual(expected);
   });
 });

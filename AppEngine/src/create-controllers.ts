@@ -1,7 +1,7 @@
 import { isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
 import {
-  LinesController, FirestoreLineController, DummyLinesController,
+  LinesController, FirestoreLinesController, DummyLinesController,
   StopsController, FirestoreStopsController, DummyStopsController,
   VehicleLocationsControllerImpl,
   OpenDataVehicleProvider, MpkVehicleProvider, PreventStaleDataFromVehicleProvider,
@@ -17,7 +17,7 @@ export function createControllers(): Controllers {
     stopsController = new DummyStopsController();
   } else {
     const db = new FirestoreDatabase();
-    linesController = new FirestoreLineController(db);
+    linesController = new FirestoreLinesController(db);
     stopsController = new FirestoreStopsController(db);
   }
 

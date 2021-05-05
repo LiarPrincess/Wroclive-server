@@ -1,6 +1,6 @@
 import { VehicleFilter } from '../vehicle-filters';
 import { LineLocations, VehicleLocation, Vehicle } from '../models';
-import { Line, TimestampedLines } from '../..';
+import { Line, LineCollection } from '../..';
 import { createLineFromName } from './createLineFromName';
 import { calculateDistanceInMeters, calculateHeading } from '../math';
 
@@ -51,7 +51,7 @@ export class LineLocationsFactory {
   }
 
   create(
-    currentLineDefinitions: TimestampedLines,
+    currentLineDefinitions: LineCollection,
     currentVehicleLocations: Vehicle[]
   ): LineLocations[] {
     this.recalculateLinesByName(currentLineDefinitions);
@@ -100,7 +100,7 @@ export class LineLocationsFactory {
     return result;
   }
 
-  private recalculateLinesByName(currentLineDefinitions: TimestampedLines) {
+  private recalculateLinesByName(currentLineDefinitions: LineCollection) {
     const timestamp = currentLineDefinitions.timestamp;
     const cachedTimestamp = this.linesByNameTimestamp;
     const isTimestampEqual = cachedTimestamp && cachedTimestamp == timestamp;

@@ -1,11 +1,11 @@
-import { TimestampedLines } from './models';
+import { LineCollection } from './models';
 
 export abstract class LinesController {
 
   /**
    * Get all of the available lines.
    */
-  abstract getLines(): TimestampedLines;
+  abstract getLines(): LineCollection;
 
   /**
    * Update internal line definitions.

@@ -1,4 +1,4 @@
-export * from './models';
-export * from './LinesController';
-export * from './DummyLinesController';
-export * from './FirestoreLinesController';
+export { Line, LineCollection } from './models';
+export { LinesController } from './LinesController';
+export { DummyLinesController } from './DummyLinesController';
+export { FirestoreLinesController } from './FirestoreLinesController';

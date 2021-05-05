@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { TimestampedLines, StopCollection, Controllers } from '../controllers';
+import { LineCollection, StopCollection, Controllers } from '../controllers';
 import { splitLowerCase } from './helpers';
 
 /* ================ */
@@ -43,7 +43,7 @@ class JSONCache {
   private cachedLines?: TimestampedString = undefined;
   private cachedStops?: TimestampedString = undefined;
 
-  stringifyLines(newValue: TimestampedLines): string {
+  stringifyLines(newValue: LineCollection): string {
     if (this.cachedLines && this.cachedLines.timestamp == newValue.timestamp) {
       return this.cachedLines.data;
     }

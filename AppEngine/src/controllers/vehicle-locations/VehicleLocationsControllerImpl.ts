@@ -1,4 +1,4 @@
-import { TimestampedLines } from '..';
+import { LineCollection } from '..';
 import { TimestampedLineLocations } from './models';
 import { VehicleProvider } from './vehicle-providers';
 import { DefaultVehicleFilter } from './vehicle-filters';
@@ -9,7 +9,7 @@ interface LineProvider {
   /**
    * Get all of the available lines.
    */
-  getLines(): TimestampedLines;
+  getLines(): LineCollection;
 }
 
 export class VehicleLocationsControllerImpl extends VehicleLocationsController {

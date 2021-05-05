@@ -1,5 +1,5 @@
 import { LineCollection } from '..';
-import { TimestampedLineLocations } from './models';
+import { LineLocationsCollection } from './models';
 import { VehicleProvider } from './vehicle-providers';
 import { DefaultVehicleFilter } from './vehicle-filters';
 import { LineLocationsFactory } from './line-locations-factory';
@@ -17,7 +17,7 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
   private lineProvider: LineProvider;
   /// If provider returns no locations, then try the next one.
   private vehicleProviders: VehicleProvider[];
-  private lineLocations: TimestampedLineLocations;
+  private lineLocations: LineLocationsCollection;
   private lineLocationsFactory: LineLocationsFactory;
 
   /**
@@ -40,13 +40,13 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
     this.lineLocationsFactory = new LineLocationsFactory(filter);
   }
 
-  getVehicleLocations(lineNamesLowerCase: Set<string>): TimestampedLineLocations {
+  getVehicleLocations(lineNamesLowerCase: Set<string>): LineLocationsCollection {
     const { timestamp, data } = this.lineLocations;
     const filteredLocations = data.filter(lineLoc =>
       lineNamesLowerCase.has(lineLoc.line.name.toLowerCase())
     );
 
-    return { timestamp, data: filteredLocations };
+    return new LineLocationsCollection(timestamp, filteredLocations);
   }
 
   async updateVehicleLocations(): Promise<void> {
@@ -64,7 +64,7 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
 
       if (hasResponse) {
         const lineLocations = this.lineLocationsFactory.create(lines, vehicles);
-        this.lineLocations = { timestamp, data: lineLocations };
+        this.lineLocations = new LineLocationsCollection(timestamp, lineLocations);
         return; // Do not check other providers
       }
     }

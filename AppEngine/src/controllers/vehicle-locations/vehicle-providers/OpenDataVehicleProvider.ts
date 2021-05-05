@@ -118,7 +118,7 @@ export class OpenDataVehicleProvider implements VehicleProvider {
         }
 
         const id = `${line}${sideNumber}`;
-        result.push({ id, line, lat, lng });
+        result.push(new Vehicle(id, line, lat, lng));
       }
 
       return result;

@@ -5,12 +5,7 @@ export class Stop {
   readonly lat: number;
   readonly lon: number;
 
-  constructor(
-    code: string,
-    name: string,
-    lat: number,
-    lon: number
-  ) {
+  constructor(code: string, name: string, lat: number, lon: number) {
     this.code = code;
     this.name = name;
     this.lat = lat;
@@ -23,10 +18,7 @@ export class StopCollection {
   readonly timestamp: string;
   readonly data: Stop[];
 
-  constructor(
-    timestamp: string,
-    data: Stop[]
-  ) {
+  constructor(timestamp: string, data: Stop[]) {
     this.timestamp = timestamp;
     this.data = data;
   }

@@ -43,10 +43,7 @@ export class LineCollection {
   readonly timestamp: string;
   readonly data: Line[];
 
-  constructor(
-    timestamp: string,
-    data: Line[]
-  ) {
+  constructor(timestamp: string, data: Line[]) {
     this.timestamp = timestamp;
     this.data = data;
   }

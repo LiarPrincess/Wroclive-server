@@ -1,7 +1,7 @@
 export {
   VehicleLocation,
   LineLocations,
-  TimestampedLineLocations
+  LineLocationsCollection
 } from './models';
 
 export * from './VehicleLocationsController';

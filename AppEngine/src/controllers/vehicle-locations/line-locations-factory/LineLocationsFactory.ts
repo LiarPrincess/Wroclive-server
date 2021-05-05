@@ -1,5 +1,5 @@
 import { VehicleFilter } from '../vehicle-filters';
-import { LineLocations, VehicleLocation, Vehicle } from '../models';
+import { LineLocations, VehicleLocation, Vehicle, LineData } from '../models';
 import { Line, LineCollection } from '../..';
 import { createLineFromName } from './createLineFromName';
 import { calculateDistanceInMeters, calculateHeading } from '../math';
@@ -18,11 +18,11 @@ export const minMovementToUpdateHeading = 30;
 /* ================================ */
 
 interface LineByName {
-  [key: string]: Line;
+  [key: string]: Line | undefined;
 }
 
 interface VehicleLocationById {
-  [key: string]: VehicleLocation;
+  [key: string]: VehicleLocation | undefined;
 }
 
 /**
@@ -61,17 +61,14 @@ export class LineLocationsFactory {
 
     this.filter.prepareForFiltering();
     for (const vehicle of currentVehicleLocations) {
-      const lineName = vehicle.line.toLowerCase();
-      let line = this.linesByName[lineName];
+      const lineNameLowercase = vehicle.line.toLowerCase();
+      let line = this.linesByName[lineNameLowercase];
 
       if (!line) {
-        // Weird case:
-        // - user requested line
-        // - mpk knows about this line (they returned vehicles)
-        // - updater does not know about this line
+        // Weird case: mpk knows this line (they returned vehicles), but we don't.
         // We will trust mpk and try to create this line from scratch.
-        line = createLineFromName(lineName);
-        this.linesByName[lineName] = line;
+        line = createLineFromName(lineNameLowercase);
+        this.linesByName[lineNameLowercase] = line;
       }
 
       const isAccepted = this.filter.isAccepted(vehicle, line);
@@ -79,20 +76,28 @@ export class LineLocationsFactory {
         continue;
       }
 
-      let lineLocations = result.find(p => p.line.name === line.name);
+      // Reasons for 'line as Line' cast:
+      // 'line' is never undefined because we set it inside 'if (!line) { line = … }'
+      let lineLocations = result.find(p => p.line.name === (line as Line).name);
       if (!lineLocations) {
-        lineLocations = { line, vehicles: [] };
+        const lineData = new LineData(line.name, line.type, line.subtype);
+        lineLocations = new LineLocations(lineData, []);
         result.push(lineLocations);
       }
 
-      const previousLocation = this.lastVehicleHeadingUpdatesById[vehicle.id];
-      const angle = this.calculateAngle(vehicle, previousLocation);
+      const lastHeadingUpdateLocation = this.lastVehicleHeadingUpdatesById[vehicle.id];
+      const angle = this.calculateAngle(vehicle, lastHeadingUpdateLocation);
 
-      const vehicleLocation = { id: vehicle.id, lat: vehicle.lat, lng: vehicle.lng, angle };
+      const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
       lineLocations.vehicles.push(vehicleLocation);
 
-      const hasAngleChanged = !previousLocation || previousLocation.angle !== angle;
-      const headingUpdateLocation = hasAngleChanged ? vehicleLocation : (previousLocation as VehicleLocation);
+      // Remembering heading update location:
+      // - if this is a new vehicle -> no previous location present -> current location
+      // - otherwise: it has previous angle
+      //   - if the angle has changed -> current location
+      //   - otherwise: angle is the same -> old location
+      const isNewVehicleOrAngleHasChanged = !lastHeadingUpdateLocation || lastHeadingUpdateLocation.angle !== angle;
+      const headingUpdateLocation = isNewVehicleOrAngleHasChanged ? vehicleLocation : lastHeadingUpdateLocation;
       headingUpdateAcc[vehicle.id] = headingUpdateLocation;
     }
 
@@ -117,7 +122,7 @@ export class LineLocationsFactory {
     }
   }
 
-  private calculateAngle(vehicle: Vehicle, lastLocation?: VehicleLocation): number {
+  private calculateAngle(vehicle: Vehicle, lastLocation: VehicleLocation | undefined): number {
     if (!lastLocation) {
       return 0.0;
     }

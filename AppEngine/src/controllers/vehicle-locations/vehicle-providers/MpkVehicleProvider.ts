@@ -36,13 +36,7 @@ export class MpkVehicleProvider implements VehicleProvider {
       throw new Error('Data received from mpk api is not an array.');
     }
 
-    const vehicles = responseData.map((v: any) => ({
-      id: v.k.toString(),
-      line: v.name,
-      lat: v.x,
-      lng: v.y,
-    }));
-
+    const vehicles = responseData.map(v => new Vehicle(v.k.toString(), v.name, v.x, v.y));
     return vehicles;
   }
 }

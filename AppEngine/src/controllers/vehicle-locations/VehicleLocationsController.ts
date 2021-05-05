@@ -1,11 +1,11 @@
-import { TimestampedLineLocations } from './models';
+import { LineLocationsCollection } from './models';
 
 export abstract class VehicleLocationsController {
 
   /**
    * Get vehicle locations for selected lines.
    */
-  abstract getVehicleLocations(lineNamesLowerCase: Set<string>): TimestampedLineLocations;
+  abstract getVehicleLocations(lineNamesLowerCase: Set<string>): LineLocationsCollection;
 
   /**
    * Update locations for all of the vehicles.

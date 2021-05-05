@@ -2,7 +2,7 @@ import { Line } from '../..';
 
 export function createLineFromName(name: string): Line {
   function createLine(type: string, subtype: string): Line {
-    return { name, type, subtype };
+    return new Line(name, type, subtype);
   }
 
   // 'Bus - Regular' is most probable

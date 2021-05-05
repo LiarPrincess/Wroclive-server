@@ -1,38 +1,78 @@
-import { Line } from '../../..';
-import { Vehicle } from '../../models';
+import { Line, LineCollection } from '../../..';
+import { VehicleFilter, AcceptAllVehicles } from '../../vehicle-filters';
+import { LineData, LineLocations, Vehicle, VehicleLocation } from '../../models';
 import { calculateDistanceInMeters } from '../../math';
 
 import {
   LineLocationsFactory,
   minMovementToUpdateHeading
 } from '../LineLocationsFactory';
-import {
-  VehicleFilter,
-  AcceptAllVehicles
-} from '../../vehicle-filters';
 
 const timestamp = 'SOME_UNIQUE_VALUE';
-const lineA: Line = { name: 'A', type: 'Bus', subtype: 'Express' };
-const line124: Line = { name: '124', type: 'Bus', subtype: 'Regular' };
-const line257: Line = { name: '257', type: 'Bus', subtype: 'Night' };
+
+/* =============== */
+/* === Filters === */
+/* =============== */
 
 const acceptAllVehiclesFilter = new AcceptAllVehicles();
 
-describe('calculateVehicleLocationUpdates', function () {
+/* ============ */
+/* === Line === */
+/* ============ */
+
+/**
+ * Augument 'Line' with 'data: LineData'.
+ */
+class TestLine extends Line {
+
+  readonly data: LineData;
+
+  constructor(name: string, type: string, subtype: string) {
+    super(name, type, subtype, undefined);
+    this.data = new LineData(name, type, subtype);
+  }
+}
+
+const lineA = new TestLine('A', 'Bus', 'Express');
+const line124 = new TestLine('124', 'Bus', 'Regular');
+const line257 = new TestLine('257', 'Bus', 'Night');
+
+/* ================ */
+/* === Vehicles === */
+/* ================ */
+
+/**
+ * Augument 'Vehicle' to easly create 'VehicleLocation'.
+ */
+class TestVehicle extends Vehicle {
+
+  constructor(id: string, line: TestLine, coordinate: number) {
+    super(id, line.name, coordinate, coordinate);
+  }
+
+  withAngle(angle: number): VehicleLocation {
+    return new VehicleLocation(this.id, this.lat, this.lng, angle);
+  }
+}
+
+/* ================ */
+/* === Main === */
+/* ================ */
+
+describe('LineLocationsFactory', function () {
 
   it('should point north if no previous location is present', function () {
     const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
 
-    const lines = { timestamp, data: [lineA, line124, line257] };
-    const vehicles: Vehicle[] = [
-      { id: '1', line: '124', lat: 1, lng: 2 },
-      { id: '2', line: 'A', lat: 3, lng: 4 }
-    ];
+    const lines = new LineCollection(timestamp, [lineA, line124, line257]);
+    const vehicle124 = new TestVehicle('1', line124, 1.0);
+    const vehicleA = new TestVehicle('2', lineA, 2.0);
+    const vehicles: Vehicle[] = [vehicle124, vehicleA];
 
     const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+      new LineLocations(line124.data, [vehicle124.withAngle(0)]),
+      new LineLocations(lineA.data, [vehicleA.withAngle(0)])
     ]);
   });
 
@@ -45,111 +85,104 @@ describe('calculateVehicleLocationUpdates', function () {
 
     // Start real test:
     const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
-    const lines = { timestamp, data: [lineA, line124, line257] };
+    const lines = new LineCollection(timestamp, [lineA, line124, line257]);
 
-    const vehicles1: Vehicle[] = [
-      { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
-      { id: '2', line: 'A', lat: 10, lng: 15 }
-    ];
+    const vehicleMovedBefore = new TestVehicle('1', line124, coordinateBefore);
+    const vehicleMovedAfter = new TestVehicle('1', line124, coordinateAfter);
+    const vehicleNotMoved = new TestVehicle('2', lineA, 10);
 
-    const result1 = factory.create(lines, vehicles1);
-    expect(result1).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    const vehiclesBefore = [vehicleMovedBefore, vehicleNotMoved];
+    const resultBefore = factory.create(lines, vehiclesBefore);
+    expect(resultBefore).toStrictEqual([
+      new LineLocations(line124.data, [vehicleMovedBefore.withAngle(0)]),
+      new LineLocations(lineA.data, [vehicleNotMoved.withAngle(0)])
     ]);
 
-    const vehicles2: Vehicle[] = [
-      { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter }, // this one has moved
-      { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
-    ];
-
-    const result2 = factory.create(lines, vehicles2);
-    expect(result2).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 44.82097166321205 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    const vehiclesAfter = [vehicleMovedAfter, vehicleNotMoved];
+    const resultAfter = factory.create(lines, vehiclesAfter);
+    expect(resultAfter).toStrictEqual([
+      new LineLocations(line124.data, [vehicleMovedAfter.withAngle(44.82097166321205)]),
+      new LineLocations(lineA.data, [vehicleNotMoved.withAngle(0)])
     ]);
   });
 
   it('should use previous heading if vehicle has not moved (or moved a little)', function () {
+    // 1. move big -> calculate angle
+    // 2. move small -> angle should stay the same << THIS is the actuall test
+    const coordinateInitial = 0.0;
+    const coordinateAfterBigMove = 5.0;
+    const coordinateAfterSmallMove = 5.0001;
+
     // Check if values in this test are correct:
-    const coordinateBefore = 5.0;
-    const coordinateAfter = 5.0001;
-    const movement = calculateDistanceInMeters(coordinateBefore, coordinateBefore, coordinateAfter, coordinateAfter);
+    const movement = calculateDistanceInMeters(coordinateAfterBigMove, coordinateAfterBigMove, coordinateAfterSmallMove, coordinateAfterSmallMove);
     expect(movement).toBeLessThan(minMovementToUpdateHeading);
 
-    // Start real test:
+    // Start of a real test:
     const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
-    const lines = { timestamp, data: [lineA, line124, line257] };
+    const lines = new LineCollection(timestamp, [lineA, line124, line257]);
 
-    const vehicles1: Vehicle[] = [
-      { id: '1', line: '124', lat: coordinateBefore, lng: coordinateBefore },
-      { id: '2', line: 'A', lat: 10, lng: 15 }
-    ];
+    const vehicleMovedInitial = new TestVehicle('1', line124, coordinateInitial);
+    const vehicleMovedBig = new TestVehicle('1', line124, coordinateAfterBigMove);
+    const vehicleMovedSmall = new TestVehicle('1', line124, coordinateAfterSmallMove);
+    const vehicleNotMoved = new TestVehicle('2', lineA, 10);
 
-    const result1 = factory.create(lines, vehicles1);
-    expect(result1).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: coordinateBefore, lng: coordinateBefore, angle: 0 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    // Initial position
+    const vehiclesInitial = [vehicleMovedInitial, vehicleNotMoved];
+    const resultInitial = factory.create(lines, vehiclesInitial);
+    expect(resultInitial).toStrictEqual([
+      new LineLocations(line124.data, [vehicleMovedInitial.withAngle(0)]),
+      new LineLocations(lineA.data, [vehicleNotMoved.withAngle(0)])
     ]);
 
-    const vehicles2: Vehicle[] = [
-      { id: '1', line: '124', lat: coordinateAfter, lng: coordinateAfter },
-      { id: '2', line: 'A', lat: 10, lng: 15 } // this one is the same
-    ];
+    // Big move to calculate angle
+    const vehiclesAfterBigMove = [vehicleMovedBig, vehicleNotMoved];
+    const resultAfterBigMove = factory.create(lines, vehiclesAfterBigMove);
+    expect(resultAfterBigMove).toStrictEqual([
+      new LineLocations(line124.data, [vehicleMovedBig.withAngle(44.89077845200745)]),
+      new LineLocations(lineA.data, [vehicleNotMoved.withAngle(0)])
+    ]);
 
-    const result2 = factory.create(lines, vehicles2);
-    expect(result2).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: coordinateAfter, lng: coordinateAfter, angle: 0 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 10, lng: 15, angle: 0 }] }
+    // Small move that should not change angle
+    const vehiclesAfterSmallMove = [vehicleMovedSmall, vehicleNotMoved];
+    const resultAfterSmallMove = factory.create(lines, vehiclesAfterSmallMove);
+    expect(resultAfterSmallMove).toStrictEqual([
+      new LineLocations(line124.data, [vehicleMovedSmall.withAngle(44.89077845200745)]), // No change
+      new LineLocations(lineA.data, [vehicleNotMoved.withAngle(0)])
     ]);
   });
 
   it('should group vehicles for the same line', function () {
     const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
-    const lines = { timestamp, data: [lineA, line124, line257] };
+    const lines = new LineCollection(timestamp, [lineA, line124, line257]);
 
-    const vehicles: Vehicle[] = [
-      { id: '1', line: '124', lat: 1, lng: 2 },
-      { id: '2', line: 'A', lat: 3, lng: 4 },
-      { id: '3', line: '124', lat: 5, lng: 6 },
-      { id: '4', line: '257', lat: 7, lng: 8 }
-    ];
+    const vehicle124_1 = new TestVehicle('1', line124, 1);
+    const vehicleA = new TestVehicle('2', lineA, 3);
+    const vehicle124_2 = new TestVehicle('3', line124, 5);
+    const vehicle257 = new TestVehicle('4', line257, 7);
+    const vehicles: Vehicle[] = [vehicle124_1, vehicleA, vehicle124_2, vehicle257];
 
     const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
-      {
-        line: line124,
-        vehicles: [
-          { id: '1', lat: 1, lng: 2, angle: 0 },
-          { id: '3', lat: 5, lng: 6, angle: 0 }
-        ]
-      },
-      {
-        line: lineA,
-        vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }]
-      },
-      {
-        line: line257,
-        vehicles: [{ id: '4', lat: 7, lng: 8, angle: 0 }]
-      },
+      new LineLocations(line124.data, [vehicle124_1.withAngle(0), vehicle124_2.withAngle(0)]),
+      new LineLocations(lineA.data, [vehicleA.withAngle(0)]),
+      new LineLocations(line257.data, [vehicle257.withAngle(0)])
     ]);
   });
 
   it('should create artificial line if line was not found', function () {
     const factory = new LineLocationsFactory(acceptAllVehiclesFilter);
-    const lines = { timestamp, data: [lineA] };
+    const lines = new LineCollection(timestamp, [lineA]);
 
-    const vehicles: Vehicle[] = [
-      { id: '1', line: '124', lat: 1, lng: 2 },
-      { id: '2', line: 'A', lat: 3, lng: 4 },
-      { id: '3', line: '257', lat: 5, lng: 6 }
-    ];
+    const vehicle124 = new TestVehicle('1', line124, 1);
+    const vehicleA = new TestVehicle('2', lineA, 3); // We only have this line
+    const vehicle257 = new TestVehicle('3', line257, 5);
+    const vehicles = [vehicle124, vehicleA, vehicle257];
 
     const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
-      { line: line124, vehicles: [{ id: '1', lat: 1, lng: 2, angle: 0 }] },
-      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] },
-      { line: line257, vehicles: [{ id: '3', lat: 5, lng: 6, angle: 0 }] }
+      new LineLocations(line124.data, [vehicle124.withAngle(0)]),
+      new LineLocations(lineA.data, [vehicleA.withAngle(0)]),
+      new LineLocations(line257.data, [vehicle257.withAngle(0)])
     ]);
   });
 
@@ -170,20 +203,19 @@ describe('calculateVehicleLocationUpdates', function () {
 
     const filter = new AcceptOnlyA();
     const factory = new LineLocationsFactory(filter);
-    const lines = { timestamp, data: [lineA, line124, line257] };
+    const lines = new LineCollection(timestamp, [lineA, line124, line257]);
 
-    const vehicles: Vehicle[] = [
-      { id: '1', line: '124', lat: 1, lng: 2 },
-      { id: '2', line: 'A', lat: 3, lng: 4 },
-      { id: '4', line: '257', lat: 5, lng: 6 }
-    ];
+    const vehicle124 = new TestVehicle('1', line124, 1);
+    const vehicleA = new TestVehicle('2', lineA, 3);
+    const vehicle257 = new TestVehicle('4', line257, 5);
+    const vehicles: Vehicle[] = [vehicle124, vehicleA, vehicle257];
 
     const result = factory.create(lines, vehicles);
     expect(result).toStrictEqual([
-      { line: lineA, vehicles: [{ id: '2', lat: 3, lng: 4, angle: 0 }] }
+      new LineLocations(lineA.data, [vehicleA.withAngle(0)])
     ]);
 
     expect(filter.prepareForFilteringCallCount).toEqual(1);
-    expect(filter.isAcceptedCallCount).toEqual(3);
+    expect(filter.isAcceptedCallCount).toEqual(vehicles.length);
   });
 });

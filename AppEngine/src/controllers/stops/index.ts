@@ -1,4 +1,4 @@
-export * from './models';
-export * from './StopsController';
-export * from './DummyStopsController';
-export * from './FirestoreStopsController';
+export { Stop, StopCollection } from './models';
+export { StopsController } from './StopsController';
+export { DummyStopsController } from './DummyStopsController';
+export { FirestoreStopsController } from './FirestoreStopsController';

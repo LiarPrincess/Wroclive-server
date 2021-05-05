@@ -1,6 +1,6 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
-import { TimestampedLines, TimestampedStops, Controllers } from '../controllers';
+import { TimestampedLines, StopCollection, Controllers } from '../controllers';
 import { splitLowerCase } from './helpers';
 
 /* ================ */
@@ -60,7 +60,7 @@ class JSONCache {
     return json;
   }
 
-  stringifyStops(newValue: TimestampedStops): string {
+  stringifyStops(newValue: StopCollection): string {
     if (this.cachedStops && this.cachedStops.timestamp == newValue.timestamp) {
       return this.cachedStops.data;
     }

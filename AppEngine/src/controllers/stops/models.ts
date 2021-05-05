@@ -1,19 +1,40 @@
-import { Line } from '..';
+export class Stop {
 
-export interface Stop {
   readonly code: string;
   readonly name: string;
   readonly lat: number;
   readonly lon: number;
+
+  constructor(
+    code: string,
+    name: string,
+    lat: number,
+    lon: number
+  ) {
+    this.code = code;
+    this.name = name;
+    this.lat = lat;
+    this.lon = lon;
+  }
 }
 
-export interface TimestampedStops {
+export class StopCollection {
+
   readonly timestamp: string;
   readonly data: Stop[];
+
+  constructor(
+    timestamp: string,
+    data: Stop[]
+  ) {
+    this.timestamp = timestamp;
+    this.data = data;
+  }
 }
 
-export interface StopArrival {
-  readonly line: Line;
-  readonly headsign: String;
-  readonly time: number;
-}
+// This is lor later:
+// export interface StopArrival {
+//   readonly line: Line;
+//   readonly headsign: String;
+//   readonly time: number;
+// }

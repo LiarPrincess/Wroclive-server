@@ -1,11 +1,11 @@
-import { TimestampedStops } from './models';
+import { StopCollection } from './models';
 
 export abstract class StopsController {
 
   /**
    * Get all of the available stops.
    */
-  abstract getStops(): TimestampedStops;
+  abstract getStops(): StopCollection;
 
   /**
    * Update internal stops definitions.

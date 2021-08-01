@@ -76,7 +76,7 @@ describe('PreventStaleDataFromVehicleProvider', () => {
 
   it('returns stale vehicles within grace period', async () => {
     const inner = new FakeVehicleProvider();
-    const provider = new PreventStaleDataFromVehicleProvider(inner, getCurrentDateMock);
+    const provider = new PreventStaleDataFromVehicleProvider(inner, undefined, getCurrentDateMock);
 
     currentDate = createDate(0);
     inner.vehicles = vehicles0;
@@ -90,7 +90,7 @@ describe('PreventStaleDataFromVehicleProvider', () => {
 
   it('returns no vehicles after grace period', async () => {
     const inner = new FakeVehicleProvider();
-    const provider = new PreventStaleDataFromVehicleProvider(inner, getCurrentDateMock);
+    const provider = new PreventStaleDataFromVehicleProvider(inner, undefined, getCurrentDateMock);
 
     currentDate = createDate(0);
     inner.vehicles = vehicles0;

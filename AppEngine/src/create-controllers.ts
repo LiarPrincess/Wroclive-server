@@ -1,4 +1,4 @@
-import { isLocal } from './util';
+import { Logger, isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
 import {
   LinesController, FirestoreLinesController, DummyLinesController,
@@ -8,7 +8,7 @@ import {
   Controllers
 } from './controllers';
 
-export function createControllers(): Controllers {
+export function createControllers(logger: Logger): Controllers {
   let linesController: LinesController;
   let stopsController: StopsController;
 
@@ -25,7 +25,7 @@ export function createControllers(): Controllers {
   const openDataVehicleProvider = new OpenDataVehicleProvider();
   const mpkVehicleProvider = new MpkVehicleProvider();
   const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider]
-    .map(p => new PreventStaleDataFromVehicleProvider(p));
+    .map(p => new PreventStaleDataFromVehicleProvider(p, logger));
 
   const vehicleController = new VehicleLocationsControllerImpl(linesController, vehicleProviders);
 

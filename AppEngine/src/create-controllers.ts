@@ -24,8 +24,10 @@ export function createControllers(logger: Logger): Controllers {
   // If the 1st provider returns no locations, then try the next one.
   const openDataVehicleProvider = new OpenDataVehicleProvider();
   const mpkVehicleProvider = new MpkVehicleProvider();
-  const vehicleProviders = [openDataVehicleProvider, mpkVehicleProvider]
-    .map(p => new PreventStaleDataFromVehicleProvider(p, logger));
+  const vehicleProviders = [
+    openDataVehicleProvider,
+    mpkVehicleProvider
+  ].map(p => new PreventStaleDataFromVehicleProvider(p, logger));
 
   const vehicleController = new VehicleLocationsControllerImpl(linesController, vehicleProviders);
 

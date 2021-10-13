@@ -58,17 +58,24 @@ export class VehicleLocationsControllerImpl extends VehicleLocationsController {
     const timestamp = this.createTimestamp();
     const lineNames = lines.data.map(line => line.name);
 
+    const errors: any[] = [];
     for (const provider of this.vehicleProviders) {
-      const vehicles = await provider.getVehicles(lineNames);
-      const hasResponse = vehicles.length;
-
-      if (hasResponse) {
-        const lineLocations = this.lineLocationsFactory.create(lines, vehicles);
-        this.lineLocations = new LineLocationsCollection(timestamp, lineLocations);
-        return; // Do not check other providers
+      try {
+        const vehicles = await provider.getVehicles(lineNames);
+        if (vehicles.length) {
+          const lineLocations = this.lineLocationsFactory.create(lines, vehicles);
+          this.lineLocations = new LineLocationsCollection(timestamp, lineLocations);
+          return; // Do not check other providers
+        }
+      } catch (error) {
+        errors.push(error);
       }
     }
 
-    throw new Error('Failed to obtain current vehicle locations from all providers!');
+    if (errors.length) {
+      throw new Error(`Failed to obtain current vehicle locations from all providers! Errors: ${errors}`);
+    }
+
+    throw new Error('Failed to obtain current vehicle locations from all providers! No errors.');
   }
 }

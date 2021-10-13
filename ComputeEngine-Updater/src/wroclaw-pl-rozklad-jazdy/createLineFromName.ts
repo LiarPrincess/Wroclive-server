@@ -57,5 +57,15 @@ export function createLineFromName(name: string): Line {
     return createLine('Bus', 'Express');
   }
 
+  // Summer 2021:
+  // - Zabytkowa Linia Autobusowa
+  // - Zabytkowa Linia Tramwajowa
+  if (name == 'ZLA') {
+    return createLine('Bus', 'Temporary');
+  }
+  if (name == 'ZLT') {
+    return createLine('Tram', 'Temporary');
+  }
+
   return defaultLineWhenNothingMatches;
 }

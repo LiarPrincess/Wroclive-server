@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 985 460" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient id="color-0" bx:pinned="true">
+      <title>Mpk row</title>
+      <stop style="stop-color: rgb(205, 180, 219);"/>
+    </linearGradient>
+    <linearGradient id="color-2" bx:pinned="true">
+      <title>Support row</title>
+      <stop style="stop-color: rgb(162, 210, 255);"/>
+    </linearGradient>
+    <linearGradient id="color-1" bx:pinned="true">
+      <title>Main row</title>
+      <stop style="stop-color: rgb(255, 175, 204);"/>
+    </linearGradient>
+  </defs>
+  <g transform="matrix(1, 0, 0, 1, -3, -101.466629)">
+    <title>Mpk</title>
+    <g transform="matrix(1, 0, 0, 1, 385.217896, 2.455231)">
+      <title>wroclaw.pl/open-data</title>
+      <rect x="260.564" y="104.709" width="200" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-0);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="284.028" y="135.544">wroclaw.pl/open-data</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 23.266373, 82.51963)">
+      <title>mpk.wroc.pl/bus_position</title>
+      <rect x="247.996" y="23.947" width="200" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-0);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="256.524" y="54.78">mpk.wroc.pl/bus_position</text>
+    </g>
+    <path d="M 245.254 327.633 H 379.397 L 379.397 321.149 L 391.681 328.133 L 379.397 335.118 L 379.397 328.633 H 245.254 V 327.633 Z" style="" transform="matrix(0, -1, 1, 0, 40.490696, 548.146729)" bx:shape="arrow 245.254 321.149 146.427 13.969 1 12.284 0 1@a39abdc9"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 125.858437, -39.433064)"><title>Text</title><tspan x="187.536" y="248.078">Get vehicle</tspan><tspan x="187.536" dy="1em">​</tspan><tspan>locations</tspan><tspan x="187.536" dy="1em">​</tspan><tspan>(only when</tspan><tspan x="187.536" dy="1em">​</tspan><tspan>open-data fails)</tspan></text>
+    <path d="M 189.635 327.633 H 428.85 L 428.85 321.149 L 441.134 328.133 L 428.85 335.118 L 428.85 328.633 H 189.635 V 327.633 Z" style="" transform="matrix(0.813284, -0.581867, 0.581867, 0.813284, 96.08535, 146.279922)" bx:shape="arrow 189.635 321.149 251.499 13.969 1 12.284 0 1@689c6cb2"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 308.710022, -25.433064)"><title>Text</title><tspan x="187.536" y="248.078">Get vehicle</tspan><tspan x="187.536" dy="1em">​</tspan><tspan>locations</tspan></text>
+    <path d="M 219.758 327.634 H 362.222 L 362.222 321.15 L 374.506 328.134 L 362.222 335.119 L 362.222 328.634 H 219.758 V 327.634 Z" style="" transform="matrix(-0.348152, -0.937438, 0.937438, -0.348152, 668.561646, 622.47998)" bx:shape="arrow 219.758 321.15 154.747 13.969 1 12.284 0 1@62df18d7"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 606.944397, -25.433064)"><title>Text</title><tspan x="187.536" y="248.078">Get GTFS file</tspan><tspan x="187.536" dy="1em">​</tspan><tspan>(zip file with schedule)</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, -17.049458, -104)">
+    <title>Main</title>
+    <g transform="matrix(0.999734, 0, 0, 1, -9.789071, 82.173004)">
+      <title>Client</title>
+      <rect x="31.847" y="220.672" width="150.04" height="50" style="stroke: rgb(0, 0, 0); fill: none;"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="86.035" y="251.531">Client</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 276.54303, 82.173004)">
+      <title>App Engine</title>
+      <rect x="31.852" y="220.797" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="64.737" y="251.531">App Engine</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 545.924072, 82.173004)">
+      <title>Firestore</title>
+      <rect x="31.859" y="220.68" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="74.714" y="251.531">Firestore</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 523.266052, 100.501007)">
+      <title>Compute Engine</title>
+      <rect x="323.883" y="202.461" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202">Compute Engine<tspan x="338.1929931640625" dy="1em">​</tspan><tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    </g>
+    <path d="M 172.039 327.633 H 296.111 L 296.111 321.149 L 308.395 328.133 L 296.111 335.118 L 296.111 328.633 H 172.039 V 327.633 Z" style="" bx:shape="arrow 172.039 321.149 136.356 13.969 1 12.284 0 1@ecf6ea67"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" transform="matrix(1, 0, 0, 1, -1.466087, -15.40625)"><title>Text</title><tspan x="176.52" y="292.78">GET /</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>GET /api/v1/lines</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>GET /api/v1/stops</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>GET /api/v1/vehicles</tspan></text>
+    <path d="M 458.395 327.634 H 565.502 L 565.502 321.149 L 577.786 328.134 L 565.502 335.118 L 565.502 328.634 H 458.395 V 327.634 Z" style="" bx:shape="arrow 458.395 321.149 119.391 13.969 1 12.284 0 1@e5322615"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 341.998596, 3.921875)"><tspan x="176.52" y="292.78" dy="1em">​</tspan><tspan>Get line and stop</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>definitions</tspan></text>
+    <path d="M -847.15 328.813 H -740.065 L -740.065 322.328 L -727.781 329.313 L -740.065 336.297 L -740.065 329.813 H -847.15 V 328.813 Z" style="" transform="matrix(-1, 0, 0, 1, 0, 0)" bx:shape="arrow -847.15 322.328 119.369 13.969 1 12.284 0 1@73c45b5a"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 611.379578, 3.921875)"><tspan x="176.52" y="292.78" dy="1em">​</tspan><tspan>Push line and stop</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>definitions</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, -3, -104)">
+    <title>Support</title>
+    <g transform="matrix(1, 0, 0, 1, 509.58728, 304.262024)">
+      <title>Cloud Functions</title>
+      <rect x="322.07" y="202.516" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-2);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202">Cloud Functions<tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 237.774063, 304.263031)">
+      <title>Pub/Sub</title>
+      <rect x="323.899" y="202.515" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-2);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202" transform="matrix(1, 0, 0, 1, 29.445564, -0.00032)">Pub/Sub<tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, -143.036011, 303.279022)">
+      <title>Cloud Scheduler</title>
+      <rect x="321.836" y="203.499" width="150" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-2);"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202" transform="matrix(1, 0, 0, 1, 0.344002, -0.00032)">Cloud Scheduler<tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    </g>
+    <path d="M 328.759 531.356 H 549.389 L 549.389 524.871 L 561.673 531.856 L 549.389 538.84 L 549.389 532.356 H 328.759 V 531.356 Z" style="" bx:shape="arrow 328.759 524.871 232.914 13.969 1 12.284 0 1@ceff6d7a"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 267.393738, 202.55722)"><tspan x="176.52" y="292.78">(0 1 * * *) backend-stop</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>(0 5 * * *) backend-start</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>(0 3 * * *) backend-update-gtfs-data</tspan><tspan x="176.52" dy="1em">​</tspan></text>
+    <path d="M 711.664 530.734 H 819.372 L 819.372 524.249 L 831.656 531.234 L 819.372 538.218 L 819.372 531.734 H 711.664 V 530.734 Z" style="" bx:shape="arrow 711.664 524.249 119.992 13.969 1 12.284 0 1@8604542a"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 594.173279, 217.55722)"><tspan x="176.52" y="292.78">backend-stop</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>backend-start</tspan><tspan x="176.52" dy="1em">​</tspan></text>
+    <path d="M 712.938 529.574 H 894.486 L 894.486 523.09 L 906.77 530.074 L 894.486 537.059 L 894.486 530.574 H 712.938 V 529.574 Z" style="" transform="matrix(0.610508, -0.79201, 0.79201, 0.610508, -143.40564, 747.82019)" bx:shape="arrow 712.938 523.09 193.832 13.969 1 12.284 0 1@8947d9ca"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 496.481628, 148.151657)"><tspan x="176.52" y="292.78">backend-update-gtfs-data</tspan><tspan x="176.52" dy="1em">​</tspan></text>
+    <path d="M 757.161 419.704 H 898.393 L 898.393 413.219 L 910.677 420.204 L 898.393 427.188 L 898.393 420.704 H 757.161 V 419.704 Z" style="" transform="matrix(0, -1, 1, 0, 491.604828, 1263.939697)" bx:shape="arrow 757.161 413.219 153.516 13.969 1 12.284 0 1@ce6d2138"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 667.261353, 141.151657)"><tspan x="176.52" y="292.78">Start/stop 'backend'</tspan><tspan x="176.52" dy="1em">​</tspan><tspan>instance</tspan></text>
+  </g>
+  <g>
+    <title>Legend</title>
+    <rect x="5" y="5" width="19.711" height="19.711" style="fill: url(#color-0); stroke: rgb(0, 0, 0);"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="27.715" y="19.721">External - mpk owned</text>
+    <rect x="5" y="29.525" width="19.711" height="19.711" style="stroke: rgb(0, 0, 0); fill: url(#color-1);"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="27.715" y="44.246">Internal - request processing</text>
+    <rect x="5" y="54.063" width="19.711" height="19.711" style="stroke: rgb(0, 0, 0); fill: url(#color-2);"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="27.715" y="68.784">Internal - support</text>
+  </g>
+</svg>

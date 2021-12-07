@@ -10,6 +10,8 @@ We use [Google Cloud](https://cloud.google.com/) for hosting.
 
 We extensively use their [free tier](https://cloud.google.com/free), to keep our hosting costs low. The only thing that we actually pay for is storage for [App Engine](https://cloud.google.com/appengine) instances, but this is about 0.05 zł per month (only the instances in US are free and we chose Frankfurt because of [GDPR](https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en) and latency).
 
+![GCP scheme](./Assets/GCP.svg)
+
 Anyway, this is how it works:
 
 - [App Engine](https://cloud.google.com/appengine)

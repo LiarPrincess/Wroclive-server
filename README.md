@@ -8,18 +8,18 @@ This repository contains sources of server part of [Wroclive iOS app](https://ww
 
 We use [Google Cloud](https://cloud.google.com/) for hosting.
 
-We extensively use their [free tier](https://cloud.google.com/free), to keep our hosting costs low. The only thing that we actually pay for is storage for [App Engine](https://cloud.google.com/appengine) instances, but this is about 0.05 zł per month (only the instances in US are free and we chose Frankfurt because of [GDPR](https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en) and latency).
-
-![GCP scheme](./Assets/GCP.svg)
+We extensively use their [free tier](https://cloud.google.com/free), to keep our hosting costs low. The only thing that we actually pay for is storage for [App Engine](https://cloud.google.com/appengine) instances, but this is about 0.20 zł (~$0.05) per month (only the instances in US are free and we chose Frankfurt because of [GDPR](https://ec.europa.eu/info/law/law-topic/data-protection/eu-data-protection-rules_en) and latency).
 
 Anyway, this is how it works:
+
+![GCP scheme](./Assets/GCP.svg)
 
 - [App Engine](https://cloud.google.com/appengine)
   - handles all traffic to [wroclive.app](https://wroclive.app/) and [wroclive.app/api](https://wroclive.app/api)
   - runs code from [AppEngine](AppEngine) directory
   - every 1h it fetches MPK data (for example available lines and stop locations) from `Firestore`
   - every 5 seconds it fetches new vehicle locations from [wroclaw.pl/open-data](https://www.wroclaw.pl/open-data/)
-  - if you want to deploy (run `make deploy`) it yourself remember to put `GCP-Credentials.json` for `app-engine-firestore-reader` service account in [AppEngine directory](AppEngine)
+  - if you want to deploy it yourself (run `make deploy`), then remember to put `GCP-Credentials.json` for `app-engine-firestore-reader` service account in [AppEngine directory](AppEngine)
 
 - [Firestore](https://cloud.google.com/firestore)
   - stores persistent data (for example available lines and stop locations)

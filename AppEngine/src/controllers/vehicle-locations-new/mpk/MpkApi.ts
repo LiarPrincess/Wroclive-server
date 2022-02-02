@@ -3,20 +3,9 @@ import { default as axios, AxiosRequestConfig } from 'axios';
 import { ApiBase } from '../ApiBase';
 import { LineDatabase } from '../helpers';
 import { VehicleLocationFromApi } from '../models';
+import { ApiType, ApiResult, ApiError } from './interfaces';
 
-export type GetVehicleLocationsResult =
-  { kind: 'Success', vehicles: VehicleLocationFromApi[], invalidRecords: any[] } |
-  { kind: 'Error', error: GetVehicleLocationsError };
-
-export class GetVehicleLocationsError {
-  constructor(
-    public readonly kind: 'Network error' | 'Invalid response',
-    public readonly message: string,
-    public readonly data: any,
-  ) { }
-}
-
-export class MpkApi extends ApiBase {
+export class MpkApi extends ApiBase implements ApiType {
 
   private readonly lineDatabase: LineDatabase;
 
@@ -25,7 +14,7 @@ export class MpkApi extends ApiBase {
     this.lineDatabase = lineDatabase;
   }
 
-  async getVehicleLocations(): Promise<GetVehicleLocationsResult> {
+  async getVehicleLocations(): Promise<ApiResult> {
     const url = 'https://mpk.wroc.pl/bus_position';
     const query = this.createQuery();
 
@@ -46,12 +35,12 @@ export class MpkApi extends ApiBase {
         `Response with status: ${statusCode}.` :
         `Unknown request error.`;
 
-      const e = new GetVehicleLocationsError('Network error', message, error);
+      const e = new ApiError('Network error', message, error);
       return { kind: 'Error', error: e };
     }
 
     if (!responseData) {
-      const error = new GetVehicleLocationsError(
+      const error = new ApiError(
         'Invalid response',
         'Response does not contain any data.',
         {}
@@ -60,7 +49,7 @@ export class MpkApi extends ApiBase {
     }
 
     if (!Array.isArray(responseData)) {
-      const error = new GetVehicleLocationsError(
+      const error = new ApiError(
         'Invalid response',
         'Response data is not an array.',
         responseData

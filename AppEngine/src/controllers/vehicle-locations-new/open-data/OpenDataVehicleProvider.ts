@@ -17,7 +17,7 @@ import {
   LineLocationsAggregator
 } from '../helpers';
 import { VehicleClassifier } from '../vehicle-classification';
-import { VehicleProviderBase } from '../VehicleProviderBase';
+import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 // For calculating intervals.
 const second = 1000;
@@ -45,8 +45,8 @@ export class OpenDataVehicleProvider extends VehicleProviderBase {
   private readonly queryVehicleLocationsErrorReporter: IntervalErrorReporter;
   private readonly noVehicleHasMovedInLastFewMinutesReporter: IntervalErrorReporter;
 
-  constructor(lineDatabase: LineDatabase, logger: Logger) {
-    super();
+  constructor(lineDatabase: LineDatabase, logger: Logger, dateProvider?: DateProvider) {
+    super(dateProvider);
 
     this.api = new OpenDataApi();
     this.lineDatabase = lineDatabase;

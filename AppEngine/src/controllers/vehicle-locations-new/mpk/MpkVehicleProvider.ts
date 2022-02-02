@@ -1,9 +1,4 @@
 import {
-  MpkApi,
-  GetVehicleLocationsResult as GetApiVehicleLocationsResult,
-  GetVehicleLocationsError
-} from './MpkApi';
-import {
   LineLocationsCollection,
   VehicleLocation,
   VehicleLocationFromApi,
@@ -15,7 +10,9 @@ import {
   LineDatabase,
   LineLocationsAggregator
 } from '../helpers';
-import { VehicleProviderBase } from '../VehicleProviderBase';
+import { MpkApi } from './MpkApi';
+import { ApiType, ApiResult, ApiError } from './interfaces';
+import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 // For calculating intervals.
 const second = 1000;
@@ -31,7 +28,7 @@ type GetVehicleLocationsResult =
  */
 export class MpkVehicleProvider extends VehicleProviderBase {
 
-  private readonly api: MpkApi;
+  private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
 
@@ -40,10 +37,10 @@ export class MpkVehicleProvider extends VehicleProviderBase {
   private readonly invalidRecordsErrorReporter: IntervalErrorReporter;
   private readonly apiErrorReporter: IntervalErrorReporter;
 
-  constructor(lineDatabase: LineDatabase, logger: Logger) {
-    super();
+  constructor(lineDatabase: LineDatabase, logger: Logger, dateProvider?: DateProvider, api?: ApiType) {
+    super(dateProvider);
 
-    this.api = new MpkApi(lineDatabase);
+    this.api = api || new MpkApi(lineDatabase);
     this.lineDatabase = lineDatabase;
     this.angleCalculator = new AngleCalculator();
 
@@ -91,7 +88,7 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     return { kind: 'Success', lineLocations: result };
   }
 
-  private async getVehicleLocationsFromApi(): Promise<GetApiVehicleLocationsResult> {
+  private async getVehicleLocationsFromApi(): Promise<ApiResult> {
     // Try 2 times.
     // If the 2nd one fails -> hard fail.
     const response1 = await this.api.getVehicleLocations();
@@ -112,7 +109,7 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     }
   }
 
-  private reportApiErrorIfNeeded(error: GetVehicleLocationsError) {
+  private reportApiErrorIfNeeded(error: ApiError) {
     this.apiErrorReporter.report(error);
   }
 }

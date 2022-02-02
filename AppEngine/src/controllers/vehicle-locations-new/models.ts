@@ -45,3 +45,7 @@ export class VehicleLocationFromApi {
     public readonly lng: number
   ) { }
 }
+
+export interface Logger {
+  error(message?: any, ...optionalParams: any[]): void;
+}

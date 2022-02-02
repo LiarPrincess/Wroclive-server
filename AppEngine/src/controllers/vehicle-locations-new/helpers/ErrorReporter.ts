@@ -1,5 +1,5 @@
+import { Logger } from '../models';
 import { subtractMilliseconds } from '../math';
-import { Logger } from '../../../util';
 
 type DateProvider = () => Date;
 

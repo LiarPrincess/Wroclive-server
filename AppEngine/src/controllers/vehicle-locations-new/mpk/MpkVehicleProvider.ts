@@ -6,7 +6,8 @@ import {
 import {
   LineLocationsCollection,
   VehicleLocation,
-  VehicleLocationFromApi
+  VehicleLocationFromApi,
+  Logger
 } from '../models';
 import {
   AngleCalculator,
@@ -15,7 +16,6 @@ import {
   LineLocationsAggregator
 } from '../helpers';
 import { VehicleProviderBase } from '../VehicleProviderBase';
-import { Logger } from '../../../util';
 
 // For calculating intervals.
 const second = 1000;

@@ -1,32 +1,18 @@
-import {
-  LineLocationsCollection,
-  VehicleLocation,
-  VehicleLocationFromApi,
-} from '../models';
-import {
-  AngleCalculator,
-  LineDatabase,
-  LineLocationsAggregator
-} from '../helpers';
-import {
-  HasMovedInLastFewMinutesClassifier,
-  HasMovedInLastFewMinutesClassifierType
-} from '../vehicle-classification';
+// This dir
 import { ApiType, ApiResult } from './ApiType';
+import { VehicleProviderType, GetVehicleLocationsResult } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
+// Parent dir
+import { VehicleLocation, VehicleLocationFromApi } from '../models';
+import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
+import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
 import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
-
-export type GetVehicleLocationsResult =
-  { kind: 'Success', lineLocations: LineLocationsCollection } |
-  { kind: 'ApiError' } |
-  { kind: 'ResponseContainsNoVehicles' } |
-  { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 /**
  * Mpk is designed as a SECONDARY data source.
  * We are more lenient on what we show.
  */
-export class VehicleProvider extends VehicleProviderBase {
+export class VehicleProvider extends VehicleProviderBase implements VehicleProviderType {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;

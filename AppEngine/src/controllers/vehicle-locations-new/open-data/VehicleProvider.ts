@@ -1,40 +1,29 @@
-import {
-  LineLocationsCollection,
-  VehicleLocation,
-  VehicleLocationFromApi
-} from '../models';
-import {
-  AngleCalculator,
-  LineDatabase,
-  LineLocationsAggregator
-} from '../helpers';
+// This dir
 import { ApiType, ApiResult } from './ApiType';
+import { VehicleProviderType, GetVehicleLocationsResult } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
-import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
+// Parent dir
+import { VehicleLocation, VehicleLocationFromApi } from '../models';
+import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
-
-export type GetVehicleLocationsResult =
-  { kind: 'Success', lineLocations: LineLocationsCollection } |
-  { kind: 'ApiError' } |
-  { kind: 'ResponseContainsNoVehicles' } |
-  { kind: 'NoVehicleHasMovedInLastFewMinutes' };
+import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 /**
  * Open data is designed as a PRIMARY data source.
  * We are more strict on what we show.
  */
-export class VehicleProvider extends VehicleProviderBase {
+export class VehicleProvider extends VehicleProviderBase implements VehicleProviderType {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
-  private readonly errorReporter: OpenDataErrorReporterType;
+  private readonly errorReporter: ErrorReporterType;
   private readonly vehicleClassifier: VehicleClassifierType;
 
   constructor(
     api: ApiType,
     lineDatabase: LineDatabase,
-    errorReporter: OpenDataErrorReporterType,
+    errorReporter: ErrorReporterType,
     vehicleClassifier?: VehicleClassifierType,
     dateProvider?: DateProvider
   ) {

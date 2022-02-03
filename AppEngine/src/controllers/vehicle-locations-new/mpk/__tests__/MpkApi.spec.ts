@@ -43,7 +43,21 @@ function intercept(): nock.Interceptor {
 
 describe('MpkApi', () => {
 
-  it('should handle correct response', async () => {
+  it('returns no vehicles when response is empty array', async () => {
+    intercept()
+      .reply(200, []);
+
+    const api = new MpkApi(lineDatabase);
+    const result = await api.getVehicleLocations();
+
+    expect(result).toEqual({
+      kind: 'Success',
+      invalidRecords: [],
+      vehicles: []
+    });
+  });
+
+  it('returns vehicles when response contains valid vehicles', async () => {
     intercept()
       .reply(200, [
         { name: '4', type: 'tram', y: 17.006762, x: 51.100864, k: 17659902 },
@@ -65,7 +79,7 @@ describe('MpkApi', () => {
     });
   });
 
-  it('should handle response with invalid record', async () => {
+  it('returns invalid records when response contains invalid entries', async () => {
     intercept()
       .reply(200, [
         { name: '4', type: 'tram', y: 17.006762, x: 51.100864, k: 17659902 },
@@ -88,7 +102,7 @@ describe('MpkApi', () => {
     });
   });
 
-  it('should handle response without records', async () => {
+  it('returns error when response is empty', async () => {
     intercept()
       .reply(200, '');
 
@@ -99,13 +113,13 @@ describe('MpkApi', () => {
       kind: 'Error',
       error: {
         kind: 'Invalid response',
-        message: 'Response does not contain any data.',
-        data: {}
+        message: 'Response data is not an array.',
+        data: ''
       }
     });
   });
 
-  it('should handle network error', async () => {
+  it('returns error on network error', async () => {
     intercept()
       .replyWithError('Some error...');
 
@@ -125,7 +139,7 @@ describe('MpkApi', () => {
     }
   });
 
-  it('should handle 404', async () => {
+  it('returns error on 404', async () => {
     intercept()
       .reply(404, {});
 
@@ -145,7 +159,7 @@ describe('MpkApi', () => {
     }
   });
 
-  it('should handle json parsing error', async () => {
+  it('returns error on json parsing error', async () => {
     intercept()
       .reply(200, 'invalid json');
 

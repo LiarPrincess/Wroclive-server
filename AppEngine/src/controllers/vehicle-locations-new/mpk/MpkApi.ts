@@ -39,15 +39,6 @@ export class MpkApi extends ApiBase implements ApiType {
       return { kind: 'Error', error: e };
     }
 
-    if (!responseData) {
-      const error = new ApiError(
-        'Invalid response',
-        'Response does not contain any data.',
-        {}
-      );
-      return { kind: 'Error', error };
-    }
-
     if (!Array.isArray(responseData)) {
       const error = new ApiError(
         'Invalid response',

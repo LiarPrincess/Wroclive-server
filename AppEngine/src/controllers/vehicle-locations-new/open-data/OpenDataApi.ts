@@ -1,5 +1,11 @@
 import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
 
+import {
+  ApiType,
+  ApiResult,
+  VehicleLocationsError,
+  ResourceIdError
+} from './interfaces';
 import { ApiBase } from '../ApiBase';
 import { subtractMilliseconds } from '../math';
 import { VehicleLocationFromApi } from '../models';
@@ -37,51 +43,22 @@ interface ResourceIdCache {
  * We will ALWAYS return 'resourceId'.
  * Sometimes the obsolete one, sometimes the hard-coded one. But it will be there.
  */
-class GetResourceIdResult {
+class ResourceIdResult {
   constructor(
     public readonly resourceId: ResourceId,
-    public readonly error: GetResourceIdError | undefined,
-  ) { }
-}
-
-export class GetResourceIdError {
-  constructor(
-    public readonly kind: 'Response without Id' | 'Network error',
-    public readonly message: string,
-    public readonly errorData: any,
+    public readonly error: ResourceIdError | undefined,
   ) { }
 }
 
 type QueryVehicleLocationsResult =
   { kind: 'Success', vehicles: VehicleLocationFromApi[], invalidRecords: any[] } |
-  { kind: 'Error', error: QueryVehicleLocationsError };
-
-export class QueryVehicleLocationsError {
-  constructor(
-    public readonly kind: 'Network error' | 'Response with error' | 'No records',
-    public readonly message: string,
-    public readonly data: any,
-  ) { }
-}
-
-export type GetVehicleLocationsResult =
-  {
-    kind: 'Success',
-    vehicles: VehicleLocationFromApi[],
-    invalidRecords: any[]
-    resourceIdError: GetResourceIdError | undefined
-  } |
-  {
-    kind: 'Error',
-    error: QueryVehicleLocationsError,
-    resourceIdError: GetResourceIdError | undefined
-  };
+  { kind: 'Error', error: VehicleLocationsError };
 
 /* ============ */
 /* === Main === */
 /* ============ */
 
-export class OpenDataApi extends ApiBase {
+export class OpenDataApi extends ApiBase implements ApiType {
 
   private resourceIdCache?: ResourceIdCache;
 
@@ -89,7 +66,7 @@ export class OpenDataApi extends ApiBase {
   /* === Get vehicle locations === */
   /* ============================= */
 
-  async getVehicleLocations(): Promise<GetVehicleLocationsResult> {
+  async getVehicleLocations(): Promise<ApiResult> {
     const resourceCheckDate = new Date();
     const resourceResult = await this.getResourceId(resourceCheckDate);
     const resourceId = resourceResult.resourceId;
@@ -147,12 +124,12 @@ export class OpenDataApi extends ApiBase {
         `Response with status: ${statusCode}.` :
         `Unknown request error.`;
 
-      const error = new QueryVehicleLocationsError('Network error', message, responseError);
+      const error = new VehicleLocationsError('Network error', message, responseError);
       return { kind: 'Error', error };
     }
 
     if (responseData.error) {
-      const error = new QueryVehicleLocationsError(
+      const error = new VehicleLocationsError(
         'Response with error',
         'Response contains error field.',
         responseData
@@ -163,7 +140,7 @@ export class OpenDataApi extends ApiBase {
 
     const records = responseData?.result?.records;
     if (!records) {
-      const error = new QueryVehicleLocationsError(
+      const error = new VehicleLocationsError(
         'No records',
         'Response does not contain any records.',
         responseData
@@ -212,8 +189,8 @@ export class OpenDataApi extends ApiBase {
     }
 
     if (!result.length) {
-      const error = new QueryVehicleLocationsError(
-        'No records',
+      const error = new VehicleLocationsError(
+        'All records invalid',
         'Response contains records, but all of them are invalid.',
         responseData
       );
@@ -232,7 +209,7 @@ export class OpenDataApi extends ApiBase {
   /* === Resource id === */
   /* =================== */
 
-  async getResourceId(now: Date): Promise<GetResourceIdResult> {
+  async getResourceId(now: Date): Promise<ResourceIdResult> {
     // If everything failed then we will still try to return some id.
     // For now let's use hard-coded one and hope that it has not changed!
     let resourceIdOnError = '17308285-3977-42f7-81b7-fdd168c210a2';
@@ -242,7 +219,7 @@ export class OpenDataApi extends ApiBase {
       const timeSinceLastUpdate = subtractMilliseconds(now, this.resourceIdCache.date);
       if (timeSinceLastUpdate <= ResourceIdRefreshInterval) {
         const id = this.resourceIdCache.id;
-        return new GetResourceIdResult(id, undefined);
+        return new ResourceIdResult(id, undefined);
       }
 
       // We can't use the cached id.
@@ -260,24 +237,24 @@ export class OpenDataApi extends ApiBase {
 
       if (id) {
         this.resourceIdCache = { id, date: now };
-        return new GetResourceIdResult(id, undefined);
+        return new ResourceIdResult(id, undefined);
       }
 
-      const resourceError = new GetResourceIdError(
+      const resourceError = new ResourceIdError(
         'Response without Id',
         'Unable to get resource id from response',
         response.data
       );
 
-      return new GetResourceIdResult(resourceIdOnError, resourceError);
+      return new ResourceIdResult(resourceIdOnError, resourceError);
     } catch (error) {
       const statusCode = this.getStatusCode(error);
       const message = statusCode ?
         `Resource id response with status: ${statusCode}.` :
         `Unknown resource id request error.`;
 
-      const resourceError = new GetResourceIdError('Network error', message, error);
-      return new GetResourceIdResult(resourceIdOnError, resourceError);
+      const resourceError = new ResourceIdError('Network error', message, error);
+      return new ResourceIdResult(resourceIdOnError, resourceError);
     }
   }
 

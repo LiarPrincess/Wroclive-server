@@ -39,11 +39,16 @@ type DateProvider = () => Date;
 /* === Main === */
 /* ============ */
 
+export interface HasMovedInLastFewMinutesClassifierType {
+  prepareForClassification(): void;
+  hasMovedInLastFewMinutes(vehicle: VehicleLocationFromApi): boolean;
+}
+
 /**
  * Vehicle is stale if it has not moved for some time.
  * This may also mean that the data provider hangs.
  */
-export class HasMovedInLastFewMinutesClassifier {
+export class HasMovedInLastFewMinutesClassifier implements HasMovedInLastFewMinutesClassifierType {
 
   private readonly previousLocationByVehicleId: PreviousLocationByVehicleId;
   private readonly dateProvider: DateProvider;

@@ -4,6 +4,16 @@ import { DepotClassifier } from './DepotClassifier';
 import { LineScheduleClassifier } from './LineScheduleClassifier';
 import { HasMovedInLastFewMinutesClassifier } from './HasMovedInLastFewMinutesClassifier';
 
+export {
+  HasMovedInLastFewMinutesClassifier,
+  HasMovedInLastFewMinutesClassifierType
+} from './HasMovedInLastFewMinutesClassifier';
+
+export interface VehicleClassifierType {
+  prepareForClassification(): void;
+  classify(line: Line, vehicle: VehicleLocationFromApi): VehicleClassification;
+}
+
 export class VehicleClassification {
   constructor(
     public readonly isInDepot: boolean,
@@ -12,7 +22,7 @@ export class VehicleClassification {
   ) { }
 }
 
-export class VehicleClassifier {
+export class VehicleClassifier implements VehicleClassifierType {
 
   private readonly depotClassifier = new DepotClassifier();
   private readonly lineScheduleClassifier = new LineScheduleClassifier();

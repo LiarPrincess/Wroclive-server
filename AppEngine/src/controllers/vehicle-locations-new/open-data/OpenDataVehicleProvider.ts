@@ -1,31 +1,23 @@
 import {
-  OpenDataApi,
-  GetVehicleLocationsResult as GetApiVehicleLocationsResult,
-  GetResourceIdError,
-  QueryVehicleLocationsError
-} from './OpenDataApi';
-import {
   LineLocationsCollection,
   VehicleLocation,
-  VehicleLocationFromApi,
-  Logger
+  VehicleLocationFromApi
 } from '../models';
 import {
   AngleCalculator,
-  IntervalErrorReporter,
   LineDatabase,
   LineLocationsAggregator
 } from '../helpers';
-import { VehicleClassifier } from '../vehicle-classification';
+import { ApiType, ApiResult } from './interfaces';
+import { OpenDataErrorReporterType } from './OpenDataErrorReporter';
 import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
+import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
-// For calculating intervals.
-const second = 1000;
-const minute = 60 * second;
-
-type GetVehicleLocationsResult =
+export type GetVehicleLocationsResult =
   { kind: 'Success', lineLocations: LineLocationsCollection } |
-  { kind: 'Error' };
+  { kind: 'ApiError' } |
+  { kind: 'ResponseContainsNoVehicles' } |
+  { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 /**
  * Open data is designed as a PRIMARY data source.
@@ -33,49 +25,25 @@ type GetVehicleLocationsResult =
  */
 export class OpenDataVehicleProvider extends VehicleProviderBase {
 
-  private readonly api: OpenDataApi;
+  private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
-  private readonly vehicleClassifier: VehicleClassifier;
+  private readonly errorReporter: OpenDataErrorReporterType;
+  private readonly vehicleClassifier: VehicleClassifierType;
 
-  // If the something fails then report error.
-  // But not always, we don't like spam.
-  private readonly resourceIdErrorReporter: IntervalErrorReporter;
-  private readonly invalidRecordsErrorReporter: IntervalErrorReporter;
-  private readonly queryVehicleLocationsErrorReporter: IntervalErrorReporter;
-  private readonly noVehicleHasMovedInLastFewMinutesReporter: IntervalErrorReporter;
-
-  constructor(lineDatabase: LineDatabase, logger: Logger, dateProvider?: DateProvider) {
+  constructor(
+    api: ApiType,
+    lineDatabase: LineDatabase,
+    errorReporter: OpenDataErrorReporterType,
+    vehicleClassifier?: VehicleClassifierType,
+    dateProvider?: DateProvider
+  ) {
     super(dateProvider);
-
-    this.api = new OpenDataApi();
+    this.api = api;
     this.lineDatabase = lineDatabase;
-    this.vehicleClassifier = new VehicleClassifier();
+    this.errorReporter = errorReporter;
+    this.vehicleClassifier = vehicleClassifier || new VehicleClassifier();
     this.angleCalculator = new AngleCalculator();
-
-    this.resourceIdErrorReporter = new IntervalErrorReporter(
-      15 * minute,
-      '[OpenDataVehicleProvider] Api resource id refresh failed.',
-      logger
-    );
-
-    this.invalidRecordsErrorReporter = new IntervalErrorReporter(
-      30 * minute,
-      '[OpenDataVehicleProvider] Api response contains invalid records.',
-      logger
-    );
-
-    this.queryVehicleLocationsErrorReporter = new IntervalErrorReporter(
-      5 * minute,
-      '[OpenDataVehicleProvider] Api get vehicle locations failed.',
-      logger
-    );
-
-    this.noVehicleHasMovedInLastFewMinutesReporter = new IntervalErrorReporter(
-      5 * minute,
-      '[OpenDataVehicleProvider] No vehicle has moved in last few minutes.',
-      logger
-    );
   }
 
   async getVehicleLocations(): Promise<GetVehicleLocationsResult> {
@@ -85,13 +53,18 @@ export class OpenDataVehicleProvider extends VehicleProviderBase {
     switch (response.kind) {
       case 'Success':
         vehicles = response.vehicles;
-        this.reportInvalidRecordsIfNeeded(response.invalidRecords);
-        this.reportResourceIdErrorIfNeeded(response.resourceIdError);
+        this.errorReporter.responseContainsInvalidRecords(response.invalidRecords);
+        this.errorReporter.resourceIdError(response.resourceIdError);
         break;
       case 'Error':
-        this.reportQueryVehicleLocationsErrorIfNeeded(response.error);
-        this.reportResourceIdErrorIfNeeded(response.resourceIdError);
-        return { kind: 'Error' };
+        this.errorReporter.apiError(response.error);
+        this.errorReporter.resourceIdError(response.resourceIdError);
+        return { kind: 'ApiError' };
+    }
+
+    if (!vehicles.length) {
+      this.errorReporter.responseContainsNoVehicles(response);
+      return { kind: 'ResponseContainsNoVehicles' };
     }
 
     const lineLocationsAggregator = new LineLocationsAggregator();
@@ -111,9 +84,7 @@ export class OpenDataVehicleProvider extends VehicleProviderBase {
         hasMovedInLastFewMinutes
       } = this.vehicleClassifier.classify(line, vehicle);
 
-      if (hasMovedInLastFewMinutes) {
-        hasAnyVehicleMovedInLastFewMinutes = true;
-      }
+      hasAnyVehicleMovedInLastFewMinutes = hasAnyVehicleMovedInLastFewMinutes || hasMovedInLastFewMinutes;
 
       const isVisible = !isInDepot && isWithinScheduleTimeFrame;
       if (isVisible) {
@@ -123,17 +94,16 @@ export class OpenDataVehicleProvider extends VehicleProviderBase {
       }
     }
 
-    // Filter may have removed all vehicles.
     if (!hasAnyVehicleMovedInLastFewMinutes) {
-      this.noVehicleHasMovedInLastFewMinutesReporter.report({});
-      return { kind: 'Error' };
+      this.errorReporter.noVehicleHasMovedInLastFewMinutes();
+      return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
     }
 
     const result = this.createLineLocationsCollection(lineLocationsAggregator);
     return { kind: 'Success', lineLocations: result };
   }
 
-  private async getVehicleLocationsFromApi(): Promise<GetApiVehicleLocationsResult> {
+  private async getVehicleLocationsFromApi(): Promise<ApiResult> {
     // Try 2 times.
     // If the 2nd one fails -> hard fail.
     const response1 = await this.api.getVehicleLocations();
@@ -146,21 +116,5 @@ export class OpenDataVehicleProvider extends VehicleProviderBase {
 
     const response2 = await this.api.getVehicleLocations();
     return response2;
-  }
-
-  private reportResourceIdErrorIfNeeded(error: GetResourceIdError | undefined) {
-    if (error) {
-      this.resourceIdErrorReporter.report(error);
-    }
-  }
-
-  private reportInvalidRecordsIfNeeded(records: any[]) {
-    if (records.length) {
-      this.invalidRecordsErrorReporter.report(records);
-    }
-  }
-
-  private reportQueryVehicleLocationsErrorIfNeeded(error: QueryVehicleLocationsError) {
-    this.queryVehicleLocationsErrorReporter.report(error);
   }
 }

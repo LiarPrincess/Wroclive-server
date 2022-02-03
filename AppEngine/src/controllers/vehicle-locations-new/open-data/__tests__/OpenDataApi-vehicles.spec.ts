@@ -60,7 +60,25 @@ function createResponseError(type: string, message: string): any {
 
 describe('OpenDataApi-queryVehicleLocations', () => {
 
-  it('should handle correct response', async () => {
+  it('returns no vehicles when response is empty array', async () => {
+    intercept()
+      .reply(200, []);
+
+    const now = new Date('2020-01-01 10:01:00');
+    const api = new OpenDataApi();
+
+    const result = await api.queryVehicleLocations(resourceId, now);
+    expect(result).toEqual({
+      kind: 'Error',
+      error: {
+        'kind': 'No records',
+        'message': 'Response does not contain any records.',
+        'data': []
+      }
+    });
+  });
+
+  it('returns vehicles when response contains valid vehicles', async () => {
     intercept()
       .reply(200, createResponse([
         {
@@ -93,7 +111,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should handle response with invalid record', async () => {
+  it('returns invalid records when response contains invalid entries', async () => {
     intercept()
       .reply(200, createResponse([
         {
@@ -132,7 +150,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should handle response with invalid actualization date', async () => {
+  it('return invalid record on un-parseable date', async () => {
     intercept()
       .reply(200, createResponse([
         {
@@ -172,7 +190,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should skip \'None\' lines', async () => {
+  it('skips \'None\' lines', async () => {
     intercept()
       .reply(200, createResponse([
         {
@@ -204,7 +222,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should remove old vehicles', async () => {
+  it('removes old vehicles', async () => {
     const now = new Date('2020-01-01 10:01:00');
     const oldMilliseconds = now.getTime() - RemoveVehiclesOlderThan - 5;
     const old = new Date(oldMilliseconds);
@@ -239,7 +257,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should handle response without records', async () => {
+  it('returns error on response without records', async () => {
     const error = { empty: '' };
     intercept()
       .reply(200, error);
@@ -258,7 +276,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should handle response with error', async () => {
+  it('returns error on response with error', async () => {
     const error = createResponseError('Authorization Error', 'Access denied');
     intercept()
       .reply(200, error);
@@ -277,7 +295,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     });
   });
 
-  it('should handle network error', async () => {
+  it('returns error on network error', async () => {
     intercept()
       .replyWithError('Some error...');
 
@@ -298,7 +316,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     }
   });
 
-  it('should handle 404', async () => {
+  it('returns error on 404', async () => {
     intercept()
       .reply(404, {});
 
@@ -319,7 +337,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
     }
   });
 
-  it('should handle json parsing error', async () => {
+  it('returns error on json parsing error', async () => {
     intercept()
       .reply(200, 'invalid json');
 

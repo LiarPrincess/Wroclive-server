@@ -1,5 +1,5 @@
-import { ApiType, ApiResult, ResourceIdError, VehicleLocationsError } from '../interfaces';
-import { OpenDataErrorReporterType } from '../OpenDataErrorReporter';
+import { ApiType, ApiResult, ResourceIdError, VehicleLocationsError } from '../ApiType';
+import { ErrorReporterType } from '../ErrorReporter';
 import { VehicleLocationFromApi } from '../../models';
 import { VehicleClassifierType, VehicleClassification } from '../../vehicle-classification';
 import { Line } from '../../../lines';
@@ -70,7 +70,7 @@ class ReportedError {
   ) { }
 }
 
-export class ErrorReporter implements OpenDataErrorReporterType {
+export class ErrorReporter implements ErrorReporterType {
 
   public readonly errors: ReportedError[] = [];
 

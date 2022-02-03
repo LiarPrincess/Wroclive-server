@@ -1,4 +1,4 @@
-import { ApiResult, ResourceIdError, VehicleLocationsError } from './interfaces';
+import { ApiResult, ResourceIdError, VehicleLocationsError } from './ApiType';
 import { IntervalErrorReporter } from '../helpers';
 import { Logger } from '../models';
 
@@ -6,7 +6,7 @@ import { Logger } from '../models';
 const second = 1000;
 const minute = 60 * second;
 
-export interface OpenDataErrorReporterType {
+export interface ErrorReporterType {
   apiError(error: VehicleLocationsError): void;
   resourceIdError(error: ResourceIdError | undefined): void;
   responseContainsInvalidRecords(records: any[]): void;
@@ -16,7 +16,7 @@ export interface OpenDataErrorReporterType {
 
 // If the something fails then report error.
 // But not always, we don't like spam.
-export class OpenDataErrorReporter implements OpenDataErrorReporterType {
+export class ErrorReporter implements ErrorReporterType {
 
   private readonly api: IntervalErrorReporter;
   private readonly resourceId: IntervalErrorReporter;

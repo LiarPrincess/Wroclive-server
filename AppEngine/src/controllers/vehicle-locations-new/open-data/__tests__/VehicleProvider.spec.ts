@@ -5,8 +5,8 @@ import {
   VehicleLocationFromApi
 } from '../../models';
 import * as mocks from './Mocks';
-import { OpenDataVehicleProvider } from '../OpenDataVehicleProvider';
-import { ApiResult, ResourceIdError, VehicleLocationsError } from '../interfaces';
+import { VehicleProvider } from '../VehicleProvider';
+import { ApiResult, ResourceIdError, VehicleLocationsError } from '../ApiType';
 import { LineDatabase } from '../../helpers';
 import { Line, LineCollection } from '../../../lines';
 
@@ -36,7 +36,7 @@ function createProvider() {
   const allLines = new LineCollection('TIMESTAMP', [lineA, line4, line125]);
   lineDatabase.updateLineDefinitions(allLines);
 
-  const provider = new OpenDataVehicleProvider(
+  const provider = new VehicleProvider(
     api,
     lineDatabase,
     errorReporter,

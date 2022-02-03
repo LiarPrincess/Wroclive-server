@@ -5,7 +5,7 @@ import {
   ApiResult,
   VehicleLocationsError,
   ResourceIdError
-} from './interfaces';
+} from './ApiType';
 import { ApiBase } from '../ApiBase';
 import { subtractMilliseconds } from '../math';
 import { VehicleLocationFromApi } from '../models';
@@ -58,7 +58,7 @@ type QueryVehicleLocationsResult =
 /* === Main === */
 /* ============ */
 
-export class OpenDataApi extends ApiBase implements ApiType {
+export class Api extends ApiBase implements ApiType {
 
   private resourceIdCache?: ResourceIdCache;
 

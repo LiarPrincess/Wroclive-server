@@ -1,9 +1,6 @@
 import { default as nock } from 'nock';
 
-import {
-  OpenDataApi,
-  ResourceIdRefreshInterval
-} from '../OpenDataApi';
+import { Api, ResourceIdRefreshInterval } from '../Api';
 
 /* ============ */
 /* === Nock === */
@@ -114,7 +111,7 @@ describe('OpenDataApi-getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual(resourceId);
@@ -130,7 +127,7 @@ describe('OpenDataApi-getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual(resourceId);
@@ -146,7 +143,7 @@ describe('OpenDataApi-getResourceId', () => {
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual(resourceId);
@@ -161,7 +158,7 @@ describe('OpenDataApi-getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResult = await api.getResourceId(cacheDate);
@@ -184,7 +181,7 @@ describe('OpenDataApi-getResourceId', () => {
     intercept()
       .reply(200, createResponse(distributionId, distributionAccessURL, datasetDistributionId));
 
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const cacheDate = new Date('2020-01-01 10:00:00');
     const networkResult0 = await api.getResourceId(cacheDate);
@@ -206,7 +203,7 @@ describe('OpenDataApi-getResourceId', () => {
       .reply(200, 'invalid json'); // Well… valid, but not the one we are looking for.
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual('17308285-3977-42f7-81b7-fdd168c210a2');
@@ -222,7 +219,7 @@ describe('OpenDataApi-getResourceId', () => {
       .replyWithError('Some error...');
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual('17308285-3977-42f7-81b7-fdd168c210a2');
@@ -236,7 +233,7 @@ describe('OpenDataApi-getResourceId', () => {
       .reply(404, {});
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.getResourceId(now);
 
     expect(result.resourceId).toEqual('17308285-3977-42f7-81b7-fdd168c210a2');

@@ -1,9 +1,6 @@
 import { default as nock } from 'nock';
 
-import {
-  OpenDataApi,
-  RemoveVehiclesOlderThan
-} from '../OpenDataApi';
+import { Api, RemoveVehiclesOlderThan } from '../Api';
 
 /* ============ */
 /* === Nock === */
@@ -65,7 +62,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .reply(200, []);
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const result = await api.queryVehicleLocations(resourceId, now);
     expect(result).toEqual({
@@ -98,7 +95,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const result = await api.queryVehicleLocations(resourceId, now);
     expect(result).toEqual({
@@ -131,7 +128,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const result = await api.queryVehicleLocations(resourceId, now);
     expect(result).toEqual({
@@ -170,7 +167,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const result = await api.queryVehicleLocations(resourceId, now);
     expect(result).toEqual({
@@ -210,7 +207,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       ]));
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
 
     const result = await api.queryVehicleLocations(resourceId, now);
     expect(result).toEqual({
@@ -245,7 +242,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
         }
       ]));
 
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result).toEqual({
@@ -263,7 +260,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .reply(200, error);
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result).toEqual({
@@ -282,7 +279,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .reply(200, error);
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result).toEqual({
@@ -300,7 +297,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .replyWithError('Some error...');
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result.kind).toEqual('Error');
@@ -321,7 +318,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .reply(404, {});
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result.kind).toEqual('Error');
@@ -342,7 +339,7 @@ describe('OpenDataApi-queryVehicleLocations', () => {
       .reply(200, 'invalid json');
 
     const now = new Date('2020-01-01 10:01:00');
-    const api = new OpenDataApi();
+    const api = new Api();
     const result = await api.queryVehicleLocations(resourceId, now);
 
     expect(result).toEqual({

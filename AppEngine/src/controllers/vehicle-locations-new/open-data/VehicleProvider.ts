@@ -8,8 +8,8 @@ import {
   LineDatabase,
   LineLocationsAggregator
 } from '../helpers';
-import { ApiType, ApiResult } from './interfaces';
-import { OpenDataErrorReporterType } from './OpenDataErrorReporter';
+import { ApiType, ApiResult } from './ApiType';
+import { ErrorReporterType } from './ErrorReporter';
 import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
@@ -23,7 +23,7 @@ export type GetVehicleLocationsResult =
  * Open data is designed as a PRIMARY data source.
  * We are more strict on what we show.
  */
-export class OpenDataVehicleProvider extends VehicleProviderBase {
+export class VehicleProvider extends VehicleProviderBase {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;

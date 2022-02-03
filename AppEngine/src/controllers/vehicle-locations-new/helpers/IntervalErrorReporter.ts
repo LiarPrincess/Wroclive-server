@@ -22,7 +22,7 @@ export class IntervalErrorReporter {
     this.lastReport = undefined;
   }
 
-  report(error: any) {
+  report(error?: any) {
     const now = this.dateProvider();
 
     // If 'this.lastReport' is 'undefined' -> report.

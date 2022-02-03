@@ -1,6 +1,7 @@
-import { ApiType, ApiResult } from '../interfaces';
+import { ApiType, ApiResult, ApiError } from '../interfaces';
+import { VehicleLocationFromApi } from '../../models';
 import { HasMovedInLastFewMinutesClassifierType } from '../../vehicle-classification';
-import { VehicleLocationFromApi } from 'controllers/vehicle-locations-new/models';
+import { MpkErrorReporterType } from '../MpkErrorReporter';
 
 /* =========== */
 /* === Api === */
@@ -52,15 +53,36 @@ export function getCurrentDate(): Date {
   return currentDate;
 }
 
-/* ============== */
-/* === Logger === */
-/* ============== */
+/* ====================== */
+/* === Error reporter === */
+/* ====================== */
 
-export class Logger {
+class ReportedError {
+  constructor(
+    public readonly kind: string,
+    public readonly arg?: any
+  ) { }
+}
 
-  public readonly messages: any[] = [];
+export class ErrorReporter implements MpkErrorReporterType {
 
-  error(message?: any, ...optionalParams: any[]) {
-    this.messages.push({ message, args: optionalParams });
+  public readonly errors: ReportedError[] = [];
+
+  reportApiError(error: ApiError): void {
+    this.errors.push(new ReportedError('ApiError', error));
+  }
+
+  reportResponseContainsInvalidRecords(records: any[]): void {
+    if (records.length) {
+      this.errors.push(new ReportedError('ResponseContainsInvalidRecords', records));
+    }
+  }
+
+  reportResponseContainsNoVehicles(result: ApiResult): void {
+    this.errors.push(new ReportedError('ResponseContainsNoVehicles', result));
+  }
+
+  reportNoVehicleHasMovedInLastFewMinutes(): void {
+    this.errors.push(new ReportedError('NoVehicleHasMovedInLastFewMinutes'));
   }
 }

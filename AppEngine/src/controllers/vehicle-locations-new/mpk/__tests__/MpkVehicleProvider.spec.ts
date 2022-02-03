@@ -28,46 +28,43 @@ const vehicle_line4_1_with0Angle = new VehicleLocation('41', 13, 17, 0);
 const timestamp = mocks.currentDateTimestamp;
 
 function createProvider() {
-  const lineDatabase = new LineDatabase();
-  const logger = new mocks.Logger();
   const api = new mocks.Api();
+  const lineDatabase = new LineDatabase();
+  const errorReporter = new mocks.ErrorReporter();
   const hasMovedInLastFewMinutes = new mocks.HasMovedInLastFewMinutesClassifier();
 
   const allLines = new LineCollection('TIMESTAMP', [lineA, line4, line125]);
   lineDatabase.updateLineDefinitions(allLines);
 
   const provider = new MpkVehicleProvider(
-    lineDatabase,
-    logger,
     api,
+    lineDatabase,
+    errorReporter,
     hasMovedInLastFewMinutes,
     mocks.getCurrentDate
   );
 
-  return { provider, api, hasMovedInLastFewMinutes, logger };
+  return { provider, api, errorReporter, hasMovedInLastFewMinutes };
 }
 
 describe('MpkVehicleProvider', function () {
 
   it('returns error if api returns no vehicles', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     const apiResult: ApiResult = { kind: 'Success', vehicles: [], invalidRecords: [] };
     api.results = [apiResult];
 
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({ kind: 'Error' });
-    expect(logger.messages).toEqual([
-      {
-        message: '[MpkVehicleProvider] Api response contains no valid vehicles.',
-        args: [apiResult]
-      }
+    expect(errorReporter.errors).toEqual([
+      { kind: 'ResponseContainsNoVehicles', arg: apiResult }
     ]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(0);
   });
 
   it('returns line location for each different vehicle line', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     api.results = [
       {
@@ -85,12 +82,12 @@ describe('MpkVehicleProvider', function () {
         { line: line4Data, vehicles: [vehicle_line4_1_with0Angle] }
       ])
     });
-    expect(logger.messages.length).toEqual(0);
+    expect(errorReporter.errors).toEqual([]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('returns the same line location for vehicles from the same line', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     api.results = [
       {
@@ -110,12 +107,12 @@ describe('MpkVehicleProvider', function () {
         }
       ])
     });
-    expect(logger.messages.length).toEqual(0);
+    expect(errorReporter.errors).toEqual([]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('returns result even if one of the vehicles has not moved', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     hasMovedInLastFewMinutes.vehicleIdThatHaveNotMoved.push(vehicle_lineA_1.id);
     api.results = [
@@ -134,12 +131,12 @@ describe('MpkVehicleProvider', function () {
         { line: line4Data, vehicles: [vehicle_line4_1_with0Angle] }
       ])
     });
-    expect(logger.messages.length).toEqual(0);
+    expect(errorReporter.errors).toEqual([]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('returns error if all of the vehicles have not moved', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     hasMovedInLastFewMinutes.vehicleIdThatHaveNotMoved.push(vehicle_lineA_1.id);
     hasMovedInLastFewMinutes.vehicleIdThatHaveNotMoved.push(vehicle_line4_1.id);
@@ -153,17 +150,14 @@ describe('MpkVehicleProvider', function () {
 
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({ kind: 'Error' });
-    expect(logger.messages).toEqual([
-      {
-        message: '[MpkVehicleProvider] No vehicle has moved in last few minutes.',
-        args: [{}],
-      }
+    expect(errorReporter.errors).toEqual([
+      { kind: 'NoVehicleHasMovedInLastFewMinutes' }
     ]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('should call api 2 times before returning error', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     api.results = [
       {
@@ -184,18 +178,19 @@ describe('MpkVehicleProvider', function () {
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] }
       ])
     });
-    expect(logger.messages.length).toEqual(0);
+    expect(errorReporter.errors).toEqual([]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('invalid records from api are reported', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
+    const invalidRecord = { invalid: 'VALUE' };
     api.results = [
       {
         kind: 'Success',
         vehicles: [vehicle_lineA_1],
-        invalidRecords: [{ invalid: 'VALUE' }]
+        invalidRecords: [invalidRecord]
       }
     ];
 
@@ -206,17 +201,14 @@ describe('MpkVehicleProvider', function () {
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] }
       ])
     });
-    expect(logger.messages).toEqual([
-      {
-        message: '[MpkVehicleProvider] Api response contains invalid records.',
-        args: [[{ invalid: 'VALUE' }]] // Array of records inside array of args.
-      }
+    expect(errorReporter.errors).toEqual([
+      { kind: 'ResponseContainsInvalidRecords', arg: [invalidRecord] }
     ]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(1);
   });
 
   it('returns error on api error', async function () {
-    const { provider, api, hasMovedInLastFewMinutes, logger } = createProvider();
+    const { provider, api, hasMovedInLastFewMinutes, errorReporter } = createProvider();
 
     const error1 = new ApiError('Network error', 'MESSAGE_1', 'DATA_1');
     const error2 = new ApiError('Invalid response', 'MESSAGE_2', 'DATA_2');
@@ -227,11 +219,8 @@ describe('MpkVehicleProvider', function () {
 
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({ kind: 'Error' });
-    expect(logger.messages).toEqual([
-      {
-        message: '[MpkVehicleProvider] Api get vehicle locations failed.',
-        args: [error2]
-      }
+    expect(errorReporter.errors).toEqual([
+      { kind: 'ApiError', arg: error2 }
     ]);
     expect(hasMovedInLastFewMinutes.prepareCallCount).toEqual(0);
   });

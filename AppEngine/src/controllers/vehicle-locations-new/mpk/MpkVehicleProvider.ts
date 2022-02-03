@@ -2,11 +2,9 @@ import {
   LineLocationsCollection,
   VehicleLocation,
   VehicleLocationFromApi,
-  Logger
 } from '../models';
 import {
   AngleCalculator,
-  IntervalErrorReporter,
   LineDatabase,
   LineLocationsAggregator
 } from '../helpers';
@@ -14,15 +12,11 @@ import {
   HasMovedInLastFewMinutesClassifier,
   HasMovedInLastFewMinutesClassifierType
 } from '../vehicle-classification';
-import { MpkApi } from './MpkApi';
-import { ApiType, ApiResult, ApiError } from './interfaces';
+import { ApiType, ApiResult } from './interfaces';
+import { MpkErrorReporterType } from './MpkErrorReporter';
 import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
-// For calculating intervals.
-const second = 1000;
-const minute = 60 * second;
-
-type GetVehicleLocationsResult =
+export type GetVehicleLocationsResult =
   { kind: 'Success', lineLocations: LineLocationsCollection } |
   { kind: 'Error' };
 
@@ -35,52 +29,22 @@ export class MpkVehicleProvider extends VehicleProviderBase {
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
+  private readonly errorReporter: MpkErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
 
-  // If the something fails then report error.
-  // But not always, we don't like spam.
-  private readonly invalidRecordsErrorReporter: IntervalErrorReporter;
-  private readonly apiErrorReporter: IntervalErrorReporter;
-  private readonly apiResponseDoesNotContainVehiclesReporter: IntervalErrorReporter;
-  private readonly noVehicleHasMovedInLastFewMinutesReporter: IntervalErrorReporter;
-
   constructor(
+    api: ApiType,
     lineDatabase: LineDatabase,
-    logger: Logger,
-    api?: ApiType,
+    errorReporter: MpkErrorReporterType,
     hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType,
     dateProvider?: DateProvider
   ) {
     super(dateProvider);
-
-    this.api = api || new MpkApi(lineDatabase);
+    this.api = api;
     this.lineDatabase = lineDatabase;
+    this.errorReporter = errorReporter;
     this.angleCalculator = new AngleCalculator();
     this.hasMovedInLastFewMinutesClassifier = hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
-
-    this.invalidRecordsErrorReporter = new IntervalErrorReporter(
-      30 * minute,
-      '[MpkVehicleProvider] Api response contains invalid records.',
-      logger
-    );
-
-    this.apiErrorReporter = new IntervalErrorReporter(
-      5 * minute,
-      '[MpkVehicleProvider] Api get vehicle locations failed.',
-      logger
-    );
-
-    this.apiResponseDoesNotContainVehiclesReporter = new IntervalErrorReporter(
-      5 * minute,
-      '[MpkVehicleProvider] Api response contains no valid vehicles.',
-      logger
-    );
-
-    this.noVehicleHasMovedInLastFewMinutesReporter = new IntervalErrorReporter(
-      5 * minute,
-      '[MpkVehicleProvider] No vehicle has moved in last few minutes.',
-      logger
-    );
   }
 
   async getVehicleLocations(): Promise<GetVehicleLocationsResult> {
@@ -90,15 +54,15 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     switch (response.kind) {
       case 'Success':
         vehicles = response.vehicles;
-        this.reportInvalidRecordsIfNeeded(response.invalidRecords);
+        this.errorReporter.reportResponseContainsInvalidRecords(response.invalidRecords);
         break;
       case 'Error':
-        this.reportApiErrorIfNeeded(response.error);
+        this.errorReporter.reportApiError(response.error);
         return { kind: 'Error' };
     }
 
     if (!vehicles.length) {
-      this.apiResponseDoesNotContainVehiclesReporter.report(response);
+      this.errorReporter.reportResponseContainsNoVehicles(response);
       return { kind: 'Error' };
     }
 
@@ -127,7 +91,7 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     }
 
     if (!hasAnyVehicleMovedInLastFewMinutes) {
-      this.noVehicleHasMovedInLastFewMinutesReporter.report({});
+      this.errorReporter.reportNoVehicleHasMovedInLastFewMinutes();
       return { kind: 'Error' };
     }
 
@@ -148,15 +112,5 @@ export class MpkVehicleProvider extends VehicleProviderBase {
 
     const response2 = await this.api.getVehicleLocations();
     return response2;
-  }
-
-  private reportInvalidRecordsIfNeeded(records: any[]) {
-    if (records.length) {
-      this.invalidRecordsErrorReporter.report(records);
-    }
-  }
-
-  private reportApiErrorIfNeeded(error: ApiError) {
-    this.apiErrorReporter.report(error);
   }
 }

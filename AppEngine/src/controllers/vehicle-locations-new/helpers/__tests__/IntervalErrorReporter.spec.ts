@@ -1,4 +1,4 @@
-import { IntervalErrorReporter } from '../ErrorReporter';
+import { IntervalErrorReporter } from '../IntervalErrorReporter';
 
 /* ============ */
 /* === Date === */

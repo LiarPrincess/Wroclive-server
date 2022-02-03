@@ -7,10 +7,10 @@ const second = 1000;
 const minute = 60 * second;
 
 export interface MpkErrorReporterType {
-  reportApiError(error: ApiError): void;
-  reportResponseContainsInvalidRecords(records: any[]): void;
-  reportResponseContainsNoVehicles(result: ApiResult): void;
-  reportNoVehicleHasMovedInLastFewMinutes(): void;
+  apiError(error: ApiError): void;
+  responseContainsInvalidRecords(records: any[]): void;
+  responseContainsNoVehicles(result: ApiResult): void;
+  noVehicleHasMovedInLastFewMinutes(): void;
 }
 
 // If the something fails then report error.
@@ -48,21 +48,21 @@ export class MpkErrorReporter implements MpkErrorReporterType {
     );
   }
 
-  reportApiError(error: ApiError) {
+  apiError(error: ApiError) {
     this.api.report(error);
   }
 
-  reportResponseContainsInvalidRecords(records: any[]): void {
+  responseContainsInvalidRecords(records: any[]): void {
     if (records.length) {
       this.invalidRecords.report(records);
     }
   }
 
-  reportResponseContainsNoVehicles(result: ApiResult): void {
+  responseContainsNoVehicles(result: ApiResult): void {
     this.noVehicles.report(result);
   }
 
-  reportNoVehicleHasMovedInLastFewMinutes(): void {
+  noVehicleHasMovedInLastFewMinutes(): void {
     this.noVehicleHasMoved.report();
   }
 }

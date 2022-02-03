@@ -56,7 +56,7 @@ describe('MpkVehicleProvider', function () {
     api.results = [apiResult];
 
     const result = await provider.getVehicleLocations();
-    expect(result).toEqual({ kind: 'Error' });
+    expect(result).toEqual({ kind: 'ResponseContainsNoVehicles' });
     expect(errorReporter.errors).toEqual([
       { kind: 'ResponseContainsNoVehicles', arg: apiResult }
     ]);
@@ -149,7 +149,7 @@ describe('MpkVehicleProvider', function () {
     ];
 
     const result = await provider.getVehicleLocations();
-    expect(result).toEqual({ kind: 'Error' });
+    expect(result).toEqual({ kind: 'NoVehicleHasMovedInLastFewMinutes' });
     expect(errorReporter.errors).toEqual([
       { kind: 'NoVehicleHasMovedInLastFewMinutes' }
     ]);
@@ -218,7 +218,7 @@ describe('MpkVehicleProvider', function () {
     ];
 
     const result = await provider.getVehicleLocations();
-    expect(result).toEqual({ kind: 'Error' });
+    expect(result).toEqual({ kind: 'ApiError' });
     expect(errorReporter.errors).toEqual([
       { kind: 'ApiError', arg: error2 }
     ]);

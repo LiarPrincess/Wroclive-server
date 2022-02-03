@@ -68,21 +68,21 @@ export class ErrorReporter implements MpkErrorReporterType {
 
   public readonly errors: ReportedError[] = [];
 
-  reportApiError(error: ApiError): void {
+  apiError(error: ApiError): void {
     this.errors.push(new ReportedError('ApiError', error));
   }
 
-  reportResponseContainsInvalidRecords(records: any[]): void {
+  responseContainsInvalidRecords(records: any[]): void {
     if (records.length) {
       this.errors.push(new ReportedError('ResponseContainsInvalidRecords', records));
     }
   }
 
-  reportResponseContainsNoVehicles(result: ApiResult): void {
+  responseContainsNoVehicles(result: ApiResult): void {
     this.errors.push(new ReportedError('ResponseContainsNoVehicles', result));
   }
 
-  reportNoVehicleHasMovedInLastFewMinutes(): void {
+  noVehicleHasMovedInLastFewMinutes(): void {
     this.errors.push(new ReportedError('NoVehicleHasMovedInLastFewMinutes'));
   }
 }

@@ -18,7 +18,9 @@ import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 export type GetVehicleLocationsResult =
   { kind: 'Success', lineLocations: LineLocationsCollection } |
-  { kind: 'Error' };
+  { kind: 'ApiError' } |
+  { kind: 'ResponseContainsNoVehicles' } |
+  { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 /**
  * Mpk is designed as a SECONDARY data source.
@@ -54,16 +56,16 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     switch (response.kind) {
       case 'Success':
         vehicles = response.vehicles;
-        this.errorReporter.reportResponseContainsInvalidRecords(response.invalidRecords);
+        this.errorReporter.responseContainsInvalidRecords(response.invalidRecords);
         break;
       case 'Error':
-        this.errorReporter.reportApiError(response.error);
-        return { kind: 'Error' };
+        this.errorReporter.apiError(response.error);
+        return { kind: 'ApiError' };
     }
 
     if (!vehicles.length) {
-      this.errorReporter.reportResponseContainsNoVehicles(response);
-      return { kind: 'Error' };
+      this.errorReporter.responseContainsNoVehicles(response);
+      return { kind: 'ResponseContainsNoVehicles' };
     }
 
     const lineLocationsAggregator = new LineLocationsAggregator();
@@ -91,8 +93,8 @@ export class MpkVehicleProvider extends VehicleProviderBase {
     }
 
     if (!hasAnyVehicleMovedInLastFewMinutes) {
-      this.errorReporter.reportNoVehicleHasMovedInLastFewMinutes();
-      return { kind: 'Error' };
+      this.errorReporter.noVehicleHasMovedInLastFewMinutes();
+      return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
     }
 
     const result = this.createLineLocationsCollection(lineLocationsAggregator);

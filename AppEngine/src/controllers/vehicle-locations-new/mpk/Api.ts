@@ -3,9 +3,9 @@ import { default as axios, AxiosRequestConfig } from 'axios';
 import { ApiBase } from '../ApiBase';
 import { LineDatabase } from '../helpers';
 import { VehicleLocationFromApi } from '../models';
-import { ApiType, ApiResult, ApiError } from './interfaces';
+import { ApiType, ApiResult, ApiError } from './ApiType';
 
-export class MpkApi extends ApiBase implements ApiType {
+export class Api extends ApiBase implements ApiType {
 
   private readonly lineDatabase: LineDatabase;
 

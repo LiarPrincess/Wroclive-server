@@ -5,8 +5,8 @@ import {
   VehicleLocationFromApi
 } from '../../models';
 import * as mocks from './Mocks';
-import { ApiError, ApiResult } from '../interfaces';
-import { MpkVehicleProvider } from '../MpkVehicleProvider';
+import { ApiError, ApiResult } from '../ApiType';
+import { VehicleProvider } from '../VehicleProvider';
 import { LineDatabase } from '../../helpers';
 import { Line, LineCollection } from '../../../lines';
 
@@ -36,7 +36,7 @@ function createProvider() {
   const allLines = new LineCollection('TIMESTAMP', [lineA, line4, line125]);
   lineDatabase.updateLineDefinitions(allLines);
 
-  const provider = new MpkVehicleProvider(
+  const provider = new VehicleProvider(
     api,
     lineDatabase,
     errorReporter,

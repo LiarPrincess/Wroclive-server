@@ -1,7 +1,7 @@
-import { ApiType, ApiResult, ApiError } from '../interfaces';
+import { ApiType, ApiResult, ApiError } from '../ApiType';
 import { VehicleLocationFromApi } from '../../models';
 import { HasMovedInLastFewMinutesClassifierType } from '../../vehicle-classification';
-import { MpkErrorReporterType } from '../MpkErrorReporter';
+import { ErrorReporterType } from '../ErrorReporter';
 
 /* =========== */
 /* === Api === */
@@ -64,7 +64,7 @@ class ReportedError {
   ) { }
 }
 
-export class ErrorReporter implements MpkErrorReporterType {
+export class ErrorReporter implements ErrorReporterType {
 
   public readonly errors: ReportedError[] = [];
 

@@ -12,8 +12,8 @@ import {
   HasMovedInLastFewMinutesClassifier,
   HasMovedInLastFewMinutesClassifierType
 } from '../vehicle-classification';
-import { ApiType, ApiResult } from './interfaces';
-import { MpkErrorReporterType } from './MpkErrorReporter';
+import { ApiType, ApiResult } from './ApiType';
+import { ErrorReporterType } from './ErrorReporter';
 import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 export type GetVehicleLocationsResult =
@@ -26,18 +26,18 @@ export type GetVehicleLocationsResult =
  * Mpk is designed as a SECONDARY data source.
  * We are more lenient on what we show.
  */
-export class MpkVehicleProvider extends VehicleProviderBase {
+export class VehicleProvider extends VehicleProviderBase {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
-  private readonly errorReporter: MpkErrorReporterType;
+  private readonly errorReporter: ErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
 
   constructor(
     api: ApiType,
     lineDatabase: LineDatabase,
-    errorReporter: MpkErrorReporterType,
+    errorReporter: ErrorReporterType,
     hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType,
     dateProvider?: DateProvider
   ) {

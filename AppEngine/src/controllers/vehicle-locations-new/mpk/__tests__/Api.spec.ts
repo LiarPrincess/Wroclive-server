@@ -1,6 +1,6 @@
 import { default as nock } from 'nock';
 
-import { MpkApi } from '../MpkApi';
+import { Api } from '../Api';
 import { LineDatabase } from '../../helpers';
 import { Line } from '../../../lines';
 
@@ -47,7 +47,7 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, []);
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result).toEqual({
@@ -65,7 +65,7 @@ describe('MpkApi', () => {
         { name: '125', type: 'bus', y: 16.98693, x: 51.093807, k: 17554153 }
       ]);
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result).toEqual({
@@ -87,7 +87,7 @@ describe('MpkApi', () => {
         { name: '125', type: 'bus', y: 16.98693, x: 51.093807, k: 17554153 }
       ]);
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result).toEqual({
@@ -106,7 +106,7 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, '');
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result).toEqual({
@@ -123,7 +123,7 @@ describe('MpkApi', () => {
     intercept()
       .replyWithError('Some error...');
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result.kind).toEqual('Error');
@@ -143,7 +143,7 @@ describe('MpkApi', () => {
     intercept()
       .reply(404, {});
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result.kind).toEqual('Error');
@@ -163,7 +163,7 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, 'invalid json');
 
-    const api = new MpkApi(lineDatabase);
+    const api = new Api(lineDatabase);
     const result = await api.getVehicleLocations();
 
     expect(result).toEqual({

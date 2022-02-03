@@ -1,4 +1,4 @@
-import { ApiError, ApiResult } from './interfaces';
+import { ApiError, ApiResult } from './ApiType';
 import { IntervalErrorReporter } from '../helpers';
 import { Logger } from '../models';
 
@@ -6,7 +6,7 @@ import { Logger } from '../models';
 const second = 1000;
 const minute = 60 * second;
 
-export interface MpkErrorReporterType {
+export interface ErrorReporterType {
   apiError(error: ApiError): void;
   responseContainsInvalidRecords(records: any[]): void;
   responseContainsNoVehicles(result: ApiResult): void;
@@ -15,7 +15,7 @@ export interface MpkErrorReporterType {
 
 // If the something fails then report error.
 // But not always, we don't like spam.
-export class MpkErrorReporter implements MpkErrorReporterType {
+export class ErrorReporter implements ErrorReporterType {
 
   private readonly api: IntervalErrorReporter;
   private readonly invalidRecords: IntervalErrorReporter;

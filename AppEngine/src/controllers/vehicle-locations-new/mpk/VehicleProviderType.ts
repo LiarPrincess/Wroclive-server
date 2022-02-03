@@ -1,7 +1,7 @@
-import { LineLocationsCollection } from '../models';
+import { LineLocations } from '../models';
 
 export type GetVehicleLocationsResult =
-  { kind: 'Success', lineLocations: LineLocationsCollection } |
+  { kind: 'Success', lineLocations: LineLocations[] } |
   { kind: 'ApiError' } |
   { kind: 'ResponseContainsNoVehicles' } |
   { kind: 'NoVehicleHasMovedInLastFewMinutes' };

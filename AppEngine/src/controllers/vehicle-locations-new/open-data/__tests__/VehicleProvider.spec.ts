@@ -1,13 +1,8 @@
-import {
-  VehicleLocation,
-  LineData,
-  LineLocationsCollection,
-  VehicleLocationFromApi
-} from '../../models';
 import * as mocks from './Mocks';
 import { VehicleProvider } from '../VehicleProvider';
 import { ApiResult, ResourceIdError, VehicleLocationsError } from '../ApiType';
 import { LineDatabase } from '../../helpers';
+import { VehicleLocation, LineData, VehicleLocationFromApi } from '../../models';
 import { Line, LineCollection } from '../../../lines';
 
 const lineA = new Line('A', 'Bus', 'Express');
@@ -25,8 +20,6 @@ const vehicle_lineA_1_with0Angle = new VehicleLocation('A1', 3, 5, 0);
 const vehicle_lineA_2_with0Angle = new VehicleLocation('A2', 7, 11, 0);
 const vehicle_line4_1_with0Angle = new VehicleLocation('41', 13, 17, 0);
 
-const timestamp = mocks.currentDateTimestamp;
-
 function createProvider() {
   const api = new mocks.Api();
   const lineDatabase = new LineDatabase();
@@ -40,8 +33,7 @@ function createProvider() {
     api,
     lineDatabase,
     errorReporter,
-    vehicleClassifier,
-    mocks.getCurrentDate
+    vehicleClassifier
   );
 
   return { provider, api, vehicleClassifier, errorReporter };
@@ -83,10 +75,10 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] },
         { line: line4Data, vehicles: [vehicle_line4_1_with0Angle] }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
@@ -107,12 +99,12 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         {
           line: lineAData,
           vehicles: [vehicle_lineA_1_with0Angle, vehicle_lineA_2_with0Angle]
         }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
@@ -133,10 +125,7 @@ describe('OpenDataVehicleProvider', function () {
     ];
 
     const result = await provider.getVehicleLocations();
-    expect(result).toEqual({
-      kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, []) // Both filtered out
-    });
+    expect(result).toEqual({ kind: 'Success', lineLocations: [] }); // Both filtered out
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
   });
@@ -157,10 +146,10 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] },
         { line: line4Data, vehicles: [vehicle_line4_1_with0Angle] }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
@@ -208,9 +197,9 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
@@ -232,9 +221,9 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([
       { kind: 'ResponseContainsInvalidRecords', arg: [invalidRecord] }
@@ -276,9 +265,9 @@ describe('OpenDataVehicleProvider', function () {
     const result = await provider.getVehicleLocations();
     expect(result).toEqual({
       kind: 'Success',
-      lineLocations: new LineLocationsCollection(timestamp, [
+      lineLocations: [
         { line: lineAData, vehicles: [vehicle_lineA_1_with0Angle] }
-      ])
+      ]
     });
     expect(errorReporter.errors).toEqual([
       { kind: 'ResourceIdError', arg: resourceIdError }

@@ -42,17 +42,6 @@ export class HasMovedInLastFewMinutesClassifier implements HasMovedInLastFewMinu
   }
 }
 
-/* ============ */
-/* === Date === */
-/* ============ */
-
-const currentDate = new Date(2020, 0, 1, 10, 30, 42);
-export const currentDateTimestamp = '2020-01-01T09:30:42.000Z';
-
-export function getCurrentDate(): Date {
-  return currentDate;
-}
-
 /* ====================== */
 /* === Error reporter === */
 /* ====================== */

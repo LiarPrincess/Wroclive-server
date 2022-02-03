@@ -6,13 +6,12 @@ import { ErrorReporterType } from './ErrorReporter';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
 import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
 import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
-import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 /**
  * Mpk is designed as a SECONDARY data source.
  * We are more lenient on what we show.
  */
-export class VehicleProvider extends VehicleProviderBase implements VehicleProviderType {
+export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
@@ -24,10 +23,8 @@ export class VehicleProvider extends VehicleProviderBase implements VehicleProvi
     api: ApiType,
     lineDatabase: LineDatabase,
     errorReporter: ErrorReporterType,
-    hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType,
-    dateProvider?: DateProvider
+    hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType
   ) {
-    super(dateProvider);
     this.api = api;
     this.lineDatabase = lineDatabase;
     this.errorReporter = errorReporter;
@@ -83,8 +80,8 @@ export class VehicleProvider extends VehicleProviderBase implements VehicleProvi
       return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
     }
 
-    const result = this.createLineLocationsCollection(lineLocationsAggregator);
-    return { kind: 'Success', lineLocations: result };
+    const lineLocations = lineLocationsAggregator.getLineLocations();
+    return { kind: 'Success', lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {

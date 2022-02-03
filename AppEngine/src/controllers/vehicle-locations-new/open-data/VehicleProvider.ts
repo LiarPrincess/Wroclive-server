@@ -6,13 +6,12 @@ import { ErrorReporterType } from './ErrorReporter';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
 import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
-import { VehicleProviderBase, DateProvider } from '../VehicleProviderBase';
 
 /**
  * Open data is designed as a PRIMARY data source.
  * We are more strict on what we show.
  */
-export class VehicleProvider extends VehicleProviderBase implements VehicleProviderType {
+export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
   private readonly lineDatabase: LineDatabase;
@@ -24,10 +23,8 @@ export class VehicleProvider extends VehicleProviderBase implements VehicleProvi
     api: ApiType,
     lineDatabase: LineDatabase,
     errorReporter: ErrorReporterType,
-    vehicleClassifier?: VehicleClassifierType,
-    dateProvider?: DateProvider
+    vehicleClassifier?: VehicleClassifierType
   ) {
-    super(dateProvider);
     this.api = api;
     this.lineDatabase = lineDatabase;
     this.errorReporter = errorReporter;
@@ -88,8 +85,8 @@ export class VehicleProvider extends VehicleProviderBase implements VehicleProvi
       return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
     }
 
-    const result = this.createLineLocationsCollection(lineLocationsAggregator);
-    return { kind: 'Success', lineLocations: result };
+    const lineLocations = lineLocationsAggregator.getLineLocations();
+    return { kind: 'Success', lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {

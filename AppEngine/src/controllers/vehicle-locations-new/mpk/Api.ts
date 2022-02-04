@@ -1,22 +1,14 @@
 import { default as axios, AxiosRequestConfig } from 'axios';
 
 import { ApiBase } from '../ApiBase';
-import { LineDatabase } from '../helpers';
 import { VehicleLocationFromApi } from '../models';
 import { ApiType, ApiResult, ApiError } from './ApiType';
 
 export class Api extends ApiBase implements ApiType {
 
-  private readonly lineDatabase: LineDatabase;
-
-  constructor(lineDatabase: LineDatabase) {
-    super();
-    this.lineDatabase = lineDatabase;
-  }
-
-  async getVehicleLocations(): Promise<ApiResult> {
+  async getVehicleLocations(lineNamesLowercase: string[]): Promise<ApiResult> {
     const url = 'https://mpk.wroc.pl/bus_position';
-    const query = this.createQuery();
+    const query = this.createQuery(lineNamesLowercase);
 
     const config: AxiosRequestConfig = {
       headers: {
@@ -73,16 +65,15 @@ export class Api extends ApiBase implements ApiType {
     return { kind: 'Success', vehicles: result, invalidRecords };
   }
 
-  private createQuery(): string {
+  private createQuery(lineNamesLowercase: string[]): string {
     let result = '';
 
-    const lineNames = this.lineDatabase.getLineNamesLowercase();
-    for (let index = 0; index < lineNames.length; index++) {
+    for (let index = 0; index < lineNamesLowercase.length; index++) {
       if (index > 0) {
         result += '&';
       }
 
-      const lineNameLower = lineNames[index];
+      const lineNameLower = lineNamesLowercase[index];
       result += `busList[bus][]=`;
       result += lineNameLower;
     }

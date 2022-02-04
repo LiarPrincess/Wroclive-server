@@ -85,9 +85,11 @@ export class VehicleProvider implements VehicleProviderType {
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
+    const lineNamesLowercase = this.lineDatabase.getLineNamesLowercase();
+
     // Try 2 times.
     // If the 2nd one fails -> hard fail.
-    const response1 = await this.api.getVehicleLocations();
+    const response1 = await this.api.getVehicleLocations(lineNamesLowercase);
     switch (response1.kind) {
       case 'Success':
         return response1;
@@ -95,7 +97,7 @@ export class VehicleProvider implements VehicleProviderType {
         break;
     }
 
-    const response2 = await this.api.getVehicleLocations();
+    const response2 = await this.api.getVehicleLocations(lineNamesLowercase);
     return response2;
   }
 }

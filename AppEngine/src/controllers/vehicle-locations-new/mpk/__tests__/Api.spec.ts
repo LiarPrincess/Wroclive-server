@@ -20,15 +20,7 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-const lineDatabase = new LineDatabase();
-lineDatabase.updateLineDefinitions({
-  timestamp: '',
-  data: [
-    new Line('A', 'Bus', 'Express'),
-    new Line('4', 'Tram', 'Regular'),
-    new Line('125', 'Bus', 'Regular'),
-  ]
-});
+const lineNamesLowercase = ['a', '4', '125'];
 
 function intercept(): nock.Interceptor {
   const host = 'https://mpk.wroc.pl';
@@ -47,8 +39,8 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, []);
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result).toEqual({
       kind: 'Success',
@@ -65,8 +57,8 @@ describe('MpkApi', () => {
         { name: '125', type: 'bus', y: 16.98693, x: 51.093807, k: 17554153 }
       ]);
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result).toEqual({
       kind: 'Success',
@@ -87,8 +79,8 @@ describe('MpkApi', () => {
         { name: '125', type: 'bus', y: 16.98693, x: 51.093807, k: 17554153 }
       ]);
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result).toEqual({
       kind: 'Success',
@@ -106,8 +98,8 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, '');
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result).toEqual({
       kind: 'Error',
@@ -123,8 +115,8 @@ describe('MpkApi', () => {
     intercept()
       .replyWithError('Some error...');
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result.kind).toEqual('Error');
     switch (result.kind) {
@@ -143,8 +135,8 @@ describe('MpkApi', () => {
     intercept()
       .reply(404, {});
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result.kind).toEqual('Error');
     switch (result.kind) {
@@ -163,8 +155,8 @@ describe('MpkApi', () => {
     intercept()
       .reply(200, 'invalid json');
 
-    const api = new Api(lineDatabase);
-    const result = await api.getVehicleLocations();
+    const api = new Api();
+    const result = await api.getVehicleLocations(lineNamesLowercase);
 
     expect(result).toEqual({
       kind: 'Error',

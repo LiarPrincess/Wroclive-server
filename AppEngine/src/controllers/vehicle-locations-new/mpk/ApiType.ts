@@ -13,5 +13,5 @@ export class ApiError {
 }
 
 export interface ApiType {
-  getVehicleLocations(): Promise<ApiResult>;
+  getVehicleLocations(lineNamesLowercase: string[]): Promise<ApiResult>;
 }

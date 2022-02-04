@@ -1,6 +1,6 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
-import { VehicleProviderType, GetVehicleLocationsResult } from './VehicleProviderType';
+import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
 // Parent dir
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
@@ -32,7 +32,7 @@ export class VehicleProvider implements VehicleProviderType {
     this.angleCalculator = new AngleCalculator();
   }
 
-  async getVehicleLocations(): Promise<GetVehicleLocationsResult> {
+  async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
 
     const response = await this.getVehicleLocationsFromApi();

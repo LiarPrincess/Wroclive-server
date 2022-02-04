@@ -2,7 +2,7 @@ import {
   VehicleLocation,
   Line,
   LineLocationLine,
-  LineLocations
+  LineLocation
 } from '../models';
 
 interface LineNameToIndex {
@@ -11,7 +11,7 @@ interface LineNameToIndex {
 
 export class LineLocationsAggregator {
 
-  private readonly lineLocations: LineLocations[];
+  private readonly lineLocations: LineLocation[];
   private readonly lineNameToIndex: LineNameToIndex;
 
   constructor() {
@@ -25,7 +25,7 @@ export class LineLocationsAggregator {
 
     if (lineIndex === undefined) {
       const lineData = new LineLocationLine(line.name, line.type, line.subtype);
-      const lineLocations = new LineLocations(lineData, []);
+      const lineLocations = new LineLocation(lineData, []);
 
       lineIndex = this.lineLocations.length;
       this.lineLocations.push(lineLocations);
@@ -36,7 +36,7 @@ export class LineLocationsAggregator {
     lineLocations.vehicles.push(vehicle);
   }
 
-  getLineLocations(): LineLocations[] {
+  getLineLocations(): LineLocation[] {
     return this.lineLocations;
   }
 }

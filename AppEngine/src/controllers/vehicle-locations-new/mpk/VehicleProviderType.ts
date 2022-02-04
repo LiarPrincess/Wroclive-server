@@ -1,11 +1,12 @@
-import { LineLocations } from '../models';
+import { LineDatabase } from '../helpers';
+import { LineLocation } from '../models';
 
-export type GetVehicleLocationsResult =
-  { kind: 'Success', lineLocations: LineLocations[] } |
+export type VehicleLocations =
+  { kind: 'Success', lineLocations: LineLocation[] } |
   { kind: 'ApiError' } |
   { kind: 'ResponseContainsNoVehicles' } |
   { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 export interface VehicleProviderType {
-  getVehicleLocations(): Promise<GetVehicleLocationsResult>;
+  getVehicleLocations(): Promise<VehicleLocations>;
 }

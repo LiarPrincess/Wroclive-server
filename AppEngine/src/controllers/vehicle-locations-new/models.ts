@@ -20,17 +20,17 @@ export class LineLocationLine {
 }
 
 /** All of the vehicle locations for given line */
-export class LineLocations {
+export class LineLocation {
   constructor(
     public readonly line: LineLocationLine,
     public readonly vehicles: VehicleLocation[]
   ) { }
 }
 
-export class LineLocationsCollection {
+export class LineLocationCollection {
   constructor(
     public readonly timestamp: string,
-    public readonly data: LineLocations[]
+    public readonly data: LineLocation[]
   ) { }
 }
 

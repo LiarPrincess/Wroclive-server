@@ -1,9 +1,9 @@
-import { Line } from '../../..';
 import {
   gracePeriod,
   Time,
   LineScheduleClassifier
 } from '../LineScheduleClassifier';
+import { Line } from '../../models';
 
 /* ============ */
 /* === Time === */

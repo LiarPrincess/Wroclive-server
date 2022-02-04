@@ -8,6 +8,8 @@ export class VehicleLocation {
   ) { }
 }
 
+export { Line, LineCollection } from '../lines';
+
 /** Information about a single line. */
 export class LineData {
   constructor(
@@ -36,7 +38,7 @@ export class LineLocationsCollection {
 /* === Internal === */
 /* ================ */
 
-// This is an implementation detail, and it should not be exposed to the outside
+// This is an implementation detail, and it should not be exposed to the outside.
 export class VehicleLocationFromApi {
   constructor(
     public readonly id: string,

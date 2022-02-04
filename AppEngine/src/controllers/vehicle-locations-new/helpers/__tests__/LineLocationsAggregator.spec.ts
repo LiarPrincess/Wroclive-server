@@ -1,6 +1,5 @@
 import { LineLocationsAggregator } from '../LineLocationsAggregator';
-import { VehicleLocation } from '../../models';
-import { Line } from '../../../lines';
+import { Line, VehicleLocation } from '../../models';
 
 const lineA = new Line('A', 'Bus', 'Express');
 const line4 = new Line('4', 'Tram', 'Regular');

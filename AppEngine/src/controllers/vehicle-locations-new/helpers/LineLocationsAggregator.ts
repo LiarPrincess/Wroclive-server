@@ -1,10 +1,9 @@
 import {
   VehicleLocation,
-  VehicleLocationFromApi,
+  Line,
   LineData,
   LineLocations
 } from '../models';
-import { Line } from '../../lines';
 
 interface LineNameToIndex {
   [key: string]: number | undefined;

@@ -1,4 +1,4 @@
-import { Line } from '../../lines';
+import { Line } from '../models';
 
 export function createLineFromName(name: string): Line {
   function createLine(type: string, subtype: string): Line {

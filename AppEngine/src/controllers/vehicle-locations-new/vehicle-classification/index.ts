@@ -1,5 +1,4 @@
-import { Line } from '../../lines';
-import { VehicleLocationFromApi } from '../models';
+import { Line, VehicleLocationFromApi } from '../models';
 import { DepotClassifier } from './DepotClassifier';
 import { LineScheduleClassifier } from './LineScheduleClassifier';
 import { HasMovedInLastFewMinutesClassifier } from './HasMovedInLastFewMinutesClassifier';

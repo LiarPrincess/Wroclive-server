@@ -1,5 +1,5 @@
+import { Line } from '../../models';
 import { LineDatabase } from '../LineDatabase';
-import { Line } from '../../../lines';
 
 const lineA = new Line('A', 'Bus', 'Express');
 const line4 = new Line('4', 'Tram', 'Regular');

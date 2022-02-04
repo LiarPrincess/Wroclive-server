@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { Line } from '../../lines';
+import { Line } from '../models';
 
 /**
  * We will allow line for a few additional minutes.

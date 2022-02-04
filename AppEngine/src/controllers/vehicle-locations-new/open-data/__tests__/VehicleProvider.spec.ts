@@ -2,8 +2,7 @@ import * as mocks from './Mocks';
 import { VehicleProvider } from '../VehicleProvider';
 import { ApiResult, ResourceIdError, VehicleLocationsError } from '../ApiType';
 import { LineDatabase } from '../../helpers';
-import { VehicleLocation, LineData, VehicleLocationFromApi } from '../../models';
-import { Line, LineCollection } from '../../../lines';
+import { VehicleLocation, Line, LineCollection, LineData, VehicleLocationFromApi } from '../../models';
 
 const lineA = new Line('A', 'Bus', 'Express');
 const line4 = new Line('4', 'Tram', 'Regular');

@@ -1,8 +1,7 @@
 import { ApiType, ApiResult, ResourceIdError, VehicleLocationsError } from '../ApiType';
 import { ErrorReporterType } from '../ErrorReporter';
-import { VehicleLocationFromApi } from '../../models';
+import { Line, VehicleLocationFromApi } from '../../models';
 import { VehicleClassifierType, VehicleClassification } from '../../vehicle-classification';
-import { Line } from '../../../lines';
 
 /* =========== */
 /* === Api === */

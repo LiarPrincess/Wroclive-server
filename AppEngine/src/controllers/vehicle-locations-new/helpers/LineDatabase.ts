@@ -1,4 +1,4 @@
-import { LineCollection, Line } from '../../lines';
+import { LineCollection, Line } from '../models';
 import { createLineFromName as createLineFromNameFn } from './createLineFromName';
 
 interface LineByName {

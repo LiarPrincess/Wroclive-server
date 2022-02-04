@@ -11,7 +11,7 @@ export class VehicleLocation {
 export { Line, LineCollection } from '../lines';
 
 /** Information about a single line. */
-export class LineData {
+export class LineLocationLine {
   constructor(
     public readonly name: string,
     public readonly type: string,
@@ -22,7 +22,7 @@ export class LineData {
 /** All of the vehicle locations for given line */
 export class LineLocations {
   constructor(
-    public readonly line: LineData,
+    public readonly line: LineLocationLine,
     public readonly vehicles: VehicleLocation[]
   ) { }
 }

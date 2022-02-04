@@ -2,14 +2,14 @@ import * as mocks from './Mocks';
 import { ApiError, ApiResult } from '../ApiType';
 import { VehicleProvider } from '../VehicleProvider';
 import { LineDatabase } from '../../helpers';
-import { VehicleLocation, Line, LineCollection, LineData, VehicleLocationFromApi } from '../../models';
+import { VehicleLocation, Line, LineCollection, LineLocationLine, VehicleLocationFromApi } from '../../models';
 
 const lineA = new Line('A', 'Bus', 'Express');
 const line4 = new Line('4', 'Tram', 'Regular');
 const line125 = new Line('125', 'Bus', 'Regular');
 
-const lineAData = new LineData(lineA.name, lineA.type, lineA.subtype);
-const line4Data = new LineData(line4.name, line4.type, line4.subtype);
+const lineAData = new LineLocationLine(lineA.name, lineA.type, lineA.subtype);
+const line4Data = new LineLocationLine(line4.name, line4.type, line4.subtype);
 
 const vehicle_lineA_1 = new VehicleLocationFromApi('A1', 'A', 3, 5);
 const vehicle_lineA_2 = new VehicleLocationFromApi('A2', 'A', 7, 11);

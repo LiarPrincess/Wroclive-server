@@ -1,7 +1,7 @@
 import {
   VehicleLocation,
   Line,
-  LineData,
+  LineLocationLine,
   LineLocations
 } from '../models';
 
@@ -24,7 +24,7 @@ export class LineLocationsAggregator {
     let lineIndex = this.lineNameToIndex[lineNameLower];
 
     if (lineIndex === undefined) {
-      const lineData = new LineData(line.name, line.type, line.subtype);
+      const lineData = new LineLocationLine(line.name, line.type, line.subtype);
       const lineLocations = new LineLocations(lineData, []);
 
       lineIndex = this.lineLocations.length;

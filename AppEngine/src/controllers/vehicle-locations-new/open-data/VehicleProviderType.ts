@@ -8,5 +8,6 @@ export type VehicleLocations =
   { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 export interface VehicleProviderType {
+  readonly lineDatabase: LineDatabase;
   getVehicleLocations(): Promise<VehicleLocations>;
 }

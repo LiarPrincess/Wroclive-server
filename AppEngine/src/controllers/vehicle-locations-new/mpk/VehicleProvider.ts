@@ -14,7 +14,7 @@ import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierT
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  private readonly lineDatabase: LineDatabase;
+  public readonly lineDatabase: LineDatabase;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;

@@ -40,7 +40,7 @@ type State =
     lineLocations: LineLocationCollection
   };
 
-export class VehicleLocationsController implements VehicleLocationsControllerType {
+export class VehicleLocationsController extends VehicleLocationsControllerType {
 
   private readonly lineProvider: LineProviderType;
   private readonly openDataProvider: OpenDataVehicleProviderType;
@@ -55,6 +55,8 @@ export class VehicleLocationsController implements VehicleLocationsControllerTyp
     mpkProvider: MpkVehicleProviderType,
     dateProvider?: DateProvider
   ) {
+    super();
+
     this.lineProvider = lineProvider;
     this.openDataProvider = openDataProvider;
     this.mpkProvider = mpkProvider;

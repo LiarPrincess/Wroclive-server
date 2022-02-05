@@ -1,19 +1,52 @@
 import { sleep } from './util';
-import { MpkVehicleProvider } from './controllers';
+import {
+  MpkApi,
+  MpkErrorReporter,
+  MpkVehicleProvider,
+  LineDatabase
+} from './controllers/vehicle-locations';
+import { Line, LineCollection } from './controllers/vehicle-locations/models';
+import { createConsoleLogger } from './util';
 
 const second = 1000;
 
 (async () => {
   try {
-    const provider = new MpkVehicleProvider();
+    const logger = createConsoleLogger();
+    const lineDatabase = new LineDatabase();
+    lineDatabase.updateLineDefinitions(new LineCollection('', [
+      new Line('A', 'Tram', 'Express')
+    ]));
+
+    const api = new MpkApi();
+    const errorReporter = new MpkErrorReporter(logger);
+    const provider = new MpkVehicleProvider(api, lineDatabase, errorReporter);
 
     while (true) {
       const now = new Date();
-      const response = await provider.getVehicles(['A']);
-
       console.log(now.toISOString());
-      for (const vehicle of response) {
-        console.log(' ', vehicle);
+
+      const result = await provider.getVehicleLocations();
+      switch (result.kind) {
+        case 'Success':
+          for (const lineLocation of result.lineLocations) {
+            const line = lineLocation.line;
+            console.log(`  ${line.name} (${line.type}, ${line.subtype})`);
+
+            for (const vehicle of lineLocation.vehicles) {
+              console.log(`    ${vehicle.id}, lat: ${vehicle.lat}, lng: ${vehicle.lng}, angle: ${vehicle.angle}`);
+            }
+          }
+          break;
+        case 'ApiError':
+          console.log('ApiError');
+          break;
+        case 'ResponseContainsNoVehicles':
+          console.log('ResponseContainsNoVehicles');
+          break;
+        case 'NoVehicleHasMovedInLastFewMinutes':
+          console.log('NoVehicleHasMovedInLastFewMinutes');
+          break;
       }
 
       await sleep(5 * second);

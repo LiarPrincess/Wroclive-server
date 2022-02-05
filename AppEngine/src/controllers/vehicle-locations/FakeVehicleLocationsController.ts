@@ -1,16 +1,16 @@
-import { LineLocationsCollection } from './models';
-import { VehicleLocationsController } from './VehicleLocationsController';
+import { LineLocationCollection } from './models';
+import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
 
-export class FakeVehicleLocationsController extends VehicleLocationsController {
+export class FakeVehicleLocationsController extends VehicleLocationsControllerType {
 
-  data = new LineLocationsCollection('', []);
-  lineNamesLowerCaseArg: Set<string> | undefined;
+  data = new LineLocationCollection('', []);
   getVehicleLocationsCallCount = 0;
   updateVehicleLocationsCallCount = 0;
+  lineNamesLowerCaseArg: Set<string> = new Set();
 
-  getVehicleLocations(lineNamesLowerCase: Set<string>): LineLocationsCollection {
-    this.lineNamesLowerCaseArg = lineNamesLowerCase;
+  getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
     this.getVehicleLocationsCallCount++;
+    this.lineNamesLowerCaseArg = lineNamesLowercase;
     return this.data;
   }
 

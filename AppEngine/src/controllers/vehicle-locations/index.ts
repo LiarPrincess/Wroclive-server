@@ -1,9 +1,20 @@
 export {
   VehicleLocation,
-  LineLocations,
-  LineLocationsCollection
+  LineLocation,
+  LineLocationLine,
+  LineLocationCollection
 } from './models';
-
-export * from './VehicleLocationsController';
-export * from './VehicleLocationsControllerImpl';
-export * from './vehicle-providers';
+export {
+  MpkApi,
+  MpkErrorReporter,
+  MpkVehicleProvider
+} from './mpk';
+export {
+  OpenDataApi,
+  OpenDataErrorReporter,
+  OpenDataVehicleProvider
+} from './open-data';
+export { VehicleLocationsController } from './VehicleLocationsController';
+export { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
+export { FakeVehicleLocationsController } from './FakeVehicleLocationsController';
+export { LineDatabase } from './helpers';

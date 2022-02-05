@@ -1,25 +1,58 @@
 import { sleep } from './util';
-import { OpenDataVehicleProvider } from './controllers';
+import {
+  OpenDataApi,
+  OpenDataErrorReporter,
+  OpenDataVehicleProvider,
+  LineDatabase
+} from './controllers/vehicle-locations';
+import { createConsoleLogger } from './util';
 
 const second = 1000;
 
 (async () => {
   try {
-    const provider = new OpenDataVehicleProvider();
+    const logger = createConsoleLogger();
+    const lineDatabase = new LineDatabase();
+
+    const api = new OpenDataApi();
+    const errorReporter = new OpenDataErrorReporter(logger);
+    const provider = new OpenDataVehicleProvider(api, lineDatabase, errorReporter);
 
     while (true) {
       const now = new Date();
-      const response = await provider.getVehicles([]);
-
       console.log(now.toISOString());
-      for (const vehicle of response) {
-        console.log(' ', vehicle);
+
+      const result = await provider.getVehicleLocations();
+      switch (result.kind) {
+        case 'Success':
+          for (const lineLocation of result.lineLocations) {
+            const line = lineLocation.line;
+            if (line.name !== 'A') {
+              continue;
+            }
+
+            console.log(`  ${line.name} (${line.type}, ${line.subtype})`);
+
+            for (const vehicle of lineLocation.vehicles) {
+              console.log(`    ${vehicle.id}, lat: ${vehicle.lat}, lng: ${vehicle.lng}, angle: ${vehicle.angle}`);
+            }
+          }
+          break;
+        case 'ApiError':
+          console.log('ApiError');
+          break;
+        case 'ResponseContainsNoVehicles':
+          console.log('ResponseContainsNoVehicles');
+          break;
+        case 'NoVehicleHasMovedInLastFewMinutes':
+          console.log('NoVehicleHasMovedInLastFewMinutes');
+          break;
       }
 
       await sleep(5 * second);
     }
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     process.exit(1);
   }
 })();

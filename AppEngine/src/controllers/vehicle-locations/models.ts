@@ -1,69 +1,53 @@
+/** Location of a single vehicle. */
 export class VehicleLocation {
-
-  readonly id: string;
-  readonly lat: number;
-  readonly lng: number;
-  readonly angle: number;
-
-  constructor(id: string, lat: number, lng: number, angle: number) {
-    this.id = id;
-    this.lat = lat;
-    this.lng = lng;
-    this.angle = angle;
-  }
+  constructor(
+    public readonly id: string,
+    public readonly lat: number,
+    public readonly lng: number,
+    public readonly angle: number
+  ) { }
 }
 
-export class LineData {
+export { Line, LineCollection } from '../lines';
 
-  readonly name: string;
-  readonly type: string;
-  readonly subtype: string;
-
-  constructor(name: string, type: string, subtype: string) {
-    this.name = name;
-    this.type = type;
-    this.subtype = subtype;
-  }
+/** Information about a single line. */
+export class LineLocationLine {
+  constructor(
+    public readonly name: string,
+    public readonly type: string,
+    public readonly subtype: string
+  ) { }
 }
 
-export class LineLocations {
-
-  readonly line: LineData;
-  readonly vehicles: VehicleLocation[];
-
-  constructor(line: LineData, vehicles: VehicleLocation[]) {
-    this.line = line;
-    this.vehicles = vehicles;
-  }
+/** All of the vehicle locations for given line */
+export class LineLocation {
+  constructor(
+    public readonly line: LineLocationLine,
+    public readonly vehicles: VehicleLocation[]
+  ) { }
 }
 
-export class LineLocationsCollection {
-
-  readonly timestamp: string;
-  readonly data: LineLocations[];
-
-  constructor(timestamp: string, data: LineLocations[]) {
-    this.timestamp = timestamp;
-    this.data = data;
-  }
+export class LineLocationCollection {
+  constructor(
+    public readonly timestamp: string,
+    public readonly data: LineLocation[]
+  ) { }
 }
 
 /* ================ */
 /* === Internal === */
 /* ================ */
 
-// Vehicle is an implementation detail, and it should not be exposed to the outside
-export class Vehicle {
+// This is an implementation detail, and it should not be exposed to the outside.
+export class VehicleLocationFromApi {
+  constructor(
+    public readonly id: string,
+    public readonly line: string,
+    public readonly lat: number,
+    public readonly lng: number
+  ) { }
+}
 
-  readonly id: string;
-  readonly line: string;
-  readonly lat: number;
-  readonly lng: number;
-
-  constructor(id: string, line: string, lat: number, lng: number) {
-    this.id = id;
-    this.line = line;
-    this.lat = lat;
-    this.lng = lng;
-  }
+export interface Logger {
+  error(message?: any, ...optionalParams: any[]): void;
 }

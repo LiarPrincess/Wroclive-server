@@ -1,7 +1,7 @@
 import {
   LinesController,
   StopsController,
-  VehicleLocationsController,
+  VehicleLocationsControllerType,
   Controllers
 } from './controllers';
 import { Logger } from './util';
@@ -66,7 +66,7 @@ const reportVehicleLocationUpdateErrorAfter = 2 * minute;
 // How many times did we fail in a row?
 let vehicleLocationUpdateErrorCount = 0;
 
-function startUpdatingVehicleLocations(controller: VehicleLocationsController, logger: Logger) {
+function startUpdatingVehicleLocations(controller: VehicleLocationsControllerType, logger: Logger) {
   async function update() {
     try {
       await controller.updateVehicleLocations();

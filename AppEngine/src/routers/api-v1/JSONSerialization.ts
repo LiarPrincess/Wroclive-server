@@ -1,8 +1,6 @@
-import {
-  LineCollection,
-  StopCollection,
-  LineLocationsCollection
-} from '../../controllers';
+import { LineCollection } from '../../controllers/lines';
+import { StopCollection } from '../../controllers/stops';
+import { LineLocationCollection } from '../../controllers/vehicle-locations';
 
 interface CacheEntry {
   readonly timestamp: string;
@@ -57,7 +55,7 @@ export class JSONSerialization {
   /* === Vehicle locations === */
   /* ========================= */
 
-  stringifyVehicleLocations(locations: LineLocationsCollection): string {
+  stringifyVehicleLocations(locations: LineLocationCollection): string {
     // Nothing to cache here
     return JSON.stringify(locations);
   }

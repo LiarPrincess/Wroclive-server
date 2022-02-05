@@ -1,12 +1,11 @@
+import { Line, LineCollection } from '../../../controllers/lines';
+import { Stop, StopCollection } from '../../../controllers/stops';
 import {
-  Line, LineCollection,
-  Stop, StopCollection,
-  LineLocations, LineLocationsCollection,
-} from '../../../controllers';
-import {
-  LineData,
-  VehicleLocation
-} from '../../../controllers/vehicle-locations/models';
+  VehicleLocation,
+  LineLocation,
+  LineLocationLine,
+  LineLocationCollection
+} from '../../../controllers/vehicle-locations';
 import {
   FakeLinesController,
   FakeStopsController,
@@ -80,16 +79,16 @@ describe('createApiV1Router', function () {
     const controllers = createControllers();
     const router = createApiV1Router(controllers);
 
-    controllers.vehicleLocation.data = new LineLocationsCollection('TIMESTAMP', [
-      new LineLocations(
-        new LineData('1', 'type1', 'subtype1'),
+    controllers.vehicleLocation.data = new LineLocationCollection('TIMESTAMP', [
+      new LineLocation(
+        new LineLocationLine('1', 'type1', 'subtype1'),
         [
           new VehicleLocation('id1', 1, 2, 3),
           new VehicleLocation('id2', 4, 5, 6)
         ]
       ),
-      new LineLocations(
-        new LineData('2', 'type2', 'subtype2'),
+      new LineLocation(
+        new LineLocationLine('2', 'type2', 'subtype2'),
         [
           new VehicleLocation('id3', 7, 8, 9)
         ]
@@ -116,16 +115,16 @@ describe('createApiV1Router', function () {
     const controllers = createControllers();
     const router = createApiV1Router(controllers);
 
-    controllers.vehicleLocation.data = new LineLocationsCollection('TIMESTAMP', [
-      new LineLocations(
-        new LineData('1', 'type1', 'subtype1'),
+    controllers.vehicleLocation.data = new LineLocationCollection('TIMESTAMP', [
+      new LineLocation(
+        new LineLocationLine('1', 'type1', 'subtype1'),
         [
           new VehicleLocation('id1', 1, 2, 3),
           new VehicleLocation('id2', 4, 5, 6)
         ]
       ),
-      new LineLocations(
-        new LineData('2', 'type2', 'subtype2'),
+      new LineLocation(
+        new LineLocationLine('2', 'type2', 'subtype2'),
         [
           new VehicleLocation('id3', 7, 8, 9)
         ]

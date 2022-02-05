@@ -1,12 +1,22 @@
+import {
+  LinesController,
+  FirestoreLinesController,
+  DummyLinesController
+} from './controllers/lines';
+import {
+  StopsController,
+  FirestoreStopsController,
+  DummyStopsController
+} from './controllers/stops';
+import {
+  LineDatabase,
+  OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider,
+  MpkApi, MpkErrorReporter, MpkVehicleProvider,
+  VehicleLocationsController
+} from './controllers/vehicle-locations';
+import { Controllers } from './controllers';
 import { Logger, isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
-import {
-  LinesController, FirestoreLinesController, DummyLinesController,
-  StopsController, FirestoreStopsController, DummyStopsController,
-  VehicleLocationsControllerImpl,
-  OpenDataVehicleProvider, MpkVehicleProvider, PreventStaleDataFromVehicleProvider,
-  Controllers
-} from './controllers';
 
 export function createControllers(logger: Logger): Controllers {
   let linesController: LinesController;
@@ -21,19 +31,25 @@ export function createControllers(logger: Logger): Controllers {
     stopsController = new FirestoreStopsController(db);
   }
 
-  // If the 1st provider returns no locations, then try the next one.
-  const openDataVehicleProvider = new OpenDataVehicleProvider();
-  const mpkVehicleProvider = new MpkVehicleProvider();
-  const vehicleProviders = [
-    openDataVehicleProvider,
-    mpkVehicleProvider
-  ].map(p => new PreventStaleDataFromVehicleProvider(p, logger));
+  const lineDatabase = new LineDatabase();
 
-  const vehicleController = new VehicleLocationsControllerImpl(linesController, vehicleProviders);
+  const openDataApi = new OpenDataApi();
+  const openDataError = new OpenDataErrorReporter(logger);
+  const openDataProvider = new OpenDataVehicleProvider(openDataApi, lineDatabase, openDataError);
+
+  const mpkApi = new MpkApi();
+  const mpkError = new MpkErrorReporter(logger);
+  const mpkProvider = new MpkVehicleProvider(mpkApi, lineDatabase, mpkError);
+
+  const vehicleLocationController = new VehicleLocationsController(
+    linesController, // Important!
+    openDataProvider,
+    mpkProvider
+  );
 
   return {
     lines: linesController,
     stops: stopsController,
-    vehicleLocation: vehicleController
+    vehicleLocation: vehicleLocationController
   };
 }

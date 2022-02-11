@@ -45,25 +45,26 @@ export function createLineFromName(name: string): Line {
   }
 
   // Now we know that 'name' start with letter
+  const name_lower = name.toLowerCase();
 
   // Special lines: E1, E2
-  const isHoliday = (name.startsWith('e') || name.startsWith('E')) && name.length > 1;
+  const isHoliday = name_lower.startsWith('e') && name.length > 1;
   if (isHoliday) {
     return createLine('Tram', 'Regular');
   }
 
   // Examples: A, C, D, K, N
-  if (name.length == 1) {
+  if (name_lower.length == 1) {
     return createLine('Bus', 'Express');
   }
 
   // Summer 2021:
   // - Zabytkowa Linia Autobusowa
   // - Zabytkowa Linia Tramwajowa
-  if (name == 'ZLA') {
+  if (name_lower == 'zla') {
     return createLine('Bus', 'Temporary');
   }
-  if (name == 'ZLT') {
+  if (name_lower === 'zta') {
     return createLine('Tram', 'Temporary');
   }
 

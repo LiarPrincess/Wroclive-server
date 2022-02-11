@@ -26,7 +26,7 @@ describe('parseResourceDescription', function () {
     const description = JSON.parse(json);
     const result = parseResourceDescription(description, logger);
 
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       title: undefined,
       modified: undefined,
       fileUris: []
@@ -38,7 +38,7 @@ describe('parseResourceDescription', function () {
     const description = JSON.parse(json);
     const result = parseResourceDescription(description, logger);
 
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       title: 'RozkÅ‚ad jazdy transportu publicznego',
       modified: '2020-10-31T11:19:49.701389',
       fileUris: [
@@ -52,7 +52,7 @@ describe('parseResourceDescription', function () {
     const description = JSON.parse(json);
     const result = parseResourceDescription(description, logger);
 
-    expect(result).toStrictEqual({
+    expect(result).toEqual({
       title: 'RozkÅ‚ad jazdy transportu publicznego',
       modified: '2020-10-31T11:19:49.701389',
       fileUris: [
@@ -61,6 +61,4 @@ describe('parseResourceDescription', function () {
       ]
     });
   });
-
-  // describe end
 });

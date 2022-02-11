@@ -1,0 +1,27 @@
+{
+  "name": "wroclive-notifications",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node app.js",
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest --coverage --detectOpenHandles"
+  },
+  "author": "NoPoint",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/firestore": "^4.2.0",
+    "@google-cloud/logging-winston": "^4.0.0",
+    "axios": "^0.19.2",
+    "winston": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^12.6.0",
+    "@types/jest": "^26.0.14",
+    "typescript": "^3.9.7",
+    "jest": "^26.5.2",
+    "ts-jest": "^26.4.1"
+  }
+}

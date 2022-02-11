@@ -57,6 +57,19 @@
       "outputCapture": "std"
     },
     {
+      "name": "ComputeEngine-Notifications",
+      "type": "node",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/ComputeEngine-Notifications/dist/app.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "outputCapture": "std"
+    },
+    {
       "name": "CloudFunctions",
       "type": "node",
       "request": "launch",

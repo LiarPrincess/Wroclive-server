@@ -1,6 +1,6 @@
 import { default as nock } from 'nock';
 
-import { Twitter, User, Tweet } from '..';
+import { Twitter, TwitterUser, Tweet } from '..';
 
 /* ============ */
 /* === Nock === */
@@ -18,7 +18,7 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-function intercept(user: User, params: string = ''): nock.Interceptor {
+function intercept(user: TwitterUser, params: string = ''): nock.Interceptor {
   const host = 'https://api.twitter.com';
   const path = `/2/users/${user.id}/tweets?tweet.fields=id,conversation_id,created_at,text${params}`;
   const headers = {
@@ -32,7 +32,7 @@ function intercept(user: User, params: string = ''): nock.Interceptor {
 /* === Mocks === */
 /* ============= */
 
-const user = new User('id', 'name', 'username');
+const user = new TwitterUser('id', 'name', 'username');
 const meta = {
   oldest_id: '1489487411721736193',
   newest_id: '1491856279974912013',
@@ -112,7 +112,8 @@ describe('Twitter.getTweets', () => {
       { id: 123, conversation_id: 'conversation_id', text: 'text', created_at: '2022-02-10T19:27:09.000Z' },
       { id: 'id', conversation_id: 123, text: 'text', created_at: '2022-02-10T19:27:09.000Z' },
       { id: 'id', conversation_id: 'conversation_id', text: 123, created_at: '2022-02-10T19:27:09.000Z' },
-      { id: 'id', conversation_id: 'conversation_id', text: 'text', created_at: 123 }
+      { id: 'id', conversation_id: 'conversation_id', text: 'text', created_at: 123 },
+      { id: 'id', conversation_id: 'conversation_id', text: 'text', created_at: 'INVALID_DATE' },
     ];
 
     for (const tweetResponse of responses) {

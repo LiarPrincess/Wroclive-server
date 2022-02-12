@@ -1,6 +1,6 @@
 export {
-  User,
-  GetUserResponse,
+  User as TwitterUser,
+  GetUserResponse as GetTwitterUserResponse,
   Tweet,
   GetTweetsOptions,
   GetTweetsResponse,

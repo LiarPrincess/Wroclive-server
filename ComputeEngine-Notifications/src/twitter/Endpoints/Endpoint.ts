@@ -68,10 +68,6 @@ export class Endpoint {
     return error.statusCode || (error.response && error.response.status);
   }
 
-  protected isNumber(o: any): boolean {
-    return Number.isFinite(o);
-  }
-
   protected isString(o: any): boolean {
     return typeof o === 'string' || o instanceof String;
   }

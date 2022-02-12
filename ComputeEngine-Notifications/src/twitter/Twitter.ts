@@ -1,19 +1,20 @@
-import OAuth, { Token as OAuthToken } from 'oauth-1.0a';
 import crypto from 'crypto';
-import { default as axios, AxiosResponse } from 'axios';
+import OAuth, { Token as OAuthToken } from 'oauth-1.0a';
 
-import { TwitterUser, GetTwitterUserResponse } from './TwitterUser';
-import { Tweet, GetTweetsOptions, GetTweetsResponse } from './Tweet';
-
-export type GetResult =
-  { kind: 'Success', data: any } |
-  { kind: 'Response with errors', response: AxiosResponse<any, any> } |
-  { kind: 'Network error', error: any };
+import {
+  User,
+  GetUserEndpoint,
+  GetUserResponse,
+  Tweet,
+  GetTweetsEndpoint,
+  GetTweetsOptions,
+  GetTweetsResponse
+} from './Endpoints';
 
 export class Twitter {
 
-  private readonly oauth: OAuth;
-  private readonly oauthToken: OAuthToken;
+  private readonly getUserEndpoint: GetUserEndpoint;
+  private readonly getTweetsEndpoint: GetTweetsEndpoint;
 
   public constructor(credentials: {
     consumerKey: string,
@@ -21,7 +22,7 @@ export class Twitter {
     accessTokenKey: string,
     accessTokenSecret: string
   }) {
-    this.oauth = new OAuth({
+    const oauth = new OAuth({
       consumer: {
         key: credentials.consumerKey,
         secret: credentials.consumerSecret,
@@ -35,117 +36,22 @@ export class Twitter {
       },
     });
 
-    this.oauthToken = {
+    const oauthToken: OAuthToken = {
       key: credentials.accessTokenKey,
       secret: credentials.accessTokenSecret
     };
+
+    this.getUserEndpoint = new GetUserEndpoint(oauth, oauthToken);
+    this.getTweetsEndpoint = new GetTweetsEndpoint(oauth, oauthToken);
   }
 
-  /// https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
-  public async getUserByUsername(username: string): Promise<GetTwitterUserResponse> {
-    const url = `https://api.twitter.com/2/users/by/username/${username}`;
-    const result = await this.get(url);
-
-    switch (result.kind) {
-      case 'Success':
-        const responseData = result.data;
-
-        const id = responseData.data.id;
-        const name = responseData.data.name;
-        const username = responseData.data.username;
-
-        const isValid = this.isString(id) && this.isString(name) && this.isString(username);
-        if (!isValid) {
-          return { kind: 'Invalid response', response: responseData };
-        }
-
-        const user = new TwitterUser(id, name, username);
-        return { kind: 'Success', user };
-
-      case 'Response with errors':
-        return { kind: 'Invalid response', response: result.response };
-
-      case 'Network error':
-        return { kind: 'Network error', error: result.error };
-    }
+  public async getUser(username: string): Promise<GetUserResponse> {
+    const result = await this.getUserEndpoint.call(username);
+    return result;
   }
 
-  /// https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
-  public async getTweets(
-    user: TwitterUser,
-    options: GetTweetsOptions = {}
-  ): Promise<GetTweetsResponse> {
-    let url = `https://api.twitter.com/2/users/${user.id}/tweets?tweet.fields=id,conversation_id,created_at,text`;
-
-    if (options.maxResults) {
-      url += `&max_results=${options.maxResults}`;
-    }
-
-    if (options.excludeRetweets && options.excludeReplies) {
-      url += '&exclude=retweets,replies';
-    } else if (options.excludeRetweets) {
-      url += '&exclude=retweets';
-    } else if (options.excludeReplies) {
-      url += '&exclude=replies';
-    }
-
-    if (options.pagination_token) {
-      url += `&pagination_token=${options.pagination_token}`;
-    }
-
-    const result = await this.get(url);
-
-    switch (result.kind) {
-      case 'Success':
-        const responseData = result.data;
-
-
-        throw new Error("");
-
-      case 'Response with errors':
-        return { kind: 'Invalid response', response: result.response };
-
-      case 'Network error':
-        return { kind: 'Network error', error: result.error };
-    }
-  }
-
-  private async get(url: string): Promise<GetResult> {
-    const authorizationHeader = this.createAuthorizationHeader('get', url);
-
-    try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: authorizationHeader
-        }
-      });
-
-      const responseData = response.data;
-      if (responseData.errors) {
-        return { kind: 'Response with errors', response: responseData };
-      }
-
-      return { kind: 'Success', data: responseData };
-    } catch (error) {
-      return { kind: 'Network error', error };
-    }
-  }
-
-  private createAuthorizationHeader(requestMethod: 'get' | 'POST', url: string): string {
-    const oauthAuthorization = this.oauth.authorize(
-      {
-        url: url.toString(),
-        method: requestMethod,
-        data: undefined
-      },
-      this.oauthToken
-    );
-
-    const header = this.oauth.toHeader(oauthAuthorization);
-    return header.Authorization;
-  }
-
-  private isString(o: any): boolean {
-    return typeof o === 'string' || o instanceof String;
+  public async getTweets(user: User, options: GetTweetsOptions): Promise<GetTweetsResponse> {
+    const result = await this.getTweetsEndpoint.call(user, options);
+    return result;
   }
 }

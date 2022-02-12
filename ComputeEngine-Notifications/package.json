@@ -7,7 +7,7 @@
     "start": "node app.js",
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --coverage --detectOpenHandles"
+    "test": "jest"
   },
   "author": "NoPoint",
   "license": "ISC",

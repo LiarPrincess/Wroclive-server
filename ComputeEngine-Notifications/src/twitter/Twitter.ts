@@ -50,7 +50,7 @@ export class Twitter {
     return result;
   }
 
-  public async getTweets(user: User, options: GetTweetsOptions): Promise<GetTweetsResponse> {
+  public async getTweets(user: User, options?: GetTweetsOptions): Promise<GetTweetsResponse> {
     const result = await this.getTweetsEndpoint.call(user, options);
     return result;
   }

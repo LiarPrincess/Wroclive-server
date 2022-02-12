@@ -1,9 +1,16 @@
 import OAuth, { Token as OAuthToken } from 'oauth-1.0a';
 import { default as axios, AxiosRequestConfig } from 'axios';
 
+export class NetworkError {
+  constructor(
+    public readonly message: string,
+    public readonly data: any,
+  ) { }
+}
+
 export type GetResult =
   { kind: 'Success', response: any } |
-  { kind: 'Network error', error: any };
+  { kind: 'Network error', error: NetworkError };
 
 export class Endpoint {
 
@@ -32,7 +39,13 @@ export class Endpoint {
     try {
       const response = await axios.get(url, config);
       return { kind: 'Success', response: response.data };
-    } catch (error) {
+    } catch (axiosError) {
+      const statusCode = this.getStatusCode(axiosError);
+      const message = statusCode ?
+        `Response with status: ${statusCode}.` :
+        `Unknown request error.`;
+
+      const error = new NetworkError(message, axiosError);
       return { kind: 'Network error', error };
     }
   }
@@ -49,6 +62,10 @@ export class Endpoint {
 
     const header = this.oauth.toHeader(oauthAuthorization);
     return header.Authorization;
+  }
+
+  private getStatusCode(error: any): string | undefined {
+    return error.statusCode || (error.response && error.response.status);
   }
 
   protected isNumber(o: any): boolean {

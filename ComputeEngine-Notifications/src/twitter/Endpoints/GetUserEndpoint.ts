@@ -1,4 +1,4 @@
-import { Endpoint } from './Endpoint';
+import { Endpoint, NetworkError } from './Endpoint';
 
 export class User {
   public constructor(
@@ -12,7 +12,7 @@ export type GetUserResponse =
   { kind: 'Success', user: User } |
   { kind: 'Response with errors', errors: any[] } |
   { kind: 'Invalid response', response: any } |
-  { kind: 'Network error', error: any };
+  { kind: 'Network error', error: NetworkError };
 
 /// https://developer.twitter.com/en/docs/twitter-api/users/lookup/api-reference/get-users-by-username-username
 export class GetUserEndpoint extends Endpoint {
@@ -29,9 +29,9 @@ export class GetUserEndpoint extends Endpoint {
           return { kind: 'Response with errors', errors: response.errors };
         }
 
-        const id = response.data.id;
-        const name = response.data.name;
-        const username = response.data.username;
+        const id = response.data?.id;
+        const name = response.data?.name;
+        const username = response.data?.username;
 
         const isValid = this.isString(id) && this.isString(name) && this.isString(username);
         if (!isValid) {

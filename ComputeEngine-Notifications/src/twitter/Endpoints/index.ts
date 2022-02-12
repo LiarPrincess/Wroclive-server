@@ -10,3 +10,5 @@ export {
   GetTweetsOptions,
   GetTweetsResponse
 } from './GetTweetsEndpoint';
+
+export { NetworkError } from './Endpoint';

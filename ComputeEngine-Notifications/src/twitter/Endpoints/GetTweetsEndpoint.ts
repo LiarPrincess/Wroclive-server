@@ -1,5 +1,5 @@
 import { User } from './GetUserEndpoint';
-import { Endpoint } from './Endpoint';
+import { Endpoint, NetworkError } from './Endpoint';
 
 export class Tweet {
   public constructor(
@@ -26,7 +26,7 @@ export type GetTweetsResponse =
   { kind: 'Success', tweets: Tweet[], nextPageToken: string } |
   { kind: 'Response with errors', errors: any[] } |
   { kind: 'Invalid response', response: any } |
-  { kind: 'Network error', error: any };
+  { kind: 'Network error', error: NetworkError };
 
 /// https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
 export class GetTweetsEndpoint extends Endpoint {

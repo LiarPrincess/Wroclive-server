@@ -3,6 +3,8 @@ export {
   GetUserResponse,
   Tweet,
   GetTweetsOptions,
-  GetTweetsResponse
+  GetTweetsResponse,
+  NetworkError as TwitterNetworkError
 } from './Endpoints';
+
 export { Twitter } from './Twitter';

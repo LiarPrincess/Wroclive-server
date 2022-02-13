@@ -64,4 +64,18 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
   async saveAllStops(document: FirestoreAllStopsDocument): Promise<void> {
     await this.allStopsDocumentRef.set(document);
   }
+
+  /* ====================================== */
+  /* === Apple push notification tokens === */
+  /* ====================================== */
+
+  private get applePushNotificationTokensCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('PushNotificationTokensApple');
+  }
+
+  public async saveApplePushNotificationToken(token: FirestorePushNotificationToken): Promise<void> {
+    const deviceId = token.deviceId;
+    const documentRef = this.applePushNotificationTokensCollectionRef.doc(deviceId);
+    await documentRef.set(token);
+  }
 }

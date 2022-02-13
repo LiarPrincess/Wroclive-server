@@ -14,6 +14,11 @@ import {
   MpkApi, MpkErrorReporter, MpkVehicleProvider,
   VehicleLocationsController
 } from './controllers/vehicle-locations';
+import {
+  LogPushNotificationTokenController,
+  PushNotificationTokenControllerType,
+  FirestorePushNotificationTokenController
+} from './controllers/push-notification-token';
 import { Controllers } from './controllers';
 
 import { Logger, isLocal } from './util';
@@ -22,14 +27,17 @@ import { FirestoreDatabase } from './cloud-platform';
 export function createControllers(logger: Logger): Controllers {
   let linesController: LinesControllerType;
   let stopsController: StopsControllerType;
+  let pushNotificationToken: PushNotificationTokenControllerType;
 
   if (isLocal) {
     linesController = new PredefinedLinesController();
     stopsController = new PredefinedStopsController();
+    pushNotificationToken = new LogPushNotificationTokenController(logger);
   } else {
     const db = new FirestoreDatabase();
     linesController = new FirestoreLinesController(db);
     stopsController = new FirestoreStopsController(db);
+    pushNotificationToken = new FirestorePushNotificationTokenController(db);
   }
 
   const lineDatabase = new LineDatabase();
@@ -48,5 +56,10 @@ export function createControllers(logger: Logger): Controllers {
     mpkProvider
   );
 
-  return new Controllers(linesController, stopsController, vehicleLocationController);
+  return new Controllers(
+    linesController,
+    stopsController,
+    vehicleLocationController,
+    pushNotificationToken
+  );
 }

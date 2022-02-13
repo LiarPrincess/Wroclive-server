@@ -13,11 +13,20 @@ export class CleanTweet {
   public readonly createdAt: Date;
   public readonly text: string;
 
-  constructor(tweet: Tweet) {
-    this.id = tweet.id;
-    this.conversationId = tweet.conversationId;
-    this.createdAt = tweet.createdAt;
-    this.text = cleanText(tweet.text);
+  constructor(tweet: Tweet);
+  constructor(id: string, conversationId: string, createdAt: Date, text: string);
+  constructor(arg0: any, arg1?: any, arg2?: any, arg3?: any) {
+    if (arg0 instanceof Tweet) {
+      this.id = arg0.id;
+      this.conversationId = arg0.conversationId;
+      this.createdAt = arg0.createdAt;
+      this.text = cleanText(arg0.text);
+    } else {
+      this.id = arg0;
+      this.conversationId = arg1;
+      this.createdAt = arg2;
+      this.text = cleanText(arg3);
+    }
   }
 }
 

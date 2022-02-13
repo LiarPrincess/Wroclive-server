@@ -1,7 +1,7 @@
-import { CleanTweet } from '../CleanTweet';
-import { AppleEndpointType } from './AppleEndpoint';
+import { AppleEndpointType } from './apple';
 import { PushNotification } from './PushNotification';
 import { DatabaseType, StoredPushNotification } from './Database';
+import { CleanTweet } from '../CleanTweet';
 import { subtractMilliseconds } from '../util';
 
 const second = 1000;
@@ -34,28 +34,24 @@ export class PushNotificationSender {
     const tweetsSorted = tweets.sort(fromOldestToNewest);
 
     for (const tweet of tweetsSorted) {
-      const id = tweet.id;
-      const threadId = tweet.conversationId;
-      const createdAt = tweet.createdAt;
-      const body = tweet.text;
-
-      const wasAlreadySend = await this.database.wasAlreadySend(id);
+      const wasAlreadySend = await this.database.wasAlreadySend(tweet.id);
       if (wasAlreadySend) {
         continue;
       }
 
       // Twitter returns things in UTC.
       // Server is also assumed to work in UTC.
-      const timeDiff = subtractMilliseconds(now, createdAt);
+      const timeDiff = subtractMilliseconds(now, tweet.createdAt);
       const isInTimeFrame = timeDiff < dontSendTweetsOlderThan;
 
       if (!isInTimeFrame) {
-        const stored = new StoredPushNotification(id, threadId, undefined, body);
+        // Don't send an actual push notification, but store it in database.
+        const stored = new StoredPushNotification(tweet, undefined);
         await this.database.markAsSend(stored);
         continue;
       }
 
-      const notification = new PushNotification(id, threadId, body);
+      const notification = new PushNotification(tweet);
       notificationsToSend.push(notification);
     }
 
@@ -65,7 +61,7 @@ export class PushNotificationSender {
 
     const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
     for (const n of notificationsToSend) {
-      const stored = new StoredPushNotification(n.id, n.threadId, now, n.body);
+      const stored = new StoredPushNotification(n, now);
       this.database.markAsSend(stored);
       this.apple.send(n, appleDeviceTokens);
     }

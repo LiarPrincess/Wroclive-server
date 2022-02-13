@@ -1,15 +1,12 @@
 import * as fs from '@google-cloud/firestore';
 
+import {
+  FirestorePushNotification,
+  FirestorePushNotificationDatabase
+} from './FirestorePushNotificationDatabase';
 import { CloudPlatform } from './CloudPlatform';
 
-export interface FirestorePushNotification {
-  readonly id: string;
-  readonly threadId: string;
-  readonly createdAt: Date;
-  readonly text: string;
-}
-
-export class FirestoreDatabase {
+export class FirestoreDatabase implements FirestorePushNotificationDatabase {
 
   private db: fs.Firestore;
 
@@ -33,26 +30,44 @@ export class FirestoreDatabase {
     return this.db.collection('PushNotifications');
   }
 
-  /**
-   * Returns ids of all of the push notifications in the database.
-   */
   public async getPushNotificationIds(): Promise<string[]> {
     const result: string[] = [];
 
-    const documents = await this.pushNotificationsCollectionRef.listDocuments();
-    for (const doc of documents) {
-      result.push(doc.id);
-    }
+    const documentRefs = await this.pushNotificationsCollectionRef.listDocuments();
+    documentRefs.forEach(docRef => {
+      result.push(docRef.id);
+    });
 
     return result;
   }
 
-  /**
-   * Adds new push notification to database.
-   */
   public async addPushNotification(notification: FirestorePushNotification) {
     const id = notification.id;
     const documentRef = this.pushNotificationsCollectionRef.doc(id);
     await documentRef.set(notification);
+  }
+
+  /* ====================================== */
+  /* === Apple push notification tokens === */
+  /* ====================================== */
+
+  private get applePushNotificationTokensCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('PushNotificationTokensApple');
+  }
+
+  public async getApplePushNotificationTokens(): Promise<string[]> {
+    const collectionRef = this.applePushNotificationTokensCollectionRef;
+    const query = await collectionRef
+      .where('token', '!=', 'null')
+      .select('token')
+      .get();
+
+    const result: string[] = [];
+    query.forEach(doc => {
+      const data = doc.data();
+      result.push(data.token);
+    });
+
+    return [];
   }
 }

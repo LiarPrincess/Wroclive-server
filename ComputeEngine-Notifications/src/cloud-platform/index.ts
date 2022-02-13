@@ -1,4 +1,5 @@
 export {
   FirestorePushNotification,
-  FirestoreDatabase
-} from './FirestoreDatabase';
+  FirestorePushNotificationDatabase
+} from './FirestorePushNotificationDatabase';
+export { FirestoreDatabase } from './FirestoreDatabase';

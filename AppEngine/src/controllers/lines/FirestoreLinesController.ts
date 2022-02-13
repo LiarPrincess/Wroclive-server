@@ -1,13 +1,13 @@
 import { Line, LineCollection } from './models';
-import { LinesController } from './LinesController';
-import { DummyLinesController } from './DummyLinesController';
+import { LinesControllerType } from './LinesControllerType';
+import { PredefinedLinesController } from './PredefinedLinesController';
 import { FirestoreAllLinesDocument } from '../../cloud-platform';
 
 export interface FirestoreLinesProvider {
   getAllLines(): Promise<FirestoreAllLinesDocument>;
 }
 
-export class FirestoreLinesController extends LinesController {
+export class FirestoreLinesController extends LinesControllerType {
 
   private db: FirestoreLinesProvider;
   private lines: LineCollection;
@@ -18,7 +18,7 @@ export class FirestoreLinesController extends LinesController {
     this.db = db;
     this.lines = {
       timestamp: this.createTimestamp(),
-      data: DummyLinesController.data
+      data: PredefinedLinesController.data
     };
   }
 

@@ -1,11 +1,11 @@
 import { Stop, StopCollection } from './models';
-import { StopsController } from './StopsController';
+import { StopsControllerType } from './StopsControllerType';
 
-export class DummyStopsController extends StopsController {
+export class PredefinedStopsController extends StopsControllerType {
 
   getStops(): StopCollection {
     const timestamp = this.createTimestamp();
-    const data = DummyStopsController.data;
+    const data = PredefinedStopsController.data;
     return { timestamp, data };
   }
 

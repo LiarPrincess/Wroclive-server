@@ -1,7 +1,7 @@
 import { LineLocationCollection } from './models';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
 
-export class FakeVehicleLocationsController extends VehicleLocationsControllerType {
+export class VehicleLocationsControllerMock extends VehicleLocationsControllerType {
 
   data = new LineLocationCollection('', []);
   getVehicleLocationsCallCount = 0;

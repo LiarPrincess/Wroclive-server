@@ -1,11 +1,11 @@
 import { Line, LineCollection } from './models';
-import { LinesController } from './LinesController';
+import { LinesControllerType } from './LinesControllerType';
 
-export class DummyLinesController extends LinesController {
+export class PredefinedLinesController extends LinesControllerType {
 
   getLines(): LineCollection {
     const timestamp = this.createTimestamp();
-    const data = DummyLinesController.data;
+    const data = PredefinedLinesController.data;
     return { timestamp, data };
   }
 

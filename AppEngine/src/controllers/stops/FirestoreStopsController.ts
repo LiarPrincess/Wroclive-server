@@ -1,13 +1,13 @@
 import { Stop, StopCollection } from './models';
-import { StopsController } from './StopsController';
-import { DummyStopsController } from './DummyStopsController';
+import { StopsControllerType } from './StopsControllerType';
+import { PredefinedStopsController } from './PredefinedStopsController';
 import { FirestoreAllStopsDocument } from '../../cloud-platform';
 
 export interface FirestoreStopsProvider {
   getAllStops(): Promise<FirestoreAllStopsDocument>;
 }
 
-export class FirestoreStopsController extends StopsController {
+export class FirestoreStopsController extends StopsControllerType {
 
   private db: FirestoreStopsProvider;
   private stops: StopCollection;
@@ -18,7 +18,7 @@ export class FirestoreStopsController extends StopsController {
     this.db = db;
     this.stops = {
       timestamp: this.createTimestamp(),
-      data: DummyStopsController.data
+      data: PredefinedStopsController.data
     };
   }
 

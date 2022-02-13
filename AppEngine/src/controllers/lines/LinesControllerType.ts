@@ -1,6 +1,6 @@
 import { LineCollection } from './models';
 
-export abstract class LinesController {
+export abstract class LinesControllerType {
 
   /**
    * Get all of the available lines.

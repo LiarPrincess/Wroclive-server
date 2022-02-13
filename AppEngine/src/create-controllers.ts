@@ -1,12 +1,12 @@
 import {
-  LinesController,
+  LinesControllerType,
   FirestoreLinesController,
-  DummyLinesController
+  PredefinedLinesController
 } from './controllers/lines';
 import {
-  StopsController,
+  StopsControllerType,
   FirestoreStopsController,
-  DummyStopsController
+  PredefinedStopsController
 } from './controllers/stops';
 import {
   LineDatabase,
@@ -15,16 +15,17 @@ import {
   VehicleLocationsController
 } from './controllers/vehicle-locations';
 import { Controllers } from './controllers';
+
 import { Logger, isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
 
 export function createControllers(logger: Logger): Controllers {
-  let linesController: LinesController;
-  let stopsController: StopsController;
+  let linesController: LinesControllerType;
+  let stopsController: StopsControllerType;
 
   if (isLocal) {
-    linesController = new DummyLinesController();
-    stopsController = new DummyStopsController();
+    linesController = new PredefinedLinesController();
+    stopsController = new PredefinedStopsController();
   } else {
     const db = new FirestoreDatabase();
     linesController = new FirestoreLinesController(db);
@@ -47,9 +48,5 @@ export function createControllers(logger: Logger): Controllers {
     mpkProvider
   );
 
-  return {
-    lines: linesController,
-    stops: stopsController,
-    vehicleLocation: vehicleLocationController
-  };
+  return new Controllers(linesController, stopsController, vehicleLocationController);
 }

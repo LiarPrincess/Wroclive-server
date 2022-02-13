@@ -1,5 +1,5 @@
 import { Stop } from '../models';
-import { DummyStopsController } from '../DummyStopsController';
+import { PredefinedStopsController } from '../PredefinedStopsController';
 import { FirestoreAllStopsDocument } from '../../../cloud-platform';
 import {
   FirestoreStopsController,
@@ -26,7 +26,7 @@ describe('FirestoreStopsController', function () {
     const controller = new FirestoreStopsController(provider);
 
     const stops = controller.getStops();
-    expect(stops.data).toEqual(DummyStopsController.data);
+    expect(stops.data).toEqual(PredefinedStopsController.data);
   });
 
   it('get stops from provider', async function () {
@@ -59,6 +59,6 @@ describe('FirestoreStopsController', function () {
 
     await controller.updateStops();
     const stops = controller.getStops();
-    expect(stops.data).toEqual(DummyStopsController.data);
+    expect(stops.data).toEqual(PredefinedStopsController.data);
   });
 });

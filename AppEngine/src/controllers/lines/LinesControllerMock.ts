@@ -1,7 +1,7 @@
 import { LineCollection } from './models';
-import { LinesController } from './LinesController';
+import { LinesControllerType } from './LinesControllerType';
 
-export class FakeLinesController extends LinesController {
+export class LinesControllerMock extends LinesControllerType {
 
   data = new LineCollection('', []);
   getLinesCallCount = 0;

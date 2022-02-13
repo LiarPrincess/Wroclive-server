@@ -1,5 +1,5 @@
 import { Line } from '../models';
-import { DummyLinesController } from '../DummyLinesController';
+import { PredefinedLinesController } from '../PredefinedLinesController';
 import { FirestoreAllLinesDocument } from '../../../cloud-platform';
 import {
   FirestoreLinesController,
@@ -26,7 +26,7 @@ describe('FirestoreLinesController', function () {
     const controller = new FirestoreLinesController(provider);
 
     const lines = controller.getLines();
-    expect(lines.data).toEqual(DummyLinesController.data);
+    expect(lines.data).toEqual(PredefinedLinesController.data);
   });
 
   it('get lines from provider', async function () {
@@ -59,6 +59,6 @@ describe('FirestoreLinesController', function () {
 
     await controller.updateLines();
     const lines = controller.getLines();
-    expect(lines.data).toEqual(DummyLinesController.data);
+    expect(lines.data).toEqual(PredefinedLinesController.data);
   });
 });

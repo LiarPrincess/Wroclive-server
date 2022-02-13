@@ -16,5 +16,5 @@ export {
 } from './open-data';
 export { VehicleLocationsController } from './VehicleLocationsController';
 export { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-export { FakeVehicleLocationsController } from './FakeVehicleLocationsController';
+export { VehicleLocationsControllerMock } from './VehicleLocationsControllerMock';
 export { LineDatabase } from './helpers';

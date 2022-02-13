@@ -1,6 +1,6 @@
 import { StopCollection } from './models';
 
-export abstract class StopsController {
+export abstract class StopsControllerType {
 
   /**
    * Get all of the available stops.

@@ -1,7 +1,7 @@
 import { StopCollection } from './models';
-import { StopsController } from './StopsController';
+import { StopsControllerType } from './StopsControllerType';
 
-export class FakeStopsController extends StopsController {
+export class StopsControllerMock extends StopsControllerType {
 
   data = new StopCollection('', []);
   getStopsCallCount = 0;

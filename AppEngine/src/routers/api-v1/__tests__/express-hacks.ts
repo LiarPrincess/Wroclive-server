@@ -1,22 +1,17 @@
 import { Router, NextFunction } from 'express';
 
-type RequestMethod = 'get';
-
 export class Request {
-
-  method: RequestMethod;
-  path: string;
-  query: any;
-
-  constructor(method: RequestMethod, path: string, query?: any) {
-    this.method = method;
-    this.path = path;
-    this.query = query;
-  }
+  public constructor(
+    public method: 'get' | 'post',
+    public path: string,
+    public query?: any,
+    public body?: any,
+  ) { }
 }
 
 export class Response {
 
+  statusCode: number | undefined;
   headers: { [key: string]: string | undefined } = {};
   body: string | undefined = undefined;
 
@@ -29,6 +24,13 @@ export class Response {
     this.body = body;
     return this;
   }
+
+  status(code: number): Response {
+    this.statusCode = code;
+    return this;
+  }
+
+  end() { }
 }
 
 export function send(router: Router, request: Request): Response {

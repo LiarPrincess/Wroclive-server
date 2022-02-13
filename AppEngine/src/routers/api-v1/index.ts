@@ -32,8 +32,9 @@ function sendJSON(res: Response, value: string) {
   res.send(value);
 }
 
-function isString(o: any): boolean {
-  return typeof o === 'string' || o instanceof String;
+function asString(o: any): string | undefined {
+  const isString = typeof o === 'string' || o instanceof String;
+  return isString ? (o as string) : undefined;
 }
 
 /* ============ */
@@ -42,7 +43,8 @@ function isString(o: any): boolean {
 
 export function createApiV1Router(controllers: Controllers): Router {
   const router = express.Router();
-  const json = new JSONSerialization();
+  router.use(express.json());
+
   const jsonCache = new JSONCache();
 
   router.get('/lines', (req: Request, res: Response, next: NextFunction) => {
@@ -71,8 +73,7 @@ export function createApiV1Router(controllers: Controllers): Router {
 
   router.get('/vehicles', (req: Request, res: Response, next: NextFunction) => {
     try {
-      const rawQuery = req.query?.lines;
-      const query = isString(rawQuery) ? (rawQuery as string) : '';
+      const query = asString(req.query?.lines) || '';
       const lineNames = splitLowerCase(query, ';');
 
       const data = controllers.vehicleLocation.getVehicleLocations(lineNames);
@@ -80,6 +81,24 @@ export function createApiV1Router(controllers: Controllers): Router {
 
       setStandardHeaders(res, CacheHeader.Disable);
       sendJSON(res, json);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.post('/notification-tokens', (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const deviceId = asString(req.body?.deviceId);
+      const token = asString(req.body?.token);
+      const platform = asString(req.body?.platform);
+
+      let statusCode = 400; // BAD REQUEST
+      if (deviceId !== undefined && token !== undefined && platform !== undefined) {
+        controllers.pushNotificationToken.save(deviceId, token, platform);
+        statusCode = 200;
+      }
+
+      res.status(statusCode).end();
     } catch (err) {
       next(err);
     }

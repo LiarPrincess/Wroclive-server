@@ -1,7 +1,7 @@
 import { Stop, StopCollection } from './models';
 import { StopsControllerType } from './StopsControllerType';
 import { PredefinedStopsController } from './PredefinedStopsController';
-import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from '../../cloud-platform';
+import { FirestoreStopsDatabase } from '../../cloud-platform';
 
 export class FirestoreStopsController extends StopsControllerType {
 

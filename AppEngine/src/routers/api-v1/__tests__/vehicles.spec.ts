@@ -24,7 +24,7 @@ describe('/api/v1/vehicles', function () {
       )
     ]);
 
-    const request = new Request('get', '/vehicles');
+    const request = new Request('get', '/vehicles', undefined);
     const response = send(router, request);
     expect(controllers.vehicleLocation.getVehicleLocationsCallCount).toEqual(1);
     expect(controllers.vehicleLocation.updateVehicleLocationsCallCount).toEqual(0);

@@ -1,7 +1,7 @@
 import { Line, LineCollection } from './models';
 import { LinesControllerType } from './LinesControllerType';
 import { PredefinedLinesController } from './PredefinedLinesController';
-import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from '../../cloud-platform';
+import { FirestoreLinesDatabase } from '../../cloud-platform';
 
 export class FirestoreLinesController extends LinesControllerType {
 

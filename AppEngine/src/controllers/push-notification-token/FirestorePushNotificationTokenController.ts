@@ -1,4 +1,8 @@
-import { PushNotificationTokenControllerType, DateProvider } from './PushNotificationTokenControllerType';
+import {
+  SaveResult,
+  DateProvider,
+  PushNotificationTokenControllerType
+} from './PushNotificationTokenControllerType';
 import { FirestorePushNotificationTokenDatabase } from '../../cloud-platform';
 
 export class FirestorePushNotificationTokenController extends PushNotificationTokenControllerType {
@@ -10,20 +14,36 @@ export class FirestorePushNotificationTokenController extends PushNotificationTo
     this.db = db;
   }
 
-  public async save(deviceId: string, token: string, platform: string): Promise<void> {
-    const isApple = this.isApple(platform);
-    if (isApple) {
-      const t = this.createToken(deviceId, token);
-      await this.db.saveApplePushNotificationToken(t);
+  public async save(deviceId: string, token: string, platform: string): Promise<SaveResult> {
+    try {
+      await this.trySave(deviceId, token, platform);
+      return { kind: 'Success' };
+    } catch (error) {
+      return { kind: 'Error', error };
     }
   }
 
-  private isApple(platform: string): boolean {
-    if (platform.length !== 3) {
+  private async trySave(deviceId: string, token: string, platform: string) {
+    if (this.isPlatformEqual(platform, 'ios')) {
+      const t = this.createToken(deviceId, token);
+      await this.db.saveApplePushNotificationToken(t);
+      return;
+    }
+
+    if (this.isPlatformEqual(platform, 'android')) {
+      // Not supported, but not error...
+      return;
+    }
+
+    throw new Error(`Unknown platform: '${platform}'`);
+  }
+
+  private isPlatformEqual(platform: string, value: string): boolean {
+    if (platform.length !== value.length) {
       return false;
     }
 
     const platformLower = platform.toLowerCase();
-    return platformLower === 'ios';
+    return platformLower === value;
   }
 }

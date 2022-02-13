@@ -1,12 +1,20 @@
 import { Request, send } from './express-hacks';
-import { LineLocation, LineLocationLine, LineLocationCollection, VehicleLocation, createControllers } from './helpers';
+import {
+  LineLocation,
+  LineLocationLine,
+  LineLocationCollection,
+  VehicleLocation,
+  LoggerMock,
+  createControllers
+} from './helpers';
 import { createApiV1Router } from '..';
 
 describe('/api/v1/vehicles', function () {
 
-  it('GET without query', function () {
+  it('GET without query', async function () {
+    const logger = new LoggerMock();
     const controllers = createControllers();
-    const router = createApiV1Router(controllers);
+    const router = createApiV1Router(controllers, logger);
 
     controllers.vehicleLocation.data = new LineLocationCollection('TIMESTAMP', [
       new LineLocation(
@@ -25,7 +33,7 @@ describe('/api/v1/vehicles', function () {
     ]);
 
     const request = new Request('get', '/vehicles', undefined);
-    const response = send(router, request);
+    const response = await send(router, request);
     expect(controllers.vehicleLocation.getVehicleLocationsCallCount).toEqual(1);
     expect(controllers.vehicleLocation.updateVehicleLocationsCallCount).toEqual(0);
     expect(controllers.vehicleLocation.lineNamesLowerCaseArg).toEqual(new Set());
@@ -40,9 +48,10 @@ describe('/api/v1/vehicles', function () {
     expect(body).toEqual(expectedBody);
   });
 
-  it('GET with query', function () {
+  it('GET with query', async function () {
+    const logger = new LoggerMock();
     const controllers = createControllers();
-    const router = createApiV1Router(controllers);
+    const router = createApiV1Router(controllers, logger);
 
     controllers.vehicleLocation.data = new LineLocationCollection('TIMESTAMP', [
       new LineLocation(
@@ -62,7 +71,7 @@ describe('/api/v1/vehicles', function () {
 
     const query = { lines: 'D;C;A;110;119;114;131;241;32;9;6' };
     const request = new Request('get', '/vehicles', query);
-    const response = send(router, request);
+    const response = await send(router, request);
     expect(controllers.vehicleLocation.getVehicleLocationsCallCount).toEqual(1);
     expect(controllers.vehicleLocation.updateVehicleLocationsCallCount).toEqual(0);
     expect(controllers.vehicleLocation.lineNamesLowerCaseArg).toEqual(new Set(['d', 'c', 'a', '110', '119', '114', '131', '241', '32', '9', '6']));

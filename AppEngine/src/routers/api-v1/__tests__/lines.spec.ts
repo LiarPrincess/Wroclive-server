@@ -1,11 +1,12 @@
 import { Request, send } from './express-hacks';
-import { Line, LineCollection, createControllers } from './helpers';
+import { Line, LineCollection, LoggerMock, createControllers } from './helpers';
 import { createApiV1Router } from '..';
 
 describe('/api/v1/lines', function () {
-  it('GET', function () {
+  it('GET', async function () {
+    const logger = new LoggerMock();
     const controllers = createControllers();
-    const router = createApiV1Router(controllers);
+    const router = createApiV1Router(controllers, logger);
 
     controllers.lines.data = new LineCollection('TIMESTAMP', [
       new Line('1', 'type1', 'subtype1'),
@@ -14,7 +15,7 @@ describe('/api/v1/lines', function () {
     ]);
 
     const request = new Request('get', '/lines');
-    const response = send(router, request);
+    const response = await send(router, request);
     expect(controllers.lines.getLinesCallCount).toEqual(1);
     expect(controllers.lines.updateLinesCallCount).toEqual(0);
 

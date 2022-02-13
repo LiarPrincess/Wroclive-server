@@ -1,4 +1,8 @@
-import { PushNotificationTokenControllerType, DateProvider } from './PushNotificationTokenControllerType';
+import {
+  SaveResult,
+  DateProvider,
+  PushNotificationTokenControllerType
+} from './PushNotificationTokenControllerType';
 import { Logger } from '../../util';
 
 export class LogPushNotificationTokenController extends PushNotificationTokenControllerType {
@@ -10,7 +14,8 @@ export class LogPushNotificationTokenController extends PushNotificationTokenCon
     this.logger = logger;
   }
 
-  public async save(deviceId: string, token: string, platform: string) {
+  public async save(deviceId: string, token: string, platform: string): Promise<SaveResult> {
     this.logger.info(`Saving push notification token: (deviceId: '${deviceId}', token: '${token}', platform: '${platform}').`);
+    return { kind: 'Success' };
   }
 }

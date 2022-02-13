@@ -3,6 +3,7 @@ import express, { Request, Response, NextFunction, Router } from 'express';
 import { JSONCache } from './JSONCache';
 import { Controllers } from '../../controllers';
 import { splitLowerCase } from '../helpers';
+import { Logger } from '../../util';
 
 /* ================ */
 /* === Response === */
@@ -32,6 +33,10 @@ function sendJSON(res: Response, value: string) {
   res.send(value);
 }
 
+function endWithStatus(res: Response, status: number) {
+  res.status(status).end();
+}
+
 function asString(o: any): string | undefined {
   const isString = typeof o === 'string' || o instanceof String;
   return isString ? (o as string) : undefined;
@@ -41,7 +46,7 @@ function asString(o: any): string | undefined {
 /* === Main === */
 /* ============ */
 
-export function createApiV1Router(controllers: Controllers): Router {
+export function createApiV1Router(controllers: Controllers, logger: Logger): Router {
   const router = express.Router();
   router.use(express.json());
 
@@ -86,19 +91,33 @@ export function createApiV1Router(controllers: Controllers): Router {
     }
   });
 
-  router.post('/notification-tokens', (req: Request, res: Response, next: NextFunction) => {
+  router.post('/notification-tokens', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const deviceId = asString(req.body?.deviceId);
       const token = asString(req.body?.token);
       const platform = asString(req.body?.platform);
 
-      let statusCode = 400; // BAD REQUEST
-      if (deviceId !== undefined && token !== undefined && platform !== undefined) {
-        controllers.pushNotificationToken.save(deviceId, token, platform);
-        statusCode = 200;
+      if (!deviceId || !token || !platform) {
+        endWithStatus(res, 400); // Bad Request
+        return;
       }
 
-      res.status(statusCode).end();
+      const result = await controllers.pushNotificationToken.save(deviceId, token, platform);
+      switch (result.kind) {
+        case 'Success':
+          endWithStatus(res, 200);
+          return;
+        case 'Error':
+          logger.info(`Error when saving push notification token.`, {
+            deviceId,
+            token,
+            platform,
+            error: result.error
+          });
+
+          endWithStatus(res, 500); // Internal Server Error
+          return;
+      }
     } catch (err) {
       next(err);
     }

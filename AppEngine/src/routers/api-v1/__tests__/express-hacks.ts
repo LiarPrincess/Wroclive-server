@@ -33,7 +33,7 @@ export class Response {
   end() { }
 }
 
-export function send(router: Router, request: Request): Response {
+export async function send(router: Router, request: Request): Promise<Response> {
   const route = getExpressRoute(router, request);
   const response = new Response();
 
@@ -42,7 +42,10 @@ export function send(router: Router, request: Request): Response {
     error = err;
   }
 
-  route.handle(request, response, captureError);
+  const result = route.handle(request, response, captureError);
+  if (result instanceof Promise) {
+    await result;
+  }
 
   if (error) {
     throw error;
@@ -55,7 +58,7 @@ export function send(router: Router, request: Request): Response {
 /* === Bad things === */
 /* ================== */
 
-type RouteHandle = (req: Request, res: Response, next: NextFunction) => void;
+type RouteHandle = (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
 
 interface ExpressLayer {
   route: ExpressRoute;

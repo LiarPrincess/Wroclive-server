@@ -1,11 +1,12 @@
 import { Request, send } from './express-hacks';
-import { Stop, StopCollection, createControllers } from './helpers';
+import { Stop, StopCollection, LoggerMock, createControllers } from './helpers';
 import { createApiV1Router } from '..';
 
 describe('/api/v1/stops', function () {
-  it('GET', function () {
+  it('GET', async function () {
+    const logger = new LoggerMock();
     const controllers = createControllers();
-    const router = createApiV1Router(controllers);
+    const router = createApiV1Router(controllers, logger);
 
     controllers.stops.data = new StopCollection('TIMESTAMP', [
       new Stop('code1', 'name1', 1, 2),
@@ -14,7 +15,7 @@ describe('/api/v1/stops', function () {
     ]);
 
     const request = new Request('get', '/stops');
-    const response = send(router, request);
+    const response = await send(router, request);
     expect(controllers.stops.getStopsCallCount).toEqual(1);
     expect(controllers.stops.updateStopsCallCount).toEqual(0);
 

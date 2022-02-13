@@ -19,7 +19,7 @@ app.disable('x-powered-by');
 // - wroclive.app/api/v1 -> use more precise router
 
 app.get('/api', (req: Request, res: Response) => res.status(200).end());
-app.use('/api/v1', createApiV1Router(controllers));
+app.use('/api/v1', createApiV1Router(controllers, logger));
 
 // In production the GCP is responsible for serving static files (it is faster/easier this way).
 // Locally we have to do it ourselves.

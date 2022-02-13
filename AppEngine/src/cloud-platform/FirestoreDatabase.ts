@@ -74,8 +74,18 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
   }
 
   public async saveApplePushNotificationToken(token: FirestorePushNotificationToken): Promise<void> {
-    const deviceId = token.deviceId;
+    // Firestore doesn't support JavaScript objects with custom prototypes
+    // (i.e. objects that were created via the "new" operator).
+    //
+    // Solution: we have to create a new object.
+    const firestoreToken: FirestorePushNotificationToken = {
+      deviceId: token.deviceId,
+      token: token.token,
+      createdAt: token.createdAt
+    };
+
+    const deviceId = firestoreToken.deviceId;
     const documentRef = this.applePushNotificationTokensCollectionRef.doc(deviceId);
-    await documentRef.set(token);
+    await documentRef.set(firestoreToken);
   }
 }

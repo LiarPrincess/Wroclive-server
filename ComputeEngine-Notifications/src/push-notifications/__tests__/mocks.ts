@@ -1,6 +1,12 @@
 import { PushNotification } from '../PushNotification';
 import { AppleEndpointType } from '../apple';
 import { DatabaseType, StoredPushNotification } from '../database';
+import { Logger } from '../../util';
+
+export class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
 
 export class DatabaseMock implements DatabaseType {
 
@@ -27,19 +33,11 @@ export class DatabaseMock implements DatabaseType {
   }
 }
 
-class AppleEndpointSendArg {
-  constructor(
-    public readonly notification: PushNotification,
-    public readonly deviceTokens: string[]
-  ) { }
-}
-
 export class AppleEndpointMock implements AppleEndpointType {
 
-  public sendArgs: AppleEndpointSendArg[] = [];
+  public sendArg: any | undefined;
 
-  async send(notification: PushNotification, deviceTokens: string[]): Promise<void> {
-    const arg = new AppleEndpointSendArg(notification, deviceTokens);
-    this.sendArgs.push(arg);
+  async send(notifications: PushNotification[], deviceTokens: string[]): Promise<void> {
+    this.sendArg = { notifications, deviceTokens };
   }
 }

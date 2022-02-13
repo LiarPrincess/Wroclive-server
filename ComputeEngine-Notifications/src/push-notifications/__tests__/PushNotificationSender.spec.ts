@@ -1,4 +1,4 @@
-import { DatabaseMock, AppleEndpointMock } from './mocks';
+import { LoggerMock, DatabaseMock, AppleEndpointMock } from './mocks';
 import { PushNotification } from '../PushNotification';
 import { StoredPushNotification } from '../database';
 import { PushNotificationSender, dontSendTweetsOlderThan } from '../PushNotificationSender';
@@ -18,13 +18,18 @@ const tweetFromFuture = new CleanTweet('id4', 'conversationId4', new Date(dontSe
 
 const appleDeviceTokens = ['TOKEN1', 'TOKEN2'];
 
+function setup() {
+  const apple = new AppleEndpointMock();
+  const database = new DatabaseMock();
+  const logger = new LoggerMock();
+  const sender = new PushNotificationSender(database, apple, logger, getDateMock);
+  return { apple, database, sender };
+}
+
 describe('PushNotificationSender', () => {
 
   it('sends new tweets', async () => {
-    const apple = new AppleEndpointMock();
-    const database = new DatabaseMock();
-    const sender = new PushNotificationSender(database, apple, getDateMock);
-
+    const { apple, database, sender } = setup();
     database.alreadySendIds = [];
     database.applePushNotificationTokens = appleDeviceTokens;
 
@@ -35,23 +40,17 @@ describe('PushNotificationSender', () => {
       new StoredPushNotification(tweetSend2, date)
     ]);
 
-    expect(apple.sendArgs).toEqual([
-      {
-        notification: new PushNotification(tweetSend1),
-        deviceTokens: appleDeviceTokens
-      },
-      {
-        notification: new PushNotification(tweetSend2),
-        deviceTokens: appleDeviceTokens
-      }
-    ]);
+    expect(apple.sendArg).toEqual({
+      notifications: [
+        new PushNotification(tweetSend1),
+        new PushNotification(tweetSend2)
+      ],
+      deviceTokens: appleDeviceTokens
+    });
   });
 
   it('skips already send tweets', async () => {
-    const apple = new AppleEndpointMock();
-    const database = new DatabaseMock();
-    const sender = new PushNotificationSender(database, apple, getDateMock);
-
+    const { apple, database, sender } = setup();
     database.alreadySendIds = [tweetSend1.id];
     database.applePushNotificationTokens = appleDeviceTokens;
 
@@ -61,19 +60,14 @@ describe('PushNotificationSender', () => {
       new StoredPushNotification(tweetSend2, date)
     ]);
 
-    expect(apple.sendArgs).toEqual([
-      {
-        notification: new PushNotification(tweetSend2),
-        deviceTokens: appleDeviceTokens
-      }
-    ]);
+    expect(apple.sendArg).toEqual({
+      notifications: [new PushNotification(tweetSend2)],
+      deviceTokens: appleDeviceTokens
+    });
   });
 
   it('skips old tweets', async () => {
-    const apple = new AppleEndpointMock();
-    const database = new DatabaseMock();
-    const sender = new PushNotificationSender(database, apple, getDateMock);
-
+    const { apple, database, sender } = setup();
     database.alreadySendIds = [];
     database.applePushNotificationTokens = appleDeviceTokens;
 
@@ -84,19 +78,14 @@ describe('PushNotificationSender', () => {
       new StoredPushNotification(tweetSend1, date)
     ]);
 
-    expect(apple.sendArgs).toEqual([
-      {
-        notification: new PushNotification(tweetSend1),
-        deviceTokens: appleDeviceTokens
-      }
-    ]);
+    expect(apple.sendArg).toEqual({
+      notifications: [new PushNotification(tweetSend1)],
+      deviceTokens: appleDeviceTokens
+    });
   });
 
   it('sends tweets from the future', async () => {
-    const apple = new AppleEndpointMock();
-    const database = new DatabaseMock();
-    const sender = new PushNotificationSender(database, apple, getDateMock);
-
+    const { apple, database, sender } = setup();
     database.alreadySendIds = [];
     database.applePushNotificationTokens = appleDeviceTokens;
 
@@ -107,23 +96,17 @@ describe('PushNotificationSender', () => {
       new StoredPushNotification(tweetFromFuture, date)
     ]);
 
-    expect(apple.sendArgs).toEqual([
-      {
-        notification: new PushNotification(tweetSend2),
-        deviceTokens: appleDeviceTokens
-      },
-      {
-        notification: new PushNotification(tweetFromFuture),
-        deviceTokens: appleDeviceTokens
-      }
-    ]);
+    expect(apple.sendArg).toEqual({
+      notifications: [
+        new PushNotification(tweetSend2),
+        new PushNotification(tweetFromFuture)
+      ],
+      deviceTokens: appleDeviceTokens
+    });
   });
 
   it('does nothing if there are no new tweets', async () => {
-    const apple = new AppleEndpointMock();
-    const database = new DatabaseMock();
-    const sender = new PushNotificationSender(database, apple, getDateMock);
-
+    const { apple, database, sender } = setup();
     database.alreadySendIds = [tweetSend1.id];
     database.applePushNotificationTokens = appleDeviceTokens;
 
@@ -133,6 +116,6 @@ describe('PushNotificationSender', () => {
       new StoredPushNotification(tweetNotSend, undefined),
     ]);
 
-    expect(apple.sendArgs).toEqual([]);
+    expect(apple.sendArg).toBeUndefined();
   });
 });

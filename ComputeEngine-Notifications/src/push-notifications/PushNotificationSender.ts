@@ -2,7 +2,7 @@ import { AppleEndpointType } from './apple';
 import { PushNotification } from './PushNotification';
 import { DatabaseType, StoredPushNotification } from './Database';
 import { CleanTweet } from '../CleanTweet';
-import { subtractMilliseconds } from '../util';
+import { Logger, subtractMilliseconds } from '../util';
 
 const second = 1000;
 const minute = 60 * second;
@@ -16,15 +16,18 @@ export class PushNotificationSender {
 
   private readonly apple: AppleEndpointType;
   private readonly database: DatabaseType;
+  private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
 
   constructor(
     db: DatabaseType,
     apple: AppleEndpointType,
+    logger: Logger,
     dateProvider?: DateProvider
   ) {
     this.apple = apple;
     this.database = db;
+    this.logger = logger;
     this.dateProvider = dateProvider || (() => new Date());
   }
 
@@ -59,12 +62,17 @@ export class PushNotificationSender {
       return;
     }
 
-    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
+    // Store notification in a database before we send.
+    // The actual sending may take a while, so if we get called again with the same
+    // tweets then we should skip them.
     for (const n of notificationsToSend) {
+      this.logger.info(`New notification: ${n.id} (thread: ${n.threadId})`, n);
       const stored = new StoredPushNotification(n, now);
       this.database.markAsSend(stored);
-      this.apple.send(n, appleDeviceTokens);
     }
+
+    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
+    this.apple.send(notificationsToSend, appleDeviceTokens);
   }
 }
 

@@ -77,7 +77,7 @@ function getExpressRoute(router: Router, request: Request): ExpressRouteLayer {
 
   for (const layer of routerLayers) {
     const route = layer.route;
-    if (route.path != request.path) {
+    if (route?.path != request.path) {
       continue;
     }
 

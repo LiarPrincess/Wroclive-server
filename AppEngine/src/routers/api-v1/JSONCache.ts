@@ -11,7 +11,7 @@ interface CacheEntry {
  * A lot of our data is static (it does not change very often), we will cache
  * stringified responses to avoid re-serialization.
  */
-export class JSONSerialization {
+export class JSONCache {
 
   /* ============= */
   /* === Lines === */
@@ -19,7 +19,7 @@ export class JSONSerialization {
 
   private cachedLines?: CacheEntry = undefined;
 
-  stringifyLines(lines: LineCollection): string {
+  getLines(lines: LineCollection): string {
     if (this.cachedLines && this.cachedLines.timestamp == lines.timestamp) {
       return this.cachedLines.json;
     }
@@ -41,7 +41,7 @@ export class JSONSerialization {
 
   private cachedStops?: CacheEntry = undefined;
 
-  stringifyStops(stops: StopCollection): string {
+  getStops(stops: StopCollection): string {
     if (this.cachedStops && this.cachedStops.timestamp == stops.timestamp) {
       return this.cachedStops.json;
     }
@@ -55,7 +55,7 @@ export class JSONSerialization {
   /* === Vehicle locations === */
   /* ========================= */
 
-  stringifyVehicleLocations(locations: LineLocationCollection): string {
+  getVehicleLocations(locations: LineLocationCollection): string {
     // Nothing to cache here
     return JSON.stringify(locations);
   }

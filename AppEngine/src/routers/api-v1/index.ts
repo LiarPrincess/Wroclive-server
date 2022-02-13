@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction, Router } from 'express';
 
+import { JSONCache } from './JSONCache';
 import { Controllers } from '../../controllers';
-import { JSONSerialization } from './JSONSerialization';
 import { splitLowerCase } from '../helpers';
 
 /* ================ */
@@ -32,6 +32,10 @@ function sendJSON(res: Response, value: string) {
   res.send(value);
 }
 
+function isString(o: any): boolean {
+  return typeof o === 'string' || o instanceof String;
+}
+
 /* ============ */
 /* === Main === */
 /* ============ */
@@ -39,14 +43,15 @@ function sendJSON(res: Response, value: string) {
 export function createApiV1Router(controllers: Controllers): Router {
   const router = express.Router();
   const json = new JSONSerialization();
+  const jsonCache = new JSONCache();
 
   router.get('/lines', (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = controllers.lines.getLines();
-      const stringified = json.stringifyLines(data);
+      const json = jsonCache.getLines(data);
 
       setStandardHeaders(res, CacheHeader.Store6h);
-      sendJSON(res, stringified);
+      sendJSON(res, json);
     } catch (err) {
       next(err);
     }
@@ -55,10 +60,10 @@ export function createApiV1Router(controllers: Controllers): Router {
   router.get('/stops', (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = controllers.stops.getStops();
-      const stringified = json.stringifyStops(data);
+      const json = jsonCache.getStops(data);
 
       setStandardHeaders(res, CacheHeader.Store3days);
-      sendJSON(res, stringified);
+      sendJSON(res, json);
     } catch (err) {
       next(err);
     }
@@ -66,13 +71,15 @@ export function createApiV1Router(controllers: Controllers): Router {
 
   router.get('/vehicles', (req: Request, res: Response, next: NextFunction) => {
     try {
-      const query = req.query?.lines as string || '';
+      const rawQuery = req.query?.lines;
+      const query = isString(rawQuery) ? (rawQuery as string) : '';
       const lineNames = splitLowerCase(query, ';');
+
       const data = controllers.vehicleLocation.getVehicleLocations(lineNames);
-      const stringified = json.stringifyVehicleLocations(data);
+      const json = jsonCache.getVehicleLocations(data);
 
       setStandardHeaders(res, CacheHeader.Disable);
-      sendJSON(res, stringified);
+      sendJSON(res, json);
     } catch (err) {
       next(err);
     }

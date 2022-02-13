@@ -1,18 +1,14 @@
 import { Stop, StopCollection } from './models';
 import { StopsControllerType } from './StopsControllerType';
 import { PredefinedStopsController } from './PredefinedStopsController';
-import { FirestoreAllStopsDocument } from '../../cloud-platform';
-
-export interface FirestoreStopsProvider {
-  getAllStops(): Promise<FirestoreAllStopsDocument>;
-}
+import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from '../../cloud-platform';
 
 export class FirestoreStopsController extends StopsControllerType {
 
-  private db: FirestoreStopsProvider;
+  private db: FirestoreStopsDatabase;
   private stops: StopCollection;
 
-  constructor(db: FirestoreStopsProvider) {
+  constructor(db: FirestoreStopsDatabase) {
     super();
 
     this.db = db;

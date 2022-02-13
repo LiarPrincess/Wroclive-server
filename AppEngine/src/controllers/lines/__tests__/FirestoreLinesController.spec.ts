@@ -1,12 +1,9 @@
 import { Line } from '../models';
+import { FirestoreLinesController } from '../FirestoreLinesController';
 import { PredefinedLinesController } from '../PredefinedLinesController';
-import { FirestoreAllLinesDocument } from '../../../cloud-platform';
-import {
-  FirestoreLinesController,
-  FirestoreLinesProvider
-} from '../FirestoreLinesController';
+import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from '../../../cloud-platform';
 
-class FakeFirestoreLinesProvider implements FirestoreLinesProvider {
+class FirestoreLinesDatabaseMock implements FirestoreLinesDatabase {
 
   lines: FirestoreAllLinesDocument;
 
@@ -22,7 +19,7 @@ class FakeFirestoreLinesProvider implements FirestoreLinesProvider {
 describe('FirestoreLinesController', function () {
 
   it('starts with dummy lines', function () {
-    const provider = new FakeFirestoreLinesProvider();
+    const provider = new FirestoreLinesDatabaseMock();
     const controller = new FirestoreLinesController(provider);
 
     const lines = controller.getLines();
@@ -30,7 +27,7 @@ describe('FirestoreLinesController', function () {
   });
 
   it('get lines from provider', async function () {
-    const provider = new FakeFirestoreLinesProvider();
+    const provider = new FirestoreLinesDatabaseMock();
     const controller = new FirestoreLinesController(provider);
 
     provider.lines = {
@@ -49,7 +46,7 @@ describe('FirestoreLinesController', function () {
   });
 
   it('avoids update if provider returned no lines', async function () {
-    const provider = new FakeFirestoreLinesProvider();
+    const provider = new FirestoreLinesDatabaseMock();
     const controller = new FirestoreLinesController(provider);
 
     provider.lines = {

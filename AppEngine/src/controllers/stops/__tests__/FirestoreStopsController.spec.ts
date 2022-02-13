@@ -1,12 +1,9 @@
 import { Stop } from '../models';
+import { FirestoreStopsController } from '../FirestoreStopsController';
 import { PredefinedStopsController } from '../PredefinedStopsController';
-import { FirestoreAllStopsDocument } from '../../../cloud-platform';
-import {
-  FirestoreStopsController,
-  FirestoreStopsProvider
-} from '../FirestoreStopsController';
+import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from '../../../cloud-platform';
 
-class FakeFirestoreStopsProvider implements FirestoreStopsProvider {
+class FirestoreStopsDatabaseMock implements FirestoreStopsDatabase {
 
   stops: FirestoreAllStopsDocument;
 
@@ -22,7 +19,7 @@ class FakeFirestoreStopsProvider implements FirestoreStopsProvider {
 describe('FirestoreStopsController', function () {
 
   it('starts with dummy stops', function () {
-    const provider = new FakeFirestoreStopsProvider();
+    const provider = new FirestoreStopsDatabaseMock();
     const controller = new FirestoreStopsController(provider);
 
     const stops = controller.getStops();
@@ -30,7 +27,7 @@ describe('FirestoreStopsController', function () {
   });
 
   it('get stops from provider', async function () {
-    const provider = new FakeFirestoreStopsProvider();
+    const provider = new FirestoreStopsDatabaseMock();
     const controller = new FirestoreStopsController(provider);
 
     provider.stops = {
@@ -49,7 +46,7 @@ describe('FirestoreStopsController', function () {
   });
 
   it('avoids update if provider returned no stops', async function () {
-    const provider = new FakeFirestoreStopsProvider();
+    const provider = new FirestoreStopsDatabaseMock();
     const controller = new FirestoreStopsController(provider);
 
     provider.stops = {

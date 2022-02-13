@@ -1,52 +1,11 @@
 import * as fs from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
+import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from './FirestoreLinesDatabase';
+import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from './FirestoreStopsDatabase';
+import { FirestorePushNotificationTokenDatabase, FirestorePushNotificationToken } from './FirestorePushNotificationTokenDatabase';
 
-/* ============= */
-/* === Types === */
-/* ============= */
-
-export interface FirestoreLine {
-  readonly name: string;
-  readonly type: string;
-  readonly subtype: string;
-  /**
-   * First and last appearance of this line in schedule
-   * (as number of minutes since midnight).
-   *
-   * One day has 1440 minutes, if the time is >1440 then it means next day.
-   *
-   * Example:
-   * Line |  Min |  Max | Comment
-   * -----+------+------+----------------------------------------------------
-   *   0L |  287 | 1400 | Daily line that starts and finishes at the same day
-   *    4 |  242 | 1450 | Daily line that finishes after midnight
-   *  240 | 1400 | 1720 | Night line that starts during the day
-   *  206 | 1456 | 1738 | Night line that starts after midnight
-   */
-  readonly stopArrivalTimes?: { min: number, max: number };
-}
-
-export interface FirestoreStop {
-  readonly code: string;
-  readonly name: string;
-  readonly lat: number;
-  readonly lng: number;
-}
-
-export interface Timestamped<T> {
-  readonly timestamp: string;
-  readonly data: T;
-}
-
-export type FirestoreAllLinesDocument = Timestamped<FirestoreLine[]>;
-export type FirestoreAllStopsDocument = Timestamped<FirestoreStop[]>;
-
-/* ================ */
-/* === Database === */
-/* ================ */
-
-export class FirestoreDatabase {
+export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStopsDatabase, FirestorePushNotificationTokenDatabase {
 
   private db: fs.Firestore;
 
@@ -62,9 +21,9 @@ export class FirestoreDatabase {
     });
   }
 
-  /* ----- */
-  /* Lines */
-  /* ----- */
+  /* ============= */
+  /* === Lines === */
+  /* ============= */
 
   private get linesCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Lines');
@@ -84,9 +43,9 @@ export class FirestoreDatabase {
     await this.allLinesDocumentRef.set(document);
   }
 
-  /* ----- */
-  /* Stops */
-  /* ----- */
+  /* ============= */
+  /* === Stops === */
+  /* ============= */
 
   private get stopsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Stops');

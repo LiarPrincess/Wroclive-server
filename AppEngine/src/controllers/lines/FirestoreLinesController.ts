@@ -1,18 +1,14 @@
 import { Line, LineCollection } from './models';
 import { LinesControllerType } from './LinesControllerType';
 import { PredefinedLinesController } from './PredefinedLinesController';
-import { FirestoreAllLinesDocument } from '../../cloud-platform';
-
-export interface FirestoreLinesProvider {
-  getAllLines(): Promise<FirestoreAllLinesDocument>;
-}
+import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from '../../cloud-platform';
 
 export class FirestoreLinesController extends LinesControllerType {
 
-  private db: FirestoreLinesProvider;
+  private db: FirestoreLinesDatabase;
   private lines: LineCollection;
 
-  constructor(db: FirestoreLinesProvider) {
+  constructor(db: FirestoreLinesDatabase) {
     super();
 
     this.db = db;

@@ -4,7 +4,9 @@ import { Endpoint, NetworkError } from './Endpoint';
 export class Tweet {
   public constructor(
     public readonly id: string,
-    /** Parent tweet id. It is the same as 'this.id' if there is no parent. */
+    /**
+     * Id of the 1st tweet in the conversation (a series of tweets).
+     */
     public readonly conversationId: string,
     public readonly createdAt: Date,
     public readonly text: string

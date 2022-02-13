@@ -1,3 +1,4 @@
+export * from './math';
 export * from './logger';
-export * from './environment-check';
 export * from './root-dir';
+export * from './environment-check';

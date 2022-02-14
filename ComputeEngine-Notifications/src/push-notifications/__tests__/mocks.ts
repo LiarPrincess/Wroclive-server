@@ -1,6 +1,6 @@
 import { PushNotification } from '../PushNotification';
-import { AppleEndpointType } from '../apple';
 import { DatabaseType, StoredPushNotification } from '../database';
+import { ApplePushNotificationsType, AppleDeviceToken, AppleSendResult } from '../apple';
 import { Logger } from '../../util';
 
 export class LoggerMock implements Logger {
@@ -13,15 +13,15 @@ export class DatabaseMock implements DatabaseType {
   public alreadySendIds: string[] = [];
   public wasAlreadySendCallCount = 0;
 
-  public async wasAlreadySend(id: string): Promise<boolean> {
+  public async wasAlreadySend(notification: PushNotification): Promise<boolean> {
     this.wasAlreadySendCallCount++;
-    return this.alreadySendIds.includes(id);
+    return this.alreadySendIds.includes(notification.id);
   }
 
-  public sendNotifications: StoredPushNotification[] = [];
+  public markedAsSend: StoredPushNotification[] = [];
 
-  public async markAsSend(notification: StoredPushNotification): Promise<void> {
-    this.sendNotifications.push(notification);
+  public async store(notification: StoredPushNotification): Promise<void> {
+    this.markedAsSend.push(notification);
   }
 
   public applePushNotificationTokens: string[] = [];
@@ -33,11 +33,16 @@ export class DatabaseMock implements DatabaseType {
   }
 }
 
-export class AppleEndpointMock implements AppleEndpointType {
+export class ApplePushNotificationsMock implements ApplePushNotificationsType {
 
-  public sendArg: any | undefined;
+  public sendArgs: any[] = [];
+  public sendResult: AppleSendResult = { kind: 'Success', delivered: [], failed: [] };
 
-  async send(notifications: PushNotification[], deviceTokens: string[]): Promise<void> {
-    this.sendArg = { notifications, deviceTokens };
+  async send(
+    notification: PushNotification,
+    deviceTokens: AppleDeviceToken[]
+  ): Promise<AppleSendResult> {
+    this.sendArgs.push({ notification, deviceTokens });
+    return this.sendResult;
   }
 }

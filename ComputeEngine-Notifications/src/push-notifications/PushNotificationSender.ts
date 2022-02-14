@@ -1,6 +1,6 @@
-import { AppleEndpointType } from './apple';
 import { PushNotification } from './PushNotification';
-import { DatabaseType, StoredPushNotification } from './Database';
+import { ApplePushNotificationsType } from './apple';
+import { DatabaseType, StoredPushNotification, StoredAppleStatus } from './Database';
 import { CleanTweet } from '../CleanTweet';
 import { Logger, subtractMilliseconds } from '../util';
 
@@ -12,16 +12,24 @@ export const dontSendTweetsOlderThan = 3 * hour;
 
 export type DateProvider = () => Date;
 
+class TweetDiff {
+  public constructor(
+    public readonly alreadySend: CleanTweet[],
+    public readonly notSendButTooOldToSend: PushNotification[],
+    public readonly toSend: PushNotification[]
+  ) { }
+}
+
 export class PushNotificationSender {
 
-  private readonly apple: AppleEndpointType;
+  private readonly apple: ApplePushNotificationsType;
   private readonly database: DatabaseType;
   private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
 
-  constructor(
+  public constructor(
     db: DatabaseType,
-    apple: AppleEndpointType,
+    apple: ApplePushNotificationsType,
     logger: Logger,
     dateProvider?: DateProvider
   ) {
@@ -31,14 +39,58 @@ export class PushNotificationSender {
     this.dateProvider = dateProvider || (() => new Date());
   }
 
-  async send(tweets: CleanTweet[]) {
+  public async send(tweets: CleanTweet[]) {
+    const diff = await this.calculateDiff(tweets);
+
+    for (const notification of diff.notSendButTooOldToSend) {
+      // Don't send the push notification, but store it in the database.
+      const stored = new StoredPushNotification(notification, 'Not send');
+      await this.database.store(stored);
+    }
+
+    if (!diff.toSend.length) {
+      return;
+    }
+
+    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
+
+    for (const n of diff.toSend) {
+      this.logger.info(`New notification: ${n.id} (thread: ${n.threadId})`, n);
+
+      const sendAt = this.dateProvider();
+      const appleResult = await this.apple.send(n, appleDeviceTokens);
+
+      switch (appleResult.kind) {
+        case 'Success':
+          const appleStatus = new StoredAppleStatus(appleResult.delivered, appleResult.failed);
+          const stored = new StoredPushNotification(n, sendAt, appleStatus);
+          this.database.store(stored);
+          break;
+
+        case 'Error':
+          this.logger.error(`Failed to send notification: ${n.id} (thread: ${n.threadId})`, {
+            notification: n,
+            error: appleResult.error
+          });
+          break;
+      }
+    }
+  }
+
+  private async calculateDiff(tweets: CleanTweet[]): Promise<TweetDiff> {
+    const alreadySend: CleanTweet[] = [];
+    const tooOldToSend: PushNotification[] = [];
+    const toSend: PushNotification[] = [];
+
     const now = this.dateProvider();
-    const notificationsToSend: PushNotification[] = [];
     const tweetsSorted = tweets.sort(fromOldestToNewest);
 
     for (const tweet of tweetsSorted) {
-      const wasAlreadySend = await this.database.wasAlreadySend(tweet.id);
+      const notification = new PushNotification(tweet);
+
+      const wasAlreadySend = await this.database.wasAlreadySend(notification);
       if (wasAlreadySend) {
+        alreadySend.push(tweet);
         continue;
       }
 
@@ -48,31 +100,14 @@ export class PushNotificationSender {
       const isInTimeFrame = timeDiff < dontSendTweetsOlderThan;
 
       if (!isInTimeFrame) {
-        // Don't send an actual push notification, but store it in database.
-        const stored = new StoredPushNotification(tweet, undefined);
-        await this.database.markAsSend(stored);
+        tooOldToSend.push(notification);
         continue;
       }
 
-      const notification = new PushNotification(tweet);
-      notificationsToSend.push(notification);
+      toSend.push(notification);
     }
 
-    if (!notificationsToSend.length) {
-      return;
-    }
-
-    // Store notification in a database before we send.
-    // The actual sending may take a while, so if we get called again with the same
-    // tweets then we should skip them.
-    for (const n of notificationsToSend) {
-      this.logger.info(`New notification: ${n.id} (thread: ${n.threadId})`, n);
-      const stored = new StoredPushNotification(n, now);
-      this.database.markAsSend(stored);
-    }
-
-    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
-    this.apple.send(notificationsToSend, appleDeviceTokens);
+    return new TweetDiff(alreadySend, tooOldToSend, toSend);
   }
 }
 

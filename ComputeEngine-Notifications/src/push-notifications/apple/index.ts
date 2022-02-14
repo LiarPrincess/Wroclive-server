@@ -1,2 +1,7 @@
-export { AppleEndpoint } from './AppleEndpoint';
-export { AppleEndpointType } from './AppleEndpointType';
+export {
+  DeviceToken,
+  SendError,
+  SendResult,
+  ApplePushNotificationsType
+} from './ApplePushNotificationsType';
+export { ApplePushNotifications } from './ApplePushNotifications';

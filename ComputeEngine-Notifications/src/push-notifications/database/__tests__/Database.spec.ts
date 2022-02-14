@@ -1,5 +1,7 @@
 import { Database } from '../Database';
+import { StoredAppleStatus } from '../DatabaseType';
 import { StoredPushNotification } from '../DatabaseType';
+import { PushNotification } from '../../PushNotification';
 import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
 
 describe('Push notification database', () => {
@@ -8,14 +10,17 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    firestore.pushNotificationIds = ['PRESENT'];
+    const present = new PushNotification('PRESENT', 'THREAD_1', 'BODY_1');
+    const notPresent = new PushNotification('NOT_PRESENT', 'THREAD_2', 'BODY_2');
 
-    const present = await database.wasAlreadySend('PRESENT');
-    expect(present).toBeTruthy();
+    firestore.pushNotificationIds = [present.id];
+
+    const wasPresentSend = await database.wasAlreadySend(present);
+    expect(wasPresentSend).toBeTruthy();
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
 
-    const notPresent = await database.wasAlreadySend('NOT_PRESENT');
-    expect(notPresent).toBeFalsy();
+    const wasNotPresentSend = await database.wasAlreadySend(notPresent);
+    expect(wasNotPresentSend).toBeFalsy();
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
   });
 
@@ -23,15 +28,20 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const notification1 = new StoredPushNotification('id1', 'threadId', 'body1', 'Not send');
-    await database.markAsSend(notification1);
-    expect(firestore.addedPushNotifications).toEqual([notification1]);
+    const notSendNotification = new PushNotification('ID1', 'THREAD1', 'BODY1');
+    const notSendStored = new StoredPushNotification(notSendNotification, 'Not send');
+    await database.store(notSendStored);
+
+    expect(firestore.addedPushNotifications).toEqual([notSendStored]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
 
     const sendAt = new Date('2020.01.01');
-    const notification2 = new StoredPushNotification('id2', 'threadId', 'body2', sendAt);
-    await database.markAsSend(notification2);
-    expect(firestore.addedPushNotifications).toEqual([notification1, notification2]);
+    const sendNotification = new PushNotification('ID2', 'THREAD2', 'BODY2');
+    const sendAppleStatus = new StoredAppleStatus(['token'], []);
+    const sendStored = new StoredPushNotification(sendNotification, sendAt, sendAppleStatus);
+
+    await database.store(sendStored);
+    expect(firestore.addedPushNotifications).toEqual([notSendStored, sendStored]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
   });
 
@@ -40,28 +50,31 @@ describe('Push notification database', () => {
     const database = new Database(firestore);
 
     // Without 'sendAt'
-    const notification1 = new StoredPushNotification('id1', 'threadId', 'body1', 'Not send');
+    const notSendNotification = new PushNotification('ID1', 'THREAD1', 'BODY1');
+    const notSendStored = new StoredPushNotification(notSendNotification, 'Not send');
 
-    const wasSend1Before = await database.wasAlreadySend(notification1.id);
+    const wasSend1Before = await database.wasAlreadySend(notSendNotification);
     expect(wasSend1Before).toBeFalsy();
-    await database.markAsSend(notification1);
-    const wasSend1After = await database.wasAlreadySend(notification1.id);
+    await database.store(notSendStored);
+    const wasSend1After = await database.wasAlreadySend(notSendNotification);
     expect(wasSend1After).toBeTruthy();
 
-    expect(firestore.addedPushNotifications).toEqual([notification1]);
+    expect(firestore.addedPushNotifications).toEqual([notSendStored]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
 
     // With 'sendAt'
     const sendAt = new Date('2020.01.01');
-    const notification2 = new StoredPushNotification('id2', 'threadId', 'body2', sendAt);
+    const sendNotification = new PushNotification('ID2', 'THREAD2', 'BODY2');
+    const sendAppleStatus = new StoredAppleStatus(['token'], []);
+    const sendStored = new StoredPushNotification(sendNotification, sendAt, sendAppleStatus);
 
-    const wasSend2Before = await database.wasAlreadySend(notification2.id);
+    const wasSend2Before = await database.wasAlreadySend(sendNotification);
     expect(wasSend2Before).toBeFalsy();
-    await database.markAsSend(notification2);
-    const wasSend2After = await database.wasAlreadySend(notification2.id);
+    await database.store(sendStored);
+    const wasSend2After = await database.wasAlreadySend(sendNotification);
     expect(wasSend2After).toBeTruthy();
 
-    expect(firestore.addedPushNotifications).toEqual([notification1, notification2]);
+    expect(firestore.addedPushNotifications).toEqual([notSendStored, sendStored]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
   });
 

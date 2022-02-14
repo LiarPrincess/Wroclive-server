@@ -1,3 +1,4 @@
+import { PushNotification } from '../PushNotification';
 import { DatabaseType, StoredPushNotification } from './DatabaseType';
 import { FirestorePushNotificationDatabase } from '../../cloud-platform';
 
@@ -14,12 +15,12 @@ export class Database implements DatabaseType {
   /* === Notifications === */
   /* ===================== */
 
-  public async wasAlreadySend(id: string): Promise<boolean> {
+  public async wasAlreadySend(notification: PushNotification): Promise<boolean> {
     const postedIds = await this.getPostedPushNotificationIds();
-    return postedIds.has(id);
+    return postedIds.has(notification.id);
   }
 
-  public async markAsSend(notification: StoredPushNotification): Promise<void> {
+  public async store(notification: StoredPushNotification): Promise<void> {
     const postedIds = await this.getPostedPushNotificationIds();
     postedIds.add(notification.id);
 

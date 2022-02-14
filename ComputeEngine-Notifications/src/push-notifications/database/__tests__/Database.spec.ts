@@ -23,13 +23,13 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const notification1 = new StoredPushNotification('id1', 'threadId', undefined, 'body1');
+    const notification1 = new StoredPushNotification('id1', 'threadId', 'body1', 'Not send');
     await database.markAsSend(notification1);
     expect(firestore.addedPushNotifications).toEqual([notification1]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
 
     const sendAt = new Date('2020.01.01');
-    const notification2 = new StoredPushNotification('id2', 'threadId', sendAt, 'body2');
+    const notification2 = new StoredPushNotification('id2', 'threadId', 'body2', sendAt);
     await database.markAsSend(notification2);
     expect(firestore.addedPushNotifications).toEqual([notification1, notification2]);
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
@@ -40,7 +40,7 @@ describe('Push notification database', () => {
     const database = new Database(firestore);
 
     // Without 'sendAt'
-    const notification1 = new StoredPushNotification('id1', 'threadId', undefined, 'body1');
+    const notification1 = new StoredPushNotification('id1', 'threadId', 'body1', 'Not send');
 
     const wasSend1Before = await database.wasAlreadySend(notification1.id);
     expect(wasSend1Before).toBeFalsy();
@@ -53,7 +53,7 @@ describe('Push notification database', () => {
 
     // With 'sendAt'
     const sendAt = new Date('2020.01.01');
-    const notification2 = new StoredPushNotification('id2', 'threadId', sendAt, 'body2');
+    const notification2 = new StoredPushNotification('id2', 'threadId', 'body2', sendAt);
 
     const wasSend2Before = await database.wasAlreadySend(notification2.id);
     expect(wasSend2Before).toBeFalsy();

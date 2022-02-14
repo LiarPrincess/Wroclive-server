@@ -1,15 +1,14 @@
+export interface FirestorePushNotificationAppleStatus {
+  readonly delivered: string[];
+  readonly errors: { device: string, reason: string }[];
+}
+
 export interface FirestorePushNotification {
   readonly id: string;
-  /**
-   * An app-specific identifier for grouping related notifications.
-   */
   readonly threadId: string;
-  /**
-   * Empty if the push notification was not send.
-   * This may happen if the tweet is too old to be relevant.
-   */
-  readonly sendAt: Date | undefined;
   readonly body: string;
+  readonly sendAt: Date | 'Not send';
+  readonly apple?: FirestorePushNotificationAppleStatus
 }
 
 export interface FirestorePushNotificationDatabase {

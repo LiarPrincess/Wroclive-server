@@ -1,7 +1,7 @@
 import { Tweet } from './twitter';
 
 /**
- * Tweet with removed some things.
+ * Tweet with removed some things from its body.
  */
 export class CleanTweet {
 

@@ -2,7 +2,8 @@ import * as fs from '@google-cloud/firestore';
 
 import {
   FirestorePushNotification,
-  FirestorePushNotificationDatabase
+  FirestorePushNotificationDatabase,
+  FirestorePushNotificationAppleStatus
 } from './FirestorePushNotificationDatabase';
 import { CloudPlatform } from './CloudPlatform';
 
@@ -42,9 +43,24 @@ export class FirestoreDatabase implements FirestorePushNotificationDatabase {
   }
 
   public async addPushNotification(notification: FirestorePushNotification) {
-    const id = notification.id;
+    // Firestore doesn't support JavaScript objects with custom prototypes
+    // (i.e. objects that were created via the "new" operator).
+    //
+    // Solution: we have to create a new object.
+    const n: FirestorePushNotification = {
+      id: notification.id,
+      threadId: notification.threadId,
+      body: notification.body,
+      sendAt: notification.sendAt,
+      apple: notification.apple === undefined ? undefined : {
+        delivered: notification.apple.delivered,
+        errors: notification.apple.errors
+      }
+    };
+
+    const id = n.id;
     const documentRef = this.pushNotificationsCollectionRef.doc(id);
-    await documentRef.set(notification);
+    await documentRef.set(n);
   }
 
   /* ====================================== */

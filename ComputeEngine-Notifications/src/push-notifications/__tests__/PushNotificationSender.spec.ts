@@ -24,7 +24,7 @@ function setup() {
   const apple = new ApplePushNotificationsMock();
   const database = new DatabaseMock();
   const logger = new LoggerMock();
-  const sender = new PushNotificationSender(database, apple, logger, getDateMock);
+  const sender = new PushNotificationSender(apple, database, logger, getDateMock);
   return { apple, database, sender };
 }
 

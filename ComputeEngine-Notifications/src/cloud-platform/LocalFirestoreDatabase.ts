@@ -16,7 +16,17 @@ export class LocalFirestoreDatabase implements FirestoreDatabaseType {
   }
 
   public async addPushNotification(notification: FirestorePushNotification) {
-    this.logger.info('[FirestoreDatabase] Adding notification', notification);
+    const status = notification.status.kind.toUpperCase();
+
+    const date = notification.createdAt.toISOString()
+      .substring(0, 16)
+      .replace('T', ' ');
+
+    const body = notification.body
+      .substring(0, 40)
+      .replace(/\n/g, ' ') + '…';
+
+    this.logger.info(`[FirestoreDatabase] Adding push notification: [${status}][${date}] ${body}`);
     this.pushNotificationIds.push(notification.id);
   }
 

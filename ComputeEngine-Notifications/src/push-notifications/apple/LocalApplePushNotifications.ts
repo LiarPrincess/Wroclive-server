@@ -13,9 +13,12 @@ export class LocalApplePushNotifications implements ApplePushNotificationsType {
   ) { }
 
   public async send(notification: PushNotification, deviceTokens: DeviceToken[]): Promise<SendResult> {
-    const body = notification.body.replace(/\n/g, ' ');
+    const body = notification.body
+      .substring(0, 60)
+      .replace(/\n/g, ' ') + '…';
+
     const tokenCount = deviceTokens.length;
-    this.logger.info(`[APN] Sending: ${body} to ${tokenCount} devices.`);
+    this.logger.info(`[APN] Sending to ${tokenCount} device(s): ${body}.`);
     return new SendResult(deviceTokens, []);
   }
 }

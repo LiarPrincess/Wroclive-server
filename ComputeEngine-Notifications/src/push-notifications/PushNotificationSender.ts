@@ -28,8 +28,8 @@ export class PushNotificationSender {
   private readonly dateProvider: DateProvider;
 
   public constructor(
-    db: DatabaseType,
     apple: ApplePushNotificationsType,
+    db: DatabaseType,
     logger: Logger,
     dateProvider?: DateProvider
   ) {
@@ -99,7 +99,7 @@ export class PushNotificationSender {
       }
 
       try {
-        this.database.storeSendNotification(notification, sendAt, appleResult.delivered, appleResult.failed);
+        await this.database.storeSendNotification(notification, sendAt, appleResult.delivered, appleResult.failed);
       } catch (error) {
         this.logger.error(
           `[PushNotifications] Error when storing send push notification: ${logId}.`,

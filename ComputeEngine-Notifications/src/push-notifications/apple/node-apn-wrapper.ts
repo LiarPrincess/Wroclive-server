@@ -2,6 +2,8 @@ import { DeviceToken, SendResult, SendError } from './ApplePushNotificationsType
 
 const apn = require('@parse/node-apn');
 
+export type Environment = 'development' | 'production';
+
 // https://github.com/parse-community/node-apn/blob/master/doc/provider.markdown
 export interface Options {
   /**
@@ -26,7 +28,7 @@ export interface Options {
    * Specifies which environment to connect to: Production or Sandbox.
    * The hostname will be set automatically.
    */
-  readonly environment: 'development' | 'production';
+  readonly environment: Environment;
   readonly appBundle: string;
 }
 

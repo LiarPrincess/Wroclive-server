@@ -2,12 +2,12 @@ import * as fs from '@google-cloud/firestore';
 
 import {
   FirestorePushNotification,
-  FirestorePushNotificationStatus,
-  FirestorePushNotificationDatabase
+  FirestorePushNotificationStatus
 } from './FirestorePushNotificationDatabase';
 import { CloudPlatform } from './CloudPlatform';
+import { FirestoreDatabaseType } from './FirestoreDatabaseType';
 
-export class FirestoreDatabase implements FirestorePushNotificationDatabase {
+export class FirestoreDatabase implements FirestoreDatabaseType {
 
   private db: fs.Firestore;
 

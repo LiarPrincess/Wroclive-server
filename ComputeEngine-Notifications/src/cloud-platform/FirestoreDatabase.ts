@@ -2,8 +2,8 @@ import * as fs from '@google-cloud/firestore';
 
 import {
   FirestorePushNotification,
-  FirestorePushNotificationDatabase,
-  FirestorePushNotificationAppleStatus
+  FirestorePushNotificationStatus,
+  FirestorePushNotificationDatabase
 } from './FirestorePushNotificationDatabase';
 import { CloudPlatform } from './CloudPlatform';
 
@@ -47,19 +47,36 @@ export class FirestoreDatabase implements FirestorePushNotificationDatabase {
     // (i.e. objects that were created via the "new" operator).
     //
     // Solution: we have to create a new object.
+
+    let status: FirestorePushNotificationStatus;
+    switch (notification.status.kind) {
+      case 'Too old':
+        status = { kind: 'Too old' };
+        break;
+
+      case 'Send':
+        status = {
+          kind: 'Send',
+          sendAt: notification.status.sendAt,
+          appleDelivered: notification.status.appleDelivered,
+          appleFailed: notification.status.appleFailed.map(f => ({ device: f.device, reason: f.reason }))
+        };
+        break;
+
+      case 'Error':
+        status = { kind: 'Error', error: notification.status.error };
+        break;
+    }
+
     const n: FirestorePushNotification = {
       id: notification.id,
       threadId: notification.threadId,
       body: notification.body,
-      sendAt: notification.sendAt,
-      apple: notification.apple === undefined ? undefined : {
-        delivered: notification.apple.delivered,
-        errors: notification.apple.errors
-      }
+      createdAt: notification.createdAt,
+      status
     };
 
-    const id = n.id;
-    const documentRef = this.pushNotificationsCollectionRef.doc(id);
+    const documentRef = this.pushNotificationsCollectionRef.doc(n.id);
     await documentRef.set(n);
   }
 

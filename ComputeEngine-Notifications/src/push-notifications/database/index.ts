@@ -1,2 +1,2 @@
 export { Database } from './Database';
-export { DatabaseType, StoredPushNotification, StoredAppleStatus } from './DatabaseType';
+export { DatabaseType } from './DatabaseType';

@@ -15,7 +15,7 @@ export class FirestoreDatabaseMock implements FirestorePushNotificationDatabase 
 
   public addedPushNotifications: FirestorePushNotification[] = [];
 
-  public async addPushNotification(notification: FirestorePushNotification): Promise<void> {
+  public async addPushNotification(notification: FirestorePushNotification) {
     this.addedPushNotifications.push(notification);
   }
 

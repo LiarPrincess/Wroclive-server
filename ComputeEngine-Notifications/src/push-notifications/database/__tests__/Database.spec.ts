@@ -1,17 +1,17 @@
 import { Database } from '../Database';
-import { StoredAppleStatus } from '../DatabaseType';
-import { StoredPushNotification } from '../DatabaseType';
 import { PushNotification } from '../../PushNotification';
 import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
 
+const date = new Date(0);
+
 describe('Push notification database', () => {
 
-  it('gets push notification ids from firestore and caches them', async () => {
+  it('reads push notification ids from firestore and caches them', async () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const present = new PushNotification('PRESENT', 'THREAD_1', 'BODY_1');
-    const notPresent = new PushNotification('NOT_PRESENT', 'THREAD_2', 'BODY_2');
+    const present = new PushNotification('present', 'thread1', 'body1', date);
+    const notPresent = new PushNotification('not_present', 'thread2', 'body2', date);
 
     firestore.pushNotificationIds = [present.id];
 
@@ -24,58 +24,86 @@ describe('Push notification database', () => {
     expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
   });
 
-  it('uploads new notifications to firestore', async () => {
+  it('writes too old notifications to firestore', async () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const notSendNotification = new PushNotification('ID1', 'THREAD1', 'BODY1');
-    const notSendStored = new StoredPushNotification(notSendNotification, 'Not send');
-    await database.store(notSendStored);
+    const n = new PushNotification('id', 'threadId', 'body', date);
 
-    expect(firestore.addedPushNotifications).toEqual([notSendStored]);
-    expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
+    const wasSendBefore = await database.wasAlreadySend(n);
+    expect(wasSendBefore).toBeFalsy();
 
-    const sendAt = new Date('2020.01.01');
-    const sendNotification = new PushNotification('ID2', 'THREAD2', 'BODY2');
-    const sendAppleStatus = new StoredAppleStatus(['token'], []);
-    const sendStored = new StoredPushNotification(sendNotification, sendAt, sendAppleStatus);
+    await database.storeNotificationTooOldToSend(n);
 
-    await database.store(sendStored);
-    expect(firestore.addedPushNotifications).toEqual([notSendStored, sendStored]);
-    expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
+    expect(firestore.getPushNotificationIdsCallCount).toBe(1);
+    expect(firestore.addedPushNotifications).toEqual([
+      {
+        id: n.id,
+        threadId: n.threadId,
+        body: n.body,
+        createdAt: n.createdAt,
+        status: { kind: 'Too old' }
+      }
+    ]);
+
+    const wasSendAfter = await database.wasAlreadySend(n);
+    expect(wasSendAfter).toBeTruthy();
   });
 
-  it('remembers send notifications (wasAlreadySend -> markAsSend -> wasAlreadySend)', async () => {
+  it('writes send notifications to firestore', async () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    // Without 'sendAt'
-    const notSendNotification = new PushNotification('ID1', 'THREAD1', 'BODY1');
-    const notSendStored = new StoredPushNotification(notSendNotification, 'Not send');
+    const n = new PushNotification('id', 'threadId', 'body', date);
 
-    const wasSend1Before = await database.wasAlreadySend(notSendNotification);
-    expect(wasSend1Before).toBeFalsy();
-    await database.store(notSendStored);
-    const wasSend1After = await database.wasAlreadySend(notSendNotification);
-    expect(wasSend1After).toBeTruthy();
+    const wasSendBefore = await database.wasAlreadySend(n);
+    expect(wasSendBefore).toBeFalsy();
 
-    expect(firestore.addedPushNotifications).toEqual([notSendStored]);
-    expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
+    const sendAt = new Date(5);
+    const appleDelivered = ['token_delivered'];
+    const appleFailed = [{ device: 'token_failed', reason: 'Some reason' }];
+    await database.storeSendNotification(n, sendAt, appleDelivered, appleFailed);
 
-    // With 'sendAt'
-    const sendAt = new Date('2020.01.01');
-    const sendNotification = new PushNotification('ID2', 'THREAD2', 'BODY2');
-    const sendAppleStatus = new StoredAppleStatus(['token'], []);
-    const sendStored = new StoredPushNotification(sendNotification, sendAt, sendAppleStatus);
+    expect(firestore.getPushNotificationIdsCallCount).toBe(1);
+    expect(firestore.addedPushNotifications).toEqual([
+      {
+        id: n.id,
+        threadId: n.threadId,
+        body: n.body,
+        createdAt: n.createdAt,
+        status: { kind: 'Send', sendAt, appleDelivered, appleFailed }
+      }
+    ]);
 
-    const wasSend2Before = await database.wasAlreadySend(sendNotification);
-    expect(wasSend2Before).toBeFalsy();
-    await database.store(sendStored);
-    const wasSend2After = await database.wasAlreadySend(sendNotification);
-    expect(wasSend2After).toBeTruthy();
+    const wasSendAfter = await database.wasAlreadySend(n);
+    expect(wasSendAfter).toBeTruthy();
+  });
 
-    expect(firestore.addedPushNotifications).toEqual([notSendStored, sendStored]);
-    expect(firestore.getPushNotificationIdsCallCount).toEqual(1);
+  it('writes send errors to firestore', async () => {
+    const firestore = new FirestoreDatabaseMock();
+    const database = new Database(firestore);
+
+    const n = new PushNotification('id', 'threadId', 'body', date);
+
+    const wasSendBefore = await database.wasAlreadySend(n);
+    expect(wasSendBefore).toBeFalsy();
+
+    const error = { message: 'Error' };
+    await database.storeSendError(n, error);
+
+    expect(firestore.getPushNotificationIdsCallCount).toBe(1);
+    expect(firestore.addedPushNotifications).toEqual([
+      {
+        id: n.id,
+        threadId: n.threadId,
+        body: n.body,
+        createdAt: n.createdAt,
+        status: { kind: 'Error', error }
+      }
+    ]);
+
+    const wasSendAfter = await database.wasAlreadySend(n);
+    expect(wasSendAfter).toBeTruthy();
   });
 
   it('gets apple tokens from firestore and DOES NOT cache them', async () => {

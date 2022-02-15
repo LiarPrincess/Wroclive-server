@@ -1,6 +1,6 @@
+import { DatabaseType } from '../database';
 import { PushNotification } from '../PushNotification';
-import { DatabaseType, StoredPushNotification } from '../database';
-import { ApplePushNotificationsType, AppleDeviceToken, AppleSendResult } from '../apple';
+import { ApplePushNotificationsType, AppleDeviceToken, AppleSendResult, AppleSendError } from '../apple';
 import { Logger } from '../../util';
 
 export class LoggerMock implements Logger {
@@ -10,19 +10,46 @@ export class LoggerMock implements Logger {
 
 export class DatabaseMock implements DatabaseType {
 
+  /* ==================== */
+  /* === Already send === */
+  /* ==================== */
+
   public alreadySendIds: string[] = [];
-  public wasAlreadySendCallCount = 0;
+  public wasAlreadySendArgs: PushNotification[] = [];
 
   public async wasAlreadySend(notification: PushNotification): Promise<boolean> {
-    this.wasAlreadySendCallCount++;
+    this.wasAlreadySendArgs.push(notification);
     return this.alreadySendIds.includes(notification.id);
   }
 
-  public markedAsSend: StoredPushNotification[] = [];
+  /* ============= */
+  /* === Store === */
+  /* ============= */
 
-  public async store(notification: StoredPushNotification): Promise<void> {
-    this.markedAsSend.push(notification);
+  public storedTooOld: any[] = [];
+  public storedSendNotifications: any[] = [];
+  public storedSendErrors: any[] = [];
+
+  public async storeNotificationTooOldToSend(notification: PushNotification) {
+    this.storedTooOld.push(notification);
   }
+
+  public async storeSendNotification(
+    notification: PushNotification,
+    sendAt: Date,
+    appleDelivered: string[],
+    appleFailed: AppleSendError[]
+  ) {
+    this.storedSendNotifications.push({ notification, sendAt, appleDelivered, appleFailed });
+  }
+
+  public async storeSendError(notification: PushNotification, error: any) {
+    this.storedSendErrors.push({ notification, error });
+  }
+
+  /* ============== */
+  /* === Tokens === */
+  /* ============== */
 
   public applePushNotificationTokens: string[] = [];
   public getApplePushNotificationTokensCallCount = 0;
@@ -36,13 +63,18 @@ export class DatabaseMock implements DatabaseType {
 export class ApplePushNotificationsMock implements ApplePushNotificationsType {
 
   public sendArgs: any[] = [];
-  public sendResult: AppleSendResult = { kind: 'Success', delivered: [], failed: [] };
+  public sendResult: AppleSendResult | Error = new AppleSendResult([], []);
 
   async send(
     notification: PushNotification,
     deviceTokens: AppleDeviceToken[]
   ): Promise<AppleSendResult> {
     this.sendArgs.push({ notification, deviceTokens });
-    return this.sendResult;
+
+    if (this.sendResult instanceof AppleSendResult) {
+      return this.sendResult;
+    }
+
+    throw this.sendResult;
   }
 }

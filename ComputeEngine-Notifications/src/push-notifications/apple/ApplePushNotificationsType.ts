@@ -9,9 +9,12 @@ export class SendError {
   ) { }
 }
 
-export type SendResult =
-  { kind: 'Success', delivered: DeviceToken[], failed: SendError[] } |
-  { kind: 'Error', error: any };
+export class SendResult {
+  constructor(
+    public readonly delivered: DeviceToken[],
+    public readonly failed: SendError[]
+  ) { }
+}
 
 export interface ApplePushNotificationsType {
   send(notification: PushNotification, deviceTokens: DeviceToken[]): Promise<SendResult>;

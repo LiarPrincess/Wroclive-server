@@ -78,21 +78,17 @@ export class Provider {
   }
 
   public async send(notification: Notification, tokens: DeviceToken[]): Promise<SendResult> {
-    try {
-      const apnNotification = new apn.Notification();
-      apnNotification.aps = notification.aps;
-      apnNotification.topic = this.appBundle;
-      apnNotification.pushType = notification.pushType;
-      apnNotification.payload = notification.payload;
+    const apnNotification = new apn.Notification();
+    apnNotification.aps = notification.aps;
+    apnNotification.topic = this.appBundle;
+    apnNotification.pushType = notification.pushType;
+    apnNotification.payload = notification.payload;
 
-      const apnResult = await this.apnProvider.send(apnNotification, tokens);
-      const delivered = this.parseSent(apnResult.sent) || ['PARSING_ERROR'];
-      const failed = this.parseFailed(apn.failed) || [new SendError('PARSING_ERROR', JSON.stringify(apn.failed))];
+    const apnResult = await this.apnProvider.send(apnNotification, tokens);
+    const delivered = this.parseSent(apnResult.sent) || ['PARSING_ERROR'];
+    const failed = this.parseFailed(apn.failed) || [new SendError('PARSING_ERROR', JSON.stringify(apn.failed))];
 
-      return { kind: 'Success', delivered, failed };
-    } catch (error) {
-      return { kind: 'Error', error };
-    }
+    return new SendResult(delivered, failed);
   }
 
   private parseSent(sent: any): DeviceToken[] | undefined {

@@ -1,6 +1,6 @@
+import { DatabaseType } from './Database';
 import { PushNotification } from './PushNotification';
-import { ApplePushNotificationsType } from './apple';
-import { DatabaseType, StoredPushNotification, StoredAppleStatus } from './Database';
+import { ApplePushNotificationsType, AppleSendResult } from './apple';
 import { CleanTweet } from '../CleanTweet';
 import { Logger, subtractMilliseconds } from '../util';
 
@@ -15,7 +15,7 @@ export type DateProvider = () => Date;
 class TweetDiff {
   public constructor(
     public readonly alreadySend: CleanTweet[],
-    public readonly notSendButTooOldToSend: PushNotification[],
+    public readonly tooOldToSend: PushNotification[],
     public readonly toSend: PushNotification[]
   ) { }
 }
@@ -40,44 +40,76 @@ export class PushNotificationSender {
   }
 
   public async send(tweets: CleanTweet[]) {
-    const diff = await this.calculateDiff(tweets);
+    const diff = await this.createDiff(tweets);
+    await this.storeNotificationTooOldToSend(diff.tooOldToSend);
+    await this.sendPushNotifications(diff.toSend);
+  }
 
-    for (const notification of diff.notSendButTooOldToSend) {
-      // Don't send the push notification, but store it in the database.
-      const stored = new StoredPushNotification(notification, 'Not send');
-      await this.database.store(stored);
-    }
-
-    if (!diff.toSend.length) {
-      return;
-    }
-
-    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
-
-    for (const n of diff.toSend) {
-      this.logger.info(`New notification: ${n.id} (thread: ${n.threadId})`, n);
-
-      const sendAt = this.dateProvider();
-      const appleResult = await this.apple.send(n, appleDeviceTokens);
-
-      switch (appleResult.kind) {
-        case 'Success':
-          const appleStatus = new StoredAppleStatus(appleResult.delivered, appleResult.failed);
-          const stored = new StoredPushNotification(n, sendAt, appleStatus);
-          this.database.store(stored);
-          break;
-
-        case 'Error':
-          this.logger.error(`Failed to send notification: ${n.id} (thread: ${n.threadId})`, {
-            notification: n,
-            error: appleResult.error
-          });
-          break;
+  private async storeNotificationTooOldToSend(notifications: PushNotification[]) {
+    for (const notification of notifications) {
+      try {
+        await this.database.storeNotificationTooOldToSend(notification);
+      } catch (error) {
+        this.logger.error(
+          `[PushNotifications] Error when storing too old push notification.`,
+          { ...notification, error }
+        );
       }
     }
   }
 
-  private async calculateDiff(tweets: CleanTweet[]): Promise<TweetDiff> {
+  private async sendPushNotifications(notifications: PushNotification[]) {
+    if (notifications.length === 0) {
+      return;
+    }
+
+    const appleDeviceTokens = await this.database.getApplePushNotificationTokens();
+    if (appleDeviceTokens.length === 0) {
+      this.logger.info('[PushNotifications] No Apple devices to send notifications.');
+      return;
+    }
+
+    for (const notification of notifications) {
+      const logId = `(id: ${notification.id}, threadId: ${notification.threadId})`;
+      this.logger.info(`[PushNotifications] New notification: ${logId}.`, notification);
+
+      const sendAt = this.dateProvider();
+
+      let appleResult: AppleSendResult;
+      try {
+        appleResult = await this.apple.send(notification, appleDeviceTokens);
+      } catch (error) {
+        this.logger.error(
+          `[PushNotifications] Failed to send notification: ${logId}.`,
+          { ...notification, error }
+        );
+
+        // NOTE: If we ever add android then remember that we have to store the
+        // notification only ONCE!
+        try {
+          this.database.storeSendError(notification, error);
+        } catch (error) {
+          this.logger.error(
+            `[PushNotifications] It even failed a database insert: ${logId}.`,
+            { ...notification, error }
+          );
+        }
+
+        continue;
+      }
+
+      try {
+        this.database.storeSendNotification(notification, sendAt, appleResult.delivered, appleResult.failed);
+      } catch (error) {
+        this.logger.error(
+          `[PushNotifications] Error when storing send push notification: ${logId}.`,
+          { notification, appleResult, error }
+        );
+      }
+    }
+  }
+
+  private async createDiff(tweets: CleanTweet[]): Promise<TweetDiff> {
     const alreadySend: CleanTweet[] = [];
     const tooOldToSend: PushNotification[] = [];
     const toSend: PushNotification[] = [];
@@ -86,7 +118,7 @@ export class PushNotificationSender {
     const tweetsSorted = tweets.sort(fromOldestToNewest);
 
     for (const tweet of tweetsSorted) {
-      const notification = new PushNotification(tweet);
+      const notification = PushNotification.fromTweet(tweet);
 
       const wasAlreadySend = await this.database.wasAlreadySend(notification);
       if (wasAlreadySend) {

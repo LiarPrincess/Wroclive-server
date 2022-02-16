@@ -64,12 +64,13 @@ const tweetFromOtherUserResponse = {
   author_id: 'other_user_id'
 };
 
-function toTweet(response: any, author?: TweetAuthor): Tweet {
-  const tweetAuthor: TweetAuthor = author || (response.author_id === mpk.id ? mpk : otherUser);
+function toTweet(response: any, author?: User): Tweet {
+  const u = author || (response.author_id === mpk.id ? mpk : otherUser);
+
   return new Tweet(
     response.id,
     response.conversation_id,
-    tweetAuthor,
+    TweetAuthor.fromUser(u),
     new Date(response.created_at),
     response.text
   );

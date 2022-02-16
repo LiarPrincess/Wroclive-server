@@ -4,14 +4,18 @@ import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
 
 const date = new Date(0);
 
+function createNotification(id: string): PushNotification {
+  return new PushNotification(id, 'threadId' + id, 'url' + id, 'author' + id, date, 'body' + id);
+}
+
 describe('Push notification database', () => {
 
   it('reads push notification ids from firestore and caches them', async () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const present = new PushNotification('present', 'thread1', 'body1', date);
-    const notPresent = new PushNotification('not_present', 'thread2', 'body2', date);
+    const present = createNotification('present');
+    const notPresent = createNotification('not_present');
 
     firestore.pushNotificationIds = [present.id];
 
@@ -28,7 +32,7 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const n = new PushNotification('id', 'threadId', 'body', date);
+    const n = createNotification('id');
 
     const wasSendBefore = await database.wasAlreadySend(n);
     expect(wasSendBefore).toBeFalsy();
@@ -40,8 +44,10 @@ describe('Push notification database', () => {
       {
         id: n.id,
         threadId: n.threadId,
-        body: n.body,
+        url: n.url,
+        author: n.author,
         createdAt: n.createdAt,
+        body: n.body,
         status: { kind: 'Too old' }
       }
     ]);
@@ -54,7 +60,7 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const n = new PushNotification('id', 'threadId', 'body', date);
+    const n = createNotification('id');
 
     const wasSendBefore = await database.wasAlreadySend(n);
     expect(wasSendBefore).toBeFalsy();
@@ -69,8 +75,10 @@ describe('Push notification database', () => {
       {
         id: n.id,
         threadId: n.threadId,
-        body: n.body,
+        url: n.url,
+        author: n.author,
         createdAt: n.createdAt,
+        body: n.body,
         status: { kind: 'Send', sendAt, appleDelivered, appleFailed }
       }
     ]);
@@ -83,7 +91,7 @@ describe('Push notification database', () => {
     const firestore = new FirestoreDatabaseMock();
     const database = new Database(firestore);
 
-    const n = new PushNotification('id', 'threadId', 'body', date);
+    const n = createNotification('id');
 
     const wasSendBefore = await database.wasAlreadySend(n);
     expect(wasSendBefore).toBeFalsy();
@@ -96,8 +104,10 @@ describe('Push notification database', () => {
       {
         id: n.id,
         threadId: n.threadId,
-        body: n.body,
+        url: n.url,
+        author: n.author,
         createdAt: n.createdAt,
+        body: n.body,
         status: { kind: 'Error', error }
       }
     ]);

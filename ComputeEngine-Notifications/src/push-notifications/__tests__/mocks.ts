@@ -26,7 +26,7 @@ export class DatabaseMock implements DatabaseType {
   /* === Store === */
   /* ============= */
 
-  public storedTooOld: any[] = [];
+  public storedTooOld: PushNotification[] = [];
   public storedSendNotifications: any[] = [];
   public storedSendErrors: any[] = [];
 

@@ -102,8 +102,10 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
     const n: FirestorePushNotification = {
       id: notification.id,
       threadId: notification.threadId,
-      body: notification.body,
+      url: notification.url,
+      author: notification.author,
       createdAt: notification.createdAt,
+      body: notification.body,
       status
     };
 

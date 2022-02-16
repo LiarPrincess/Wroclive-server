@@ -120,7 +120,7 @@ class AuthorCollection {
   private readonly responseAuthors: TweetAuthor[] = [];
 
   public constructor(originalUser: User, responseUsers: ResponseUserModel[] | undefined) {
-    this.originalAuthor = new TweetAuthor(originalUser.id, originalUser.name, originalUser.username);
+    this.originalAuthor = TweetAuthor.fromUser(originalUser);
 
     if (Array.isArray(responseUsers)) {
       for (const model of responseUsers) {

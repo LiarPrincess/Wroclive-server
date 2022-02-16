@@ -40,7 +40,7 @@ async function singleIteration(dependencies: LoopDependencies) {
     return;
   }
 
-  const cleanTweets = tweets.map(t => new CleanTweet(t));
+  const cleanTweets = tweets.map(t => CleanTweet.fromTweet(t));
 
   try {
     await pushNotificationSender.send(cleanTweets);

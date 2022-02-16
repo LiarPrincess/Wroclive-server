@@ -13,10 +13,13 @@ export type FirestorePushNotificationStatus =
 
 export interface FirestorePushNotification {
   readonly id: string;
+  /** An app-specific identifier for grouping related notifications. */
   readonly threadId: string;
-  readonly body: string;
+  readonly url: string;
+  readonly author: string;
   /** Original creation date (not the send date). */
   readonly createdAt: Date;
+  readonly body: string;
   readonly status: FirestorePushNotificationStatus;
 }
 

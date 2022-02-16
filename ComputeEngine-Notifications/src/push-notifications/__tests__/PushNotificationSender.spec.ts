@@ -3,6 +3,7 @@ import { AppleSendError, AppleSendResult } from '../apple';
 import { PushNotification } from '../PushNotification';
 import { PushNotificationSender, dontSendTweetsOlderThan } from '../PushNotificationSender';
 import { CleanTweet } from '../../CleanTweet';
+import { TweetAuthor } from '../../twitter';
 
 const date: Date = new Date(dontSendTweetsOlderThan);
 
@@ -10,11 +11,34 @@ function getDateMock(): Date {
   return date;
 }
 
+class TweetAndNotification {
+
+  public readonly id: string;
+  public readonly tweet: CleanTweet;
+  public readonly notification: PushNotification;
+
+  public constructor(suffix: string, createdAt: Date) {
+    this.id = 'id_' + suffix;
+
+    this.tweet = new CleanTweet(
+      this.id,
+      'url_' + suffix,
+      'thread_' + suffix,
+      'thread_url' + suffix,
+      new TweetAuthor('author_id_' + suffix, 'author_name_' + suffix, 'author_username_' + suffix),
+      createdAt,
+      'body_' + suffix
+    );
+
+    this.notification = PushNotification.fromTweet(this.tweet);
+  }
+}
+
 // We are currently at 'dontSendTweetsOlderThan', tweets are send in the past.
-const send1 = new PushNotification('id_send1', 'thread_send1', 'body_send1', new Date(1));
-const send2 = new PushNotification('id_send', 'thread_send2', 'body_send2', new Date(5));
-const tooOld = new PushNotification('id_old', 'thread_old', 'body_old', new Date(-1));
-const fromFuture = new PushNotification('id_future', 'thread_future', 'body_future', new Date(dontSendTweetsOlderThan + 1));
+const send1 = new TweetAndNotification('send1', new Date(1));
+const send2 = new TweetAndNotification('send2', new Date(5));
+const tooOld = new TweetAndNotification('old', new Date(-1));
+const fromFuture = new TweetAndNotification('future', new Date(dontSendTweetsOlderThan + 1));
 
 const appleToken1 = 'TOKEN1';
 const appleToken2 = 'TOKEN2';
@@ -28,11 +52,8 @@ function setup() {
   return { apple, database, sender };
 }
 
-async function send(sender: PushNotificationSender, notification: PushNotification[]) {
-  const tweets = notification.map(n => new CleanTweet(
-    n.id, n.threadId, n.createdAt, n.body
-  ));
-
+async function send(sender: PushNotificationSender, tns: TweetAndNotification[]) {
+  const tweets = tns.map(tn => tn.tweet);
   await sender.send(tweets);
 }
 
@@ -50,15 +71,15 @@ describe('PushNotificationSender', () => {
     await send(sender, [send1, send2]);
 
     expect(apple.sendArgs).toEqual([
-      { notification: send1, deviceTokens: appleTokens },
-      { notification: send2, deviceTokens: appleTokens }
+      { notification: send1.notification, deviceTokens: appleTokens },
+      { notification: send2.notification, deviceTokens: appleTokens }
     ]);
 
     expect(database.getApplePushNotificationTokensCallCount).toEqual(1);
     expect(database.storedTooOld).toEqual([]);
     expect(database.storedSendNotifications).toEqual([
-      { notification: send1, sendAt: date, appleDelivered, appleFailed },
-      { notification: send2, sendAt: date, appleDelivered, appleFailed }
+      { notification: send1.notification, sendAt: date, appleDelivered, appleFailed },
+      { notification: send2.notification, sendAt: date, appleDelivered, appleFailed }
     ]);
     expect(database.storedSendErrors).toEqual([]);
   });
@@ -75,13 +96,13 @@ describe('PushNotificationSender', () => {
     await send(sender, [send1, send2]);
 
     expect(apple.sendArgs).toEqual([
-      { notification: send2, deviceTokens: appleTokens }
+      { notification: send2.notification, deviceTokens: appleTokens }
     ]);
 
     expect(database.getApplePushNotificationTokensCallCount).toEqual(1);
     expect(database.storedTooOld).toEqual([]);
     expect(database.storedSendNotifications).toEqual([
-      { notification: send2, sendAt: date, appleDelivered, appleFailed }
+      { notification: send2.notification, sendAt: date, appleDelivered, appleFailed }
     ]);
     expect(database.storedSendErrors).toEqual([]);
   });
@@ -98,15 +119,15 @@ describe('PushNotificationSender', () => {
     await send(sender, [tooOld, send1]);
 
     expect(apple.sendArgs).toEqual([
-      { notification: send1, deviceTokens: appleTokens }
+      { notification: send1.notification, deviceTokens: appleTokens }
     ]);
 
     expect(database.getApplePushNotificationTokensCallCount).toEqual(1);
     expect(database.storedTooOld).toEqual([
-      tooOld
+      tooOld.notification
     ]);
     expect(database.storedSendNotifications).toEqual([
-      { notification: send1, sendAt: date, appleDelivered, appleFailed }
+      { notification: send1.notification, sendAt: date, appleDelivered, appleFailed }
     ]);
     expect(database.storedSendErrors).toEqual([]);
   });
@@ -123,15 +144,15 @@ describe('PushNotificationSender', () => {
     await send(sender, [send2, fromFuture]);
 
     expect(apple.sendArgs).toEqual([
-      { notification: send2, deviceTokens: appleTokens },
-      { notification: fromFuture, deviceTokens: appleTokens }
+      { notification: send2.notification, deviceTokens: appleTokens },
+      { notification: fromFuture.notification, deviceTokens: appleTokens }
     ]);
 
     expect(database.getApplePushNotificationTokensCallCount).toEqual(1);
     expect(database.storedTooOld).toEqual([]);
     expect(database.storedSendNotifications).toEqual([
-      { notification: send2, sendAt: date, appleDelivered, appleFailed },
-      { notification: fromFuture, sendAt: date, appleDelivered, appleFailed }
+      { notification: send2.notification, sendAt: date, appleDelivered, appleFailed },
+      { notification: fromFuture.notification, sendAt: date, appleDelivered, appleFailed }
     ]);
     expect(database.storedSendErrors).toEqual([]);
   });
@@ -146,7 +167,7 @@ describe('PushNotificationSender', () => {
     expect(apple.sendArgs).toEqual([]);
 
     expect(database.getApplePushNotificationTokensCallCount).toEqual(0);
-    expect(database.storedTooOld).toEqual([tooOld]);
+    expect(database.storedTooOld).toEqual([tooOld.notification]);
     expect(database.storedSendNotifications).toEqual([]);
     expect(database.storedSendErrors).toEqual([]);
   });

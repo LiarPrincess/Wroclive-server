@@ -1,32 +1,32 @@
-import { Tweet } from './twitter';
+import { Tweet, TweetAuthor } from './twitter';
 
 /**
  * Tweet with removed some things from its body.
  */
 export class CleanTweet {
 
-  public readonly id: string;
-  /**
-   * Id of the 1st tweet in the conversation (a series of tweets).
-   */
-  public readonly conversationId: string;
-  public readonly createdAt: Date;
-  public readonly text: string;
+  public constructor(
+    public readonly id: string,
+    public readonly url: string,
+    /** Id of the 1st tweet in the conversation (a series of tweets). */
+    public readonly conversationId: string,
+    public readonly conversationUrl: string,
+    public readonly author: TweetAuthor,
+    public readonly createdAt: Date,
+    public readonly text: string,
+  ) { }
 
-  constructor(tweet: Tweet);
-  constructor(id: string, conversationId: string, createdAt: Date, text: string);
-  constructor(arg0: any, arg1?: any, arg2?: any, arg3?: any) {
-    if (arg0 instanceof Tweet) {
-      this.id = arg0.id;
-      this.conversationId = arg0.conversationId;
-      this.createdAt = arg0.createdAt;
-      this.text = cleanText(arg0.text);
-    } else {
-      this.id = arg0;
-      this.conversationId = arg1;
-      this.createdAt = arg2;
-      this.text = cleanText(arg3);
-    }
+  public static fromTweet(tweet: Tweet): CleanTweet {
+    const text = cleanText(tweet.text);
+    return new CleanTweet(
+      tweet.id,
+      tweet.url,
+      tweet.conversationId,
+      tweet.conversationUrl,
+      tweet.author,
+      tweet.createdAt,
+      text
+    );
   }
 }
 

@@ -28,7 +28,9 @@ export class ApplePushNotifications implements ApplePushNotificationsType {
         },
         'thread-id': notification.threadId
       },
-      payload: undefined,
+      payload: {
+        url: notification.url
+      },
       pushType: 'alert'
     };
 

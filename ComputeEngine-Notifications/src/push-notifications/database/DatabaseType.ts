@@ -1,6 +1,5 @@
 import { PushNotification } from '../PushNotification';
 import { AppleDeviceToken, AppleSendError } from '../apple';
-import { CleanTweet } from '../../CleanTweet';
 
 export interface DatabaseType {
 

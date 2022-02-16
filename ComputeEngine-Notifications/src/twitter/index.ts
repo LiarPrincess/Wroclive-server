@@ -5,6 +5,6 @@ export {
   GetTweetsOptions,
   GetTweetsResponse,
   NetworkError as TwitterNetworkError
-} from './Endpoints';
+} from './endpoints';
 
 export { Twitter } from './Twitter';

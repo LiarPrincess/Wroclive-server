@@ -1,4 +1,4 @@
-import { DatabaseType } from './Database';
+import { DatabaseType } from './database';
 import { PushNotification } from './PushNotification';
 import { ApplePushNotificationsType, AppleSendResult } from './apple';
 import { CleanTweet } from '../CleanTweet';

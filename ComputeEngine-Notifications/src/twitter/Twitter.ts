@@ -9,7 +9,7 @@ import {
   GetTweetsEndpoint,
   GetTweetsOptions,
   GetTweetsResponse
-} from './Endpoints';
+} from './endpoints';
 
 export class Twitter {
 

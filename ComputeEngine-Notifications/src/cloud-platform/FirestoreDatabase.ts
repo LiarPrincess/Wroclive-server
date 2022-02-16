@@ -7,6 +7,36 @@ import {
 import { CloudPlatform } from './CloudPlatform';
 import { FirestoreDatabaseType } from './FirestoreDatabaseType';
 
+/**
+ * 'YYMMDD_hhmm_id', for example: '220101_0942_1491029797811548167'.
+ */
+export function createPushNotificationKey(id: string, createdAt: Date): string {
+  const year = createdAt.getUTCFullYear();
+  const YY = year % 100;
+
+  const month = createdAt.getUTCMonth() + 1;
+  const MM = (month < 10 ? '0' : '') + String(month);
+
+  const day = createdAt.getUTCDate();
+  const DD = (day < 10 ? '0' : '') + String(day);
+
+  const hour = createdAt.getUTCHours();
+  const hh = hour === 0 ? '00' :
+    hour < 10 ? '0' + String(hour) :
+      String(hour);
+
+  const minute = createdAt.getUTCMinutes();
+  const mm = minute === 0 ? '00' :
+    minute < 10 ? '0' + String(minute) :
+      String(minute);
+
+  return `${YY}${MM}${DD}_${hh}${mm}_${id}`;
+}
+
+export function getPushNotificationIdFromKey(key: string): string {
+  return key.substring(12);
+}
+
 export class FirestoreDatabase implements FirestoreDatabaseType {
 
   private db: fs.Firestore;
@@ -36,7 +66,8 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
 
     const documentRefs = await this.pushNotificationsCollectionRef.listDocuments();
     documentRefs.forEach(docRef => {
-      result.push(docRef.id);
+      const id = getPushNotificationIdFromKey(docRef.id);
+      result.push(id);
     });
 
     return result;
@@ -76,7 +107,8 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
       status
     };
 
-    const documentRef = this.pushNotificationsCollectionRef.doc(n.id);
+    const key = createPushNotificationKey(n.id, n.createdAt);
+    const documentRef = this.pushNotificationsCollectionRef.doc(key);
     await documentRef.set(n);
   }
 

@@ -67,21 +67,21 @@ export class Endpoint {
   private getStatusCode(error: any): string | undefined {
     return error.statusCode || (error.response && error.response.status);
   }
+}
 
-  protected isString(o: any): boolean {
-    return typeof o === 'string' || o instanceof String;
+export function isString(o: any): boolean {
+  return typeof o === 'string' || o instanceof String;
+}
+
+export function parseDate(o: any): Date | undefined {
+  const argIsString = isString(o);
+  if (!argIsString) {
+    return undefined;
   }
 
-  protected parseDate(o: any): Date | undefined {
-    const isString = this.isString(o);
-    if (!isString) {
-      return undefined;
-    }
-
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse
-    const millisecondsSince1970 = Date.parse(o);
-    return Number.isNaN(millisecondsSince1970) ?
-      undefined :
-      new Date(millisecondsSince1970);
-  }
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/parse
+  const millisecondsSince1970 = Date.parse(o);
+  return Number.isNaN(millisecondsSince1970) ?
+    undefined :
+    new Date(millisecondsSince1970);
 }

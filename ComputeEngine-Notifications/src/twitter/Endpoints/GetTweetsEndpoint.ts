@@ -1,17 +1,6 @@
-import { User } from './GetUserEndpoint';
-import { Endpoint, NetworkError } from './Endpoint';
-
-export class Tweet {
-  public constructor(
-    public readonly id: string,
-    /**
-     * Id of the 1st tweet in the conversation (a series of tweets).
-     */
-    public readonly conversationId: string,
-    public readonly createdAt: Date,
-    public readonly text: string
-  ) { }
-}
+import { User } from '../User';
+import { Tweet, TweetAuthor } from '../Tweet';
+import { Endpoint, NetworkError, isString, parseDate } from './Endpoint';
 
 export interface GetTweetsOptions {
   readonly maxResults?: number;
@@ -41,18 +30,22 @@ export class GetTweetsEndpoint extends Endpoint {
           return { kind: 'Response with errors', errors: response.errors };
         }
 
-        const modelArray = response.data;
-        if (!Array.isArray(modelArray)) {
-          return { kind: 'Invalid response', response: modelArray };
+        const tweetModels = response.data;
+        if (!Array.isArray(tweetModels)) {
+          return { kind: 'Invalid response', response: tweetModels };
         }
 
+        // If the users are invalid we can deal with it (no need for error).
+        const userModels = response.includes?.users;
+        const authors = new AuthorCollection(user, userModels);
+
         const tweets: Tweet[] = [];
-        for (const model of modelArray) {
-          const tweet = this.createTweet(model);
+        for (const model of tweetModels) {
+          const tweet = this.createTweet(model, authors);
           if (tweet) {
             tweets.push(tweet);
           } else {
-            return { kind: 'Invalid response', response: modelArray };
+            return { kind: 'Invalid response', response: tweetModels };
           }
         }
 
@@ -65,7 +58,7 @@ export class GetTweetsEndpoint extends Endpoint {
   }
 
   private createUrl(user: User, options: GetTweetsOptions | undefined): string {
-    let url = `https://api.twitter.com/2/users/${user.id}/tweets?tweet.fields=id,conversation_id,created_at,text`;
+    let url = `https://api.twitter.com/2/users/${user.id}/tweets?expansions=author_id&tweet.fields=id,conversation_id,text,created_at&user.fields=id,name,username`;
 
     if (options?.maxResults) {
       url += `&max_results=${options.maxResults}`;
@@ -86,46 +79,95 @@ export class GetTweetsEndpoint extends Endpoint {
     return url;
   }
 
-  private createTweet(model: ResponseTweetModel): Tweet | undefined {
+  private createTweet(model: ResponseTweetModel, authors: AuthorCollection): Tweet | undefined {
     // {
     //   id: "1489487411721736193",
     //   conversation_id: "1489487411721736193",
     //   text: "#AlertMPK #BUS\n⚠ Brak przejazdu- ul. Świeradowska (awaria tramwaju).",
     //   created_at: "2022-02-04T06:34:06.000Z",
+    //   author_id: "296212741"
     // }
 
     const id = model?.id;
     const conversationId = model?.conversation_id;
     const text = model?.text;
     const createdAt = model?.created_at;
+    const authorId = model?.author_id;
 
-    const isValid = this.isString(id)
-      && this.isString(conversationId)
-      && this.isString(text)
-      && this.isString(createdAt);
+    const isValid = isString(id)
+      && isString(conversationId)
+      && isString(authorId)
+      && isString(createdAt)
+      && isString(text);
 
     if (!isValid) {
       return undefined;
     }
 
-    const createdAtDate = this.parseDate(createdAt);
+    const createdAtDate = parseDate(createdAt);
     if (!createdAtDate) {
       return undefined;
     }
 
-    return new Tweet(id, conversationId, createdAtDate, text);
+    const author = authors.getById(authorId);
+    return new Tweet(id, conversationId, author, createdAtDate, text);
+  }
+}
+
+class AuthorCollection {
+
+  private readonly originalAuthor: TweetAuthor;
+  private readonly responseAuthors: TweetAuthor[] = [];
+
+  public constructor(originalUser: User, responseUsers: ResponseUserModel[] | undefined) {
+    this.originalAuthor = new TweetAuthor(originalUser.id, originalUser.name, originalUser.username);
+
+    if (Array.isArray(responseUsers)) {
+      for (const model of responseUsers) {
+        const id = model.id;
+        const name = model.name;
+        const username = model.username;
+
+        const isValid = isString(id) && isString(name) && isString(username);
+        if (isValid) {
+          const author = new TweetAuthor(id, name, username);
+          this.responseAuthors.push(author);
+        }
+      }
+    }
+  }
+
+  public getById(id: string): TweetAuthor {
+    for (const author of this.responseAuthors) {
+      if (author.id === id) {
+        return author;
+      }
+    }
+
+    // We will assume that original user was the author.
+    return this.originalAuthor;
   }
 }
 
 interface ResponseTweetModel {
   readonly id: string;
   readonly conversation_id: string;
-  readonly text: string;
+  readonly author_id: string;
   readonly created_at: string;
+  readonly text: string;
+}
+
+interface ResponseUserModel {
+  readonly id: string;
+  readonly name: string;
+  readonly username: string;
 }
 
 interface ResponseModel {
   data: ResponseTweetModel[];
+  includes?: {
+    users: ResponseUserModel[]
+  };
   meta: {
     readonly oldest_id: string;
     readonly newest_id: string;

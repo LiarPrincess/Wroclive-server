@@ -2,14 +2,13 @@ import crypto from 'crypto';
 import OAuth, { Token as OAuthToken } from 'oauth-1.0a';
 
 import {
-  User,
   GetUserEndpoint,
   GetUserResponse,
-  Tweet,
   GetTweetsEndpoint,
   GetTweetsOptions,
   GetTweetsResponse
 } from './endpoints';
+import { User } from './User';
 
 export class Twitter {
 

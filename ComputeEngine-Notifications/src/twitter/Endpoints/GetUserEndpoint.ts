@@ -1,12 +1,5 @@
-import { Endpoint, NetworkError } from './Endpoint';
-
-export class User {
-  public constructor(
-    public readonly id: string,
-    public readonly name: string,
-    public readonly username: string
-  ) { }
-}
+import { User } from '../User';
+import { Endpoint, NetworkError, isString } from './Endpoint';
 
 export type GetUserResponse =
   { kind: 'Success', user: User } |
@@ -33,7 +26,7 @@ export class GetUserEndpoint extends Endpoint {
         const name = response.data?.name;
         const username = response.data?.username;
 
-        const isValid = this.isString(id) && this.isString(name) && this.isString(username);
+        const isValid = isString(id) && isString(name) && isString(username);
         if (!isValid) {
           return { kind: 'Invalid response', response: response.data };
         }

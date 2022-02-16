@@ -32,6 +32,15 @@ function intercept(username: string): nock.Interceptor {
 /* === Tests === */
 /* ============= */
 
+function crateTwitter(): Twitter {
+  return new Twitter({
+    consumerKey: 'CONSUMER_KEY',
+    consumerSecret: 'CONSUMER_SECRET',
+    accessTokenKey: 'ACCESS_TOKEN_KEY',
+    accessTokenSecret: 'ACCESS_TOKEN_SECRET'
+  });
+}
+
 describe('Twitter.getUser', () => {
   it('returns user on valid response', async () => {
     const username = 'USERNAME';
@@ -40,12 +49,7 @@ describe('Twitter.getUser', () => {
     intercept(username)
       .reply(200, { data: user, });
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     expect(result).toEqual({ kind: 'Success', user });
@@ -63,12 +67,7 @@ describe('Twitter.getUser', () => {
       intercept(username)
         .reply(200, { data: user });
 
-      const twitter = new Twitter({
-        consumerKey: 'CONSUMER_KEY',
-        consumerSecret: 'CONSUMER_SECRET',
-        accessTokenKey: 'ACCESS_TOKEN_KEY',
-        accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-      });
+      const twitter = crateTwitter();
 
       const result = await twitter.getUser(username);
       expect(result).toEqual({ kind: 'Invalid response', response: user });
@@ -97,12 +96,7 @@ describe('Twitter.getUser', () => {
         errors: [error],
       });
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     expect(result).toEqual({ kind: 'Response with errors', errors: [error] });
@@ -113,12 +107,7 @@ describe('Twitter.getUser', () => {
     intercept(username)
       .reply(200, {});
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     expect(result).toEqual({ kind: 'Invalid response', response: undefined });
@@ -130,12 +119,7 @@ describe('Twitter.getUser', () => {
       .twice() // If the request fails then it should be tried again.
       .replyWithError('Some error...');
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     switch (result.kind) {
@@ -154,12 +138,7 @@ describe('Twitter.getUser', () => {
       .twice() // If the request fails then it should be tried again.
       .reply(404, {});
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     switch (result.kind) {
@@ -178,12 +157,7 @@ describe('Twitter.getUser', () => {
     intercept(username)
       .reply(200, 'invalid json');
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
     const result = await twitter.getUser(username);
     expect(result).toEqual({ kind: 'Invalid response', response: undefined });

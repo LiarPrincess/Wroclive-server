@@ -1,6 +1,9 @@
 import { default as nock } from 'nock';
 
-import { Twitter, TwitterUser, Tweet } from '..';
+import { User } from '../User';
+import { Twitter } from '../Twitter';
+import { Tweet, TweetAuthor } from '../Tweet';
+import { GetTweetsOptions } from '../endpoints';
 
 /* ============ */
 /* === Nock === */
@@ -18,9 +21,9 @@ afterEach(() => {
   nock.cleanAll();
 });
 
-function intercept(user: TwitterUser, params: string = ''): nock.Interceptor {
+function intercept(user: User, params: string = ''): nock.Interceptor {
   const host = 'https://api.twitter.com';
-  const path = `/2/users/${user.id}/tweets?tweet.fields=id,conversation_id,created_at,text${params}`;
+  const path = `/2/users/${user.id}/tweets?expansions=author_id&tweet.fields=id,conversation_id,text,created_at&user.fields=id,name,username${params}`;
   const headers = {
     'authorization': /OAuth oauth_consumer_key=".*", oauth_nonce=".*", oauth_signature=".*", oauth_signature_method="HMAC-SHA1", oauth_timestamp=".*", oauth_token=".*", oauth_version="1.0"/
   };
@@ -32,7 +35,9 @@ function intercept(user: TwitterUser, params: string = ''): nock.Interceptor {
 /* === Mocks === */
 /* ============= */
 
-const user = new TwitterUser('id', 'name', 'username');
+const mpk = new User('296212741', 'MPK Wrocław', '@AlertMPK');
+const otherUser = new User('other_user_id', 'other_user_name', '@other_user');
+
 const meta = {
   oldest_id: '1489487411721736193',
   newest_id: '1491856279974912013',
@@ -40,71 +45,119 @@ const meta = {
   next_token: '7140dibdnow9c7btw3z45fi4m7hpkp6vavs7nflr8m8mr',
 };
 
-const tweet1Response = {
+const includes = {
+  users: [otherUser]
+};
+
+const tweetFromMpkResponse = {
   id: '1491856279974912013',
   conversation_id: '1491856279974912013',
   text: '#AlertMPK ul. Kosmonautów - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu.',
   created_at: '2022-02-10T19:27:09.000Z',
+  author_id: '296212741'
 };
-const tweet2Response = {
+const tweetFromOtherUserResponse = {
   id: '1491832028706357251',
   conversation_id: '1491832028706357251',
   text: '#AlertMPK #TRAM \n⚠️ Brak przejazdu- ul. Kosmonautów (uszkodzony pantograf). \n🚋 Tramwaje linii 3, 10, 20 skrócono do Pilczyc. \n🚍 Kursują autobusy "za tramwaj" w relacji: Pilczyce- Leśnica.\n🚍 Linia 102 kursuje do Pilczyc.',
   created_at: '2022-02-10T17:50:47.000Z',
+  author_id: 'other_user_id'
 };
 
-function toTweet(response: any): Tweet {
-  return new Tweet(response.id, response.conversation_id, new Date(response.created_at), response.text);
+function toTweet(response: any, author?: TweetAuthor): Tweet {
+  const tweetAuthor: TweetAuthor = author || (response.author_id === mpk.id ? mpk : otherUser);
+  return new Tweet(
+    response.id,
+    response.conversation_id,
+    tweetAuthor,
+    new Date(response.created_at),
+    response.text
+  );
 }
-const tweet1 = toTweet(tweet1Response);
-const tweet2 = toTweet(tweet2Response);
+
+const tweetFromMpk = toTweet(tweetFromMpkResponse);
+const tweetFromOther = toTweet(tweetFromOtherUserResponse);
+
+function crateTwitter(): Twitter {
+  return new Twitter({
+    consumerKey: 'CONSUMER_KEY',
+    consumerSecret: 'CONSUMER_SECRET',
+    accessTokenKey: 'ACCESS_TOKEN_KEY',
+    accessTokenSecret: 'ACCESS_TOKEN_SECRET'
+  });
+}
 
 /* ============= */
 /* === Tests === */
 /* ============= */
 
 describe('Twitter.getTweets', () => {
+
   it('returns tweets on valid response', async () => {
-    intercept(user)
-      .reply(200, { data: [tweet1Response, tweet2Response], meta });
+    intercept(mpk)
+      .reply(200, {
+        data: [tweetFromMpkResponse, tweetFromOtherUserResponse],
+        includes,
+        meta
+      });
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     expect(result).toEqual({
       kind: 'Success',
-      tweets: [tweet1, tweet2],
+      tweets: [tweetFromMpk, tweetFromOther],
+      nextPageToken: meta.next_token
+    });
+  });
+
+  it('returns tweets with author from argument when response does not contain users', async () => {
+    intercept(mpk)
+      .reply(200, {
+        data: [tweetFromMpkResponse, tweetFromOtherUserResponse],
+        // includes, <= no users
+        meta
+      });
+
+    const twitter = crateTwitter();
+
+    const result = await twitter.getTweets(mpk);
+    expect(result).toEqual({
+      kind: 'Success',
+      tweets: [tweetFromMpk, toTweet(tweetFromOtherUserResponse, mpk)],
       nextPageToken: meta.next_token
     });
   });
 
   it('returns tweets on valid response with options', async () => {
-    intercept(user, '&max_results=20&exclude=retweets,replies')
-      .reply(200, { data: [tweet1Response, tweet2Response], meta });
+    const presets: { options: GetTweetsOptions, params: string }[] = [
+      { options: { maxResults: 20 }, params: '&max_results=20' },
+      { options: { excludeReplies: true }, params: '&exclude=replies' },
+      { options: { excludeRetweets: true }, params: '&exclude=retweets' },
+      { options: { pagination_token: 'TOKEN' }, params: '&pagination_token=TOKEN' },
+      {
+        options: { maxResults: 20, excludeReplies: true, excludeRetweets: true },
+        params: '&max_results=20&exclude=retweets,replies'
+      },
+    ];
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    for (const preset of presets) {
+      intercept(mpk, preset.params)
+        .reply(200, {
+          data: [tweetFromMpkResponse, tweetFromOtherUserResponse],
+          includes,
+          meta
+        });
 
-    const result = await twitter.getTweets(user, {
-      maxResults: 20,
-      excludeReplies: true,
-      excludeRetweets: true
-    });
+      const twitter = crateTwitter();
+      const result = await twitter.getTweets(mpk, preset.options);
 
-    expect(result).toEqual({
-      kind: 'Success',
-      tweets: [tweet1, tweet2],
-      nextPageToken: meta.next_token
-    });
+      expect(result).toEqual({
+        kind: 'Success',
+        tweets: [tweetFromMpk, tweetFromOther],
+        nextPageToken: meta.next_token
+      });
+    }
   });
 
   it('returns invalid when response contains invalid values', async () => {
@@ -117,17 +170,12 @@ describe('Twitter.getTweets', () => {
     ];
 
     for (const tweetResponse of responses) {
-      intercept(user)
-        .reply(200, { data: [tweetResponse], meta });
+      intercept(mpk)
+        .reply(200, { data: [tweetResponse], includes, meta });
 
-      const twitter = new Twitter({
-        consumerKey: 'CONSUMER_KEY',
-        consumerSecret: 'CONSUMER_SECRET',
-        accessTokenKey: 'ACCESS_TOKEN_KEY',
-        accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-      });
+      const twitter = crateTwitter();
 
-      const result = await twitter.getTweets(user);
+      const result = await twitter.getTweets(mpk);
       expect(result).toEqual({ kind: 'Invalid response', response: [tweetResponse] });
     }
   });
@@ -143,52 +191,37 @@ describe('Twitter.getTweets', () => {
       type: 'https://api.twitter.com/2/problems/resource-not-found',
     };
 
-    intercept(user)
+    intercept(mpk)
       .reply(200, {
-        data: [tweet1Response, tweet2Response], // Should be ignored!
+        data: [tweetFromMpkResponse, tweetFromOtherUserResponse], // Should be ignored!
         errors: [error],
         meta
       });
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     expect(result).toEqual({ kind: 'Response with errors', errors: [error] });
   });
 
   it('returns error when response is empty', async () => {
-    intercept(user)
+    intercept(mpk)
       .reply(200, {});
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     expect(result).toEqual({ kind: 'Invalid response', response: undefined });
   });
 
   it('returns error on network error', async () => {
-    intercept(user)
+    intercept(mpk)
       .twice() // If the request fails then it should be tried again.
       .replyWithError('Some error...');
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     switch (result.kind) {
       case 'Network error':
         expect(result.error.message).toEqual('Unknown request error.');
@@ -200,18 +233,13 @@ describe('Twitter.getTweets', () => {
   });
 
   it('returns error on 404', async () => {
-    intercept(user)
+    intercept(mpk)
       .twice() // If the request fails then it should be tried again.
       .reply(404, {});
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     switch (result.kind) {
       case 'Network error':
         expect(result.error.message).toEqual('Response with status: 404.');
@@ -223,17 +251,12 @@ describe('Twitter.getTweets', () => {
   });
 
   it('returns error on json parsing error', async () => {
-    intercept(user)
+    intercept(mpk)
       .reply(200, 'invalid json');
 
-    const twitter = new Twitter({
-      consumerKey: 'CONSUMER_KEY',
-      consumerSecret: 'CONSUMER_SECRET',
-      accessTokenKey: 'ACCESS_TOKEN_KEY',
-      accessTokenSecret: 'ACCESS_TOKEN_SECRET'
-    });
+    const twitter = crateTwitter();
 
-    const result = await twitter.getTweets(user);
+    const result = await twitter.getTweets(mpk);
     expect(result).toEqual({ kind: 'Invalid response', response: undefined });
   });
 });

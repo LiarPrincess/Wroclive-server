@@ -44,6 +44,8 @@ import { LoopDependencies, startLoop } from './loop';
     switch (twitterUserResult.kind) {
       case 'Success':
         const twitterUser = twitterUserResult.user;
+        logger.info(`[PushNotifications] Got twitter user '${twitterUsername}'. Starting loop.`);
+
         const dependencies = new LoopDependencies(
           twitter,
           twitterUser,

@@ -86,6 +86,6 @@ function exec(file: string) {
 
 subscribe('backend-update-gtfs-data', message => {
   logger.info(`Got message: ${message.id}`);
-  exec('./run-updater.sh');
+  exec('./run-updater.sh'); // <-- THIS
   message.ack();
 });

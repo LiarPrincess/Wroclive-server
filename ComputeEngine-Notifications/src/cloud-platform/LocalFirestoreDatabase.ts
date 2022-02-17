@@ -13,7 +13,6 @@ export class LocalFirestoreDatabase implements FirestoreDatabaseType {
     private readonly logger: Logger
   ) { }
 
-
   /* ===================== */
   /* === Notifications === */
   /* ===================== */
@@ -34,8 +33,8 @@ export class LocalFirestoreDatabase implements FirestoreDatabaseType {
     this.notifications = document;
   }
 
-  private formatDate(date: Date): string {
-    return date.toISOString().substring(0, 16).replace('T', ' ');
+  private formatDate(date: string): string {
+    return date.substring(0, 16).replace('T', ' ');
   }
 
   private formatBody(body: string, length: number): string {

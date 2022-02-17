@@ -2,10 +2,11 @@ import { Database } from '../Database';
 import { PushNotification } from '../../PushNotification';
 import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
 
-const date = new Date(0);
+const createdAtString = '2020-10-11T13:54:28.999Z';
+const createdAt = new Date(createdAtString);
 
 function createNotification(id: string): PushNotification {
-  return new PushNotification(id, 'threadId' + id, 'url' + id, 'author' + id, date, 'body' + id);
+  return new PushNotification(id, 'threadId' + id, 'url' + id, 'author' + id, createdAt, 'body' + id);
 }
 
 describe('Push notification database', () => {
@@ -46,7 +47,7 @@ describe('Push notification database', () => {
         threadId: n.threadId,
         url: n.url,
         author: n.author,
-        createdAt: n.createdAt,
+        createdAt: createdAtString,
         body: n.body,
         status: { kind: 'Too old' }
       }
@@ -65,10 +66,10 @@ describe('Push notification database', () => {
     const wasSendBefore = await database.wasAlreadySend(n);
     expect(wasSendBefore).toBeFalsy();
 
-    const sendAt = new Date(5);
+    const sendAtString = '2020-01-02T05:07:42.999Z';
     const appleDelivered = ['token_delivered'];
     const appleFailed = [{ device: 'token_failed', reason: 'Some reason' }];
-    await database.storeSendNotification(n, sendAt, appleDelivered, appleFailed);
+    await database.storeSendNotification(n, new Date(sendAtString), appleDelivered, appleFailed);
 
     expect(firestore.getPushNotificationIdsCallCount).toBe(1);
     expect(firestore.addedPushNotifications).toEqual([
@@ -77,9 +78,9 @@ describe('Push notification database', () => {
         threadId: n.threadId,
         url: n.url,
         author: n.author,
-        createdAt: n.createdAt,
+        createdAt: createdAtString,
         body: n.body,
-        status: { kind: 'Send', sendAt, appleDelivered, appleFailed }
+        status: { kind: 'Send', sendAt: sendAtString, appleDelivered, appleFailed }
       }
     ]);
 
@@ -106,7 +107,7 @@ describe('Push notification database', () => {
         threadId: n.threadId,
         url: n.url,
         author: n.author,
-        createdAt: n.createdAt,
+        createdAt: createdAtString,
         body: n.body,
         status: { kind: 'Error', error }
       }

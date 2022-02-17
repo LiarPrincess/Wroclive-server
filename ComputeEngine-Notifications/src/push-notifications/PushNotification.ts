@@ -8,7 +8,6 @@ export class PushNotification {
     public readonly threadId: string,
     public readonly url: string,
     public readonly author: string,
-    /** Original creation date (not the send date). */
     public readonly createdAt: Date,
     public readonly body: string
   ) { }

@@ -1,7 +1,7 @@
 import { Store } from '../Store';
 import { StoredNotification } from '../StoredNotification';
 import {
-  FirestoreAllNotificationDocument,
+  FirestoreAllNotificationsDocument,
   FirestoreNotificationDatabase
 } from '../../cloud-platform';
 import { TweetAuthor } from '../../twitter';
@@ -35,18 +35,18 @@ const logger = new LoggerMock();
 
 export class FirestoreDatabaseMock implements FirestoreNotificationDatabase {
 
-  public getNotificationsResult: FirestoreAllNotificationDocument | undefined;
+  public getNotificationsResult: FirestoreAllNotificationsDocument | undefined;
   public getNotificationsCallCount = 0;
 
-  public async getNotifications(): Promise<FirestoreAllNotificationDocument | undefined> {
+  public async getNotifications(): Promise<FirestoreAllNotificationsDocument | undefined> {
     this.getNotificationsCallCount++;
     return this.getNotificationsResult;
   }
 
-  public storedNotifications: FirestoreAllNotificationDocument | undefined;
+  public storedNotifications: FirestoreAllNotificationsDocument | undefined;
   public storeNotificationsCallCount = 0;
 
-  public async storeNotifications(document: FirestoreAllNotificationDocument) {
+  public async storeNotifications(document: FirestoreAllNotificationsDocument) {
     this.storeNotificationsCallCount++;
     this.storedNotifications = document;
   }

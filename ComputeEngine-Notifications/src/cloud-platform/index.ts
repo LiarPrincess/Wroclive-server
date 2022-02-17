@@ -1,6 +1,6 @@
 export {
   FirestoreNotification,
-  FirestoreAllNotificationsDocument as FirestoreAllNotificationDocument,
+  FirestoreAllNotificationsDocument,
   FirestoreNotificationDatabase
 } from './FirestoreNotificationDatabase';
 

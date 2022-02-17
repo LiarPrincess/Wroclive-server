@@ -2,7 +2,8 @@ export type FirestorePushNotificationStatus =
   { kind: 'Too old' } |
   {
     kind: 'Send',
-    sendAt: Date,
+    /** Send date in ISO_8601 format. */
+    sendAt: string,
     appleDelivered: string[],
     appleFailed: { device: string, reason: string }[]
   } |
@@ -17,8 +18,8 @@ export interface FirestorePushNotification {
   readonly threadId: string;
   readonly url: string;
   readonly author: string;
-  /** Original creation date (not the send date). */
-  readonly createdAt: Date;
+  /** Original creation date (not the send date) in ISO_8601 format. */
+  readonly createdAt: string;
   readonly body: string;
   readonly status: FirestorePushNotificationStatus;
 }

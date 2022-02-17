@@ -14,26 +14,15 @@ import { FirestoreDatabaseType } from './FirestoreDatabaseType';
 /**
  * 'YYMMDD_hhmm_id', for example: '220101_0942_1491029797811548167'.
  */
-export function createPushNotificationKey(id: string, createdAt: Date): string {
-  const year = createdAt.getUTCFullYear();
-  const YY = year % 100;
-
-  const month = createdAt.getUTCMonth() + 1;
-  const MM = (month < 10 ? '0' : '') + String(month);
-
-  const day = createdAt.getUTCDate();
-  const DD = (day < 10 ? '0' : '') + String(day);
-
-  const hour = createdAt.getUTCHours();
-  const hh = hour === 0 ? '00' :
-    hour < 10 ? '0' + String(hour) :
-      String(hour);
-
-  const minute = createdAt.getUTCMinutes();
-  const mm = minute === 0 ? '00' :
-    minute < 10 ? '0' + String(minute) :
-      String(minute);
-
+export function createPushNotificationKey(id: string, createdAtISO: string): string {
+  // createdAtISO: 2020-10-11T13:54:28.999Z
+  // Indices:      012345678901234567890
+  // We want:      201011_1354
+  const YY = createdAtISO.substring(2, 4);
+  const MM = createdAtISO.substring(5, 7);
+  const DD = createdAtISO.substring(8, 10);
+  const hh = createdAtISO.substring(11, 13);
+  const mm = createdAtISO.substring(14, 16);
   return `${YY}${MM}${DD}_${hh}${mm}_${id}`;
 }
 

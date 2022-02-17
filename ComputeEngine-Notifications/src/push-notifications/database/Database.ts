@@ -40,8 +40,9 @@ export class Database implements DatabaseType {
 
   public async storeNotificationTooOldToSend(notification: PushNotification) {
     const n: FirestorePushNotification = {
-      status: { kind: 'Too old' },
-      ...notification
+      ...notification,
+      createdAt: this.toISO8601(notification.createdAt),
+      status: { kind: 'Too old' }
     };
 
     await this.storePushNotificationInFirestore(n);
@@ -54,8 +55,9 @@ export class Database implements DatabaseType {
     appleFailed: AppleSendError[]
   ) {
     const n: FirestorePushNotification = {
-      status: { kind: 'Send', sendAt, appleDelivered, appleFailed },
-      ...notification
+      ...notification,
+      createdAt: this.toISO8601(notification.createdAt),
+      status: { kind: 'Send', sendAt: this.toISO8601(sendAt), appleDelivered, appleFailed },
     };
 
     await this.storePushNotificationInFirestore(n);
@@ -63,11 +65,16 @@ export class Database implements DatabaseType {
 
   public async storeSendError(notification: PushNotification, error: any) {
     const n: FirestorePushNotification = {
-      status: { kind: 'Error', error },
-      ...notification
+      ...notification,
+      createdAt: this.toISO8601(notification.createdAt),
+      status: { kind: 'Error', error }
     };
 
     await this.storePushNotificationInFirestore(n);
+  }
+
+  private toISO8601(date: Date): string {
+    return date.toISOString();
   }
 
   private async storePushNotificationInFirestore(notification: FirestorePushNotification) {

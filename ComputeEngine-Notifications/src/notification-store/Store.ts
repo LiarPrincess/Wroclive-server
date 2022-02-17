@@ -2,7 +2,7 @@ import { StoredNotification } from './StoredNotification';
 import { CleanTweet } from '../CleanTweet';
 import {
   FirestoreNotification,
-  FirestoreAllNotificationDocument,
+  FirestoreAllNotificationsDocument,
   FirestoreNotificationDatabase
 } from '../cloud-platform';
 import { Logger } from '../util';
@@ -37,7 +37,7 @@ export class Store {
     const date = this.dateProvider();
     const timestamp = date.toISOString();
 
-    const document: FirestoreAllNotificationDocument = {
+    const document: FirestoreAllNotificationsDocument = {
       timestamp,
       data: notifications
     };

@@ -5,14 +5,14 @@ import { CleanTweet } from '../../CleanTweet';
 describe('StoredNotification', () => {
 
   it('properly reads tweet', async () => {
-    const date = new Date(123);
+    const date = '2020-10-11T13:54:28.999Z';
     const tweet = new CleanTweet(
       'id_1',
       'url_1',
       'conversationId_1',
       'conversationUrl_1',
       new TweetAuthor('author_id__1', 'author_name_1', 'author_username_1'),
-      date,
+      new Date('2020-10-11T13:54:28.999Z'),
       'text_1'
     );
 

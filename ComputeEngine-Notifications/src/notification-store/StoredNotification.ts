@@ -7,7 +7,7 @@ export class StoredNotification implements FirestoreNotification {
     public readonly id: string,
     public readonly url: string,
     public readonly author: string,
-    public readonly date: Date,
+    public readonly date: string,
     public readonly body: string
   ) { }
 
@@ -16,7 +16,7 @@ export class StoredNotification implements FirestoreNotification {
       tweet.id,
       tweet.url,
       tweet.author.url,
-      tweet.createdAt,
+      tweet.createdAt.toISOString(),
       tweet.text
     );
   }

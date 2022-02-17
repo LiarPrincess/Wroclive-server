@@ -2,7 +2,7 @@ export interface FirestoreNotification {
   readonly id: string;
   readonly url: string;
   readonly author: string;
-  readonly date: Date;
+  readonly date: number;
   readonly body: string;
 }
 
@@ -12,7 +12,6 @@ export interface FirestoreAllNotificationsDocument {
 }
 
 export interface FirestoreNotificationDatabase {
-
   /**
    * All of the notifications stored in the database.
    */

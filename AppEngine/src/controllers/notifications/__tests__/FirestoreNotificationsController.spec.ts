@@ -1,4 +1,4 @@
-import { Notification, NotificationCollection } from '../models';
+import { NotificationCollection } from '../models';
 import { FirestoreNotificationsController } from '../FirestoreNotificationsController';
 import { FirestoreAllNotificationsDocument, FirestoreNotificationDatabase } from '../../../cloud-platform';
 import { Logger } from '../../../util';
@@ -45,8 +45,8 @@ describe('FirestoreNotificationsController', function () {
     const collection1: NotificationCollection = {
       timestamp: 'TIMESTAMP_1',
       data: [
-        { id: 'id_1', url: 'url_1', author: 'author_1', date: new Date(3), body: 'body_1' },
-        { id: 'id_2', url: 'url_2', author: 'author_2', date: new Date(5), body: 'body_2' }
+        { id: 'id_1', url: 'url_1', author: 'author_1', date: 3, body: 'body_1' },
+        { id: 'id_2', url: 'url_2', author: 'author_2', date: 5, body: 'body_2' }
       ]
     };
     database.getNotificationsResult = collection1;
@@ -58,8 +58,8 @@ describe('FirestoreNotificationsController', function () {
     const collection2: NotificationCollection = {
       timestamp: 'TIMESTAMP_1',
       data: [
-        { id: 'id_2', url: 'url_2', author: 'author_2', date: new Date(5), body: 'body_2' },
-        { id: 'id_3', url: 'url_3', author: 'author_3', date: new Date(7), body: 'body_3' }
+        { id: 'id_2', url: 'url_2', author: 'author_2', date: 5, body: 'body_2' },
+        { id: 'id_3', url: 'url_3', author: 'author_3', date: 7, body: 'body_3' }
       ]
     };
     database.getNotificationsResult = collection2;

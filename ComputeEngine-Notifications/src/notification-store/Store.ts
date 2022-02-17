@@ -1,23 +1,28 @@
-import { StoredNotification } from './models';
+import { StoredNotification } from './StoredNotification';
 import { CleanTweet } from '../CleanTweet';
 import {
+  FirestoreNotification,
   FirestoreAllNotificationDocument,
   FirestoreNotificationDatabase
 } from '../cloud-platform';
+import { Logger } from '../util';
 
 export type DateProvider = () => Date;
 
-export class NotificationStore {
+export class Store {
 
   private readonly database: FirestoreNotificationDatabase;
+  private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
   private notificationIdsInDatabase: Set<string> | undefined;
 
   public constructor(
     database: FirestoreNotificationDatabase,
+    logger: Logger,
     dateProvider?: DateProvider
   ) {
     this.database = database;
+    this.logger = logger;
     this.dateProvider = dateProvider || (() => new Date());
   }
 
@@ -37,7 +42,13 @@ export class NotificationStore {
       data: notifications
     };
 
-    await this.database.storeNotifications(document);
+    this.notificationIdsInDatabase = this.toIdSet(notifications);
+
+    try {
+      await this.database.storeNotifications(document);
+    } catch (error) {
+      this.logger.error('[NotificationStore] Error when storing notifications in database.', error);
+    }
   }
 
   private async hasNewNotifications(newNotifications: StoredNotification[]): Promise<boolean> {
@@ -58,16 +69,28 @@ export class NotificationStore {
       return this.notificationIdsInDatabase;
     }
 
-    const document = await this.database.getNotifications();
-    const result = new Set<string>();
-
-    if (document !== undefined) {
-      for (const notification of document.data) {
-        result.add(notification.id);
-      }
+    let result: Set<string>;
+    try {
+      const document = await this.database.getNotifications();
+      result = document === undefined ?
+        new Set<string>() :
+        this.toIdSet(document.data);
+    } catch (error) {
+      this.logger.error('[NotificationStore] Error when getting notifications from database.', error);
+      result = new Set<string>();
     }
 
     this.notificationIdsInDatabase = result;
+    return result;
+  }
+
+  private toIdSet(notifications: FirestoreNotification[]): Set<string> {
+    const result = new Set<string>();
+
+    for (const notification of notifications) {
+      result.add(notification.id);
+    }
+
     return result;
   }
 }

@@ -2,16 +2,19 @@ import { Stop, StopCollection } from './models';
 import { StopsControllerType } from './StopsControllerType';
 import { PredefinedStopsController } from './PredefinedStopsController';
 import { FirestoreStopsDatabase } from '../../cloud-platform';
+import { Logger } from '../../util';
 
 export class FirestoreStopsController extends StopsControllerType {
 
   private db: FirestoreStopsDatabase;
+  private logger: Logger;
   private stops: StopCollection;
 
-  constructor(db: FirestoreStopsDatabase) {
+  constructor(db: FirestoreStopsDatabase, logger: Logger) {
     super();
 
     this.db = db;
+    this.logger = logger;
     this.stops = {
       timestamp: this.createTimestamp(),
       data: PredefinedStopsController.data
@@ -24,6 +27,11 @@ export class FirestoreStopsController extends StopsControllerType {
 
   async updateStops(): Promise<void> {
     const dbStops = await this.db.getAllStops();
+
+    if (dbStops === undefined) {
+      this.logger.error('[StopsController] No stops in firestore database?');
+      return;
+    }
 
     // If the response doesn't contain any stops, then leave 'this.stops' without changes:
     // - If every response we got was error then use 'DummyStopsController.data' set in 'constructor'

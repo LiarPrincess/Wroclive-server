@@ -2,16 +2,19 @@ import { Line, LineCollection } from './models';
 import { LinesControllerType } from './LinesControllerType';
 import { PredefinedLinesController } from './PredefinedLinesController';
 import { FirestoreLinesDatabase } from '../../cloud-platform';
+import { Logger } from '../../util';
 
 export class FirestoreLinesController extends LinesControllerType {
 
   private db: FirestoreLinesDatabase;
+  private logger: Logger;
   private lines: LineCollection;
 
-  constructor(db: FirestoreLinesDatabase) {
+  constructor(db: FirestoreLinesDatabase, logger: Logger) {
     super();
 
     this.db = db;
+    this.logger = logger;
     this.lines = {
       timestamp: this.createTimestamp(),
       data: PredefinedLinesController.data
@@ -24,6 +27,11 @@ export class FirestoreLinesController extends LinesControllerType {
 
   async updateLines(): Promise<void> {
     const dbLines = await this.db.getAllLines();
+
+    if (dbLines === undefined) {
+      this.logger.error('[LinesController] No lines in firestore database?');
+      return;
+    }
 
     // If the response doesn't contain any lines, then leave 'this.lines' without changes:
     // - If every response we got was error then use 'DummyLineProvider.data' set in 'constructor'

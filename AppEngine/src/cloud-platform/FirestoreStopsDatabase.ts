@@ -11,5 +11,5 @@ export interface FirestoreAllStopsDocument {
 }
 
 export interface FirestoreStopsDatabase {
-  getAllStops(): Promise<FirestoreAllStopsDocument>;
+  getAllStops(): Promise<FirestoreAllStopsDocument | undefined>;
 }

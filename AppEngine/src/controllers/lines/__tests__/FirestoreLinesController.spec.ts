@@ -2,6 +2,14 @@ import { Line } from '../models';
 import { FirestoreLinesController } from '../FirestoreLinesController';
 import { PredefinedLinesController } from '../PredefinedLinesController';
 import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from '../../../cloud-platform';
+import { Logger } from '../../../util';
+
+class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
+
+const logger = new LoggerMock();
 
 class FirestoreLinesDatabaseMock implements FirestoreLinesDatabase {
 
@@ -20,7 +28,7 @@ describe('FirestoreLinesController', function () {
 
   it('starts with dummy lines', function () {
     const provider = new FirestoreLinesDatabaseMock();
-    const controller = new FirestoreLinesController(provider);
+    const controller = new FirestoreLinesController(provider, logger);
 
     const lines = controller.getLines();
     expect(lines.data).toEqual(PredefinedLinesController.data);
@@ -28,7 +36,7 @@ describe('FirestoreLinesController', function () {
 
   it('get lines from provider', async function () {
     const provider = new FirestoreLinesDatabaseMock();
-    const controller = new FirestoreLinesController(provider);
+    const controller = new FirestoreLinesController(provider, logger);
 
     provider.lines = {
       timestamp: 'NEW_TIMESTAMP',
@@ -47,7 +55,7 @@ describe('FirestoreLinesController', function () {
 
   it('avoids update if provider returned no lines', async function () {
     const provider = new FirestoreLinesDatabaseMock();
-    const controller = new FirestoreLinesController(provider);
+    const controller = new FirestoreLinesController(provider, logger);
 
     provider.lines = {
       timestamp: 'NEW_TIMESTAMPS',

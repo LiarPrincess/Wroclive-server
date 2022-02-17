@@ -33,13 +33,13 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
     return this.linesCollectionRef.doc('all');
   }
 
-  async getAllLines(): Promise<FirestoreAllLinesDocument> {
+  async getAllLines(): Promise<FirestoreAllLinesDocument | undefined> {
     const doc = await this.allLinesDocumentRef.get();
-    const data = doc.data() as FirestoreAllLinesDocument;
+    const data = doc.data() as FirestoreAllLinesDocument | undefined;
     return data;
   }
 
-  async saveAllLines(document: FirestoreAllLinesDocument): Promise<void> {
+  async saveAllLines(document: FirestoreAllLinesDocument) {
     await this.allLinesDocumentRef.set(document);
   }
 
@@ -55,13 +55,13 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
     return this.stopsCollectionRef.doc('all');
   }
 
-  async getAllStops(): Promise<FirestoreAllStopsDocument> {
+  async getAllStops(): Promise<FirestoreAllStopsDocument | undefined> {
     const doc = await this.allStopsDocumentRef.get();
-    const data = doc.data() as FirestoreAllStopsDocument;
+    const data = doc.data() as FirestoreAllStopsDocument | undefined;
     return data;
   }
 
-  async saveAllStops(document: FirestoreAllStopsDocument): Promise<void> {
+  async saveAllStops(document: FirestoreAllStopsDocument) {
     await this.allStopsDocumentRef.set(document);
   }
 
@@ -73,7 +73,7 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
     return this.db.collection('PushNotificationTokensApple');
   }
 
-  public async saveApplePushNotificationToken(token: FirestorePushNotificationToken): Promise<void> {
+  public async saveApplePushNotificationToken(token: FirestorePushNotificationToken) {
     // Firestore doesn't support JavaScript objects with custom prototypes
     // (i.e. objects that were created via the "new" operator).
     //

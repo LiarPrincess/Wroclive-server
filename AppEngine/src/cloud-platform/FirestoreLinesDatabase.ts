@@ -25,5 +25,5 @@ export interface FirestoreAllLinesDocument {
 }
 
 export interface FirestoreLinesDatabase {
-  getAllLines(): Promise<FirestoreAllLinesDocument>;
+  getAllLines(): Promise<FirestoreAllLinesDocument | undefined>;
 }

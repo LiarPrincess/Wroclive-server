@@ -35,8 +35,8 @@ export function createControllers(logger: Logger): Controllers {
     pushNotificationToken = new LogPushNotificationTokenController(logger);
   } else {
     const db = new FirestoreDatabase();
-    linesController = new FirestoreLinesController(db);
-    stopsController = new FirestoreStopsController(db);
+    linesController = new FirestoreLinesController(db, logger);
+    stopsController = new FirestoreStopsController(db, logger);
     pushNotificationToken = new FirestorePushNotificationTokenController(db);
   }
 

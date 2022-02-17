@@ -9,6 +9,11 @@ export {
   FirestoreStopsDatabase
 } from './FirestoreStopsDatabase';
 export {
+  FirestoreNotification,
+  FirestoreAllNotificationsDocument,
+  FirestoreNotificationDatabase
+} from './FirestoreNotificationDatabase';
+export {
   FirestorePushNotificationToken,
   FirestorePushNotificationTokenDatabase
 } from './FirestorePushNotificationTokenDatabase';

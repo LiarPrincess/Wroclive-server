@@ -1,11 +1,28 @@
 import * as fs from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
-import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from './FirestoreLinesDatabase';
-import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from './FirestoreStopsDatabase';
-import { FirestorePushNotificationTokenDatabase, FirestorePushNotificationToken } from './FirestorePushNotificationTokenDatabase';
+import {
+  FirestoreAllLinesDocument,
+  FirestoreLinesDatabase
+} from './FirestoreLinesDatabase';
+import {
+  FirestoreAllStopsDocument,
+  FirestoreStopsDatabase
+} from './FirestoreStopsDatabase';
+import {
+  FirestorePushNotificationToken,
+  FirestorePushNotificationTokenDatabase
+} from './FirestorePushNotificationTokenDatabase';
+import {
+  FirestoreAllNotificationsDocument,
+  FirestoreNotificationDatabase
+} from './FirestoreNotificationDatabase';
 
-export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStopsDatabase, FirestorePushNotificationTokenDatabase {
+export class FirestoreDatabase implements
+  FirestoreLinesDatabase,
+  FirestoreStopsDatabase,
+  FirestoreNotificationDatabase,
+  FirestorePushNotificationTokenDatabase {
 
   private db: fs.Firestore;
 
@@ -63,6 +80,24 @@ export class FirestoreDatabase implements FirestoreLinesDatabase, FirestoreStops
 
   async saveAllStops(document: FirestoreAllStopsDocument) {
     await this.allStopsDocumentRef.set(document);
+  }
+
+  /* ===================== */
+  /* === Notifications === */
+  /* ===================== */
+
+  private get notificationsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('Notifications');
+  }
+
+  private get allNotificationsDocumentRef(): fs.DocumentReference<any> {
+    return this.notificationsCollectionRef.doc('all');
+  }
+
+  public async getNotifications(): Promise<FirestoreAllNotificationsDocument | undefined> {
+    const doc = await this.allNotificationsDocumentRef.get();
+    const data = doc.data() as FirestoreAllNotificationsDocument | undefined;
+    return data;
   }
 
   /* ====================================== */

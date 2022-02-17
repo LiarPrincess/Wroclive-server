@@ -15,6 +15,11 @@ import {
   VehicleLocationsController
 } from './controllers/vehicle-locations';
 import {
+  NotificationsControllerType,
+  FirestoreNotificationsController,
+  NoNotificationsController
+} from './controllers/notifications';
+import {
   LogPushNotificationTokenController,
   PushNotificationTokenControllerType,
   FirestorePushNotificationTokenController
@@ -27,17 +32,20 @@ import { FirestoreDatabase } from './cloud-platform';
 export function createControllers(logger: Logger): Controllers {
   let linesController: LinesControllerType;
   let stopsController: StopsControllerType;
-  let pushNotificationToken: PushNotificationTokenControllerType;
+  let notificationsController: NotificationsControllerType;
+  let pushNotificationTokenController: PushNotificationTokenControllerType;
 
   if (isLocal) {
     linesController = new PredefinedLinesController();
     stopsController = new PredefinedStopsController();
-    pushNotificationToken = new LogPushNotificationTokenController(logger);
+    notificationsController = new NoNotificationsController();
+    pushNotificationTokenController = new LogPushNotificationTokenController(logger);
   } else {
     const db = new FirestoreDatabase();
     linesController = new FirestoreLinesController(db, logger);
     stopsController = new FirestoreStopsController(db, logger);
-    pushNotificationToken = new FirestorePushNotificationTokenController(db);
+    notificationsController = new FirestoreNotificationsController(db, logger);
+    pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
   }
 
   const lineDatabase = new LineDatabase();
@@ -60,6 +68,7 @@ export function createControllers(logger: Logger): Controllers {
     linesController,
     stopsController,
     vehicleLocationController,
-    pushNotificationToken
+    notificationsController,
+    pushNotificationTokenController
   );
 }

@@ -1,7 +1,12 @@
 import { Tweet, TweetAuthor } from './twitter';
 
+// No type definitions?
+const htmlEscaper = require('html-escaper');
+
 /**
  * Tweet with removed some things from its body.
+ *
+ * We could re-use Tweet, but this gives us an type-system level security.
  */
 export class CleanTweet {
 
@@ -31,10 +36,33 @@ export class CleanTweet {
 }
 
 function cleanText(text: string): string {
-  return text
+  // They start every tweet with tags, we do not need them.
+  const replaced = text
     .replace(/#AlertMPK/gi, '')
     .replace(/#TRAM/gi, '')
     .replace(/#BUS/gi, '')
     .replace(/  /g, ' ') // Double whitespace
-    .trim();
+    ;
+
+  // They use '&gt;' to denote line direction:
+  // 🚋 Tramwaje linii 1, 7&gt;POŚWIĘTNE skierowano przez pl. Staszica, ul. Reymonta, Bałtycką.
+  const unescaped = htmlEscaper.unescape(replaced) as string;
+
+  let result = '';
+
+  // They sometimes have a space before new line.
+  // Also: '\n\n' (double new line).
+  const lines = unescaped.split('\n');
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index].trim();
+    if (line) {
+      if (result) {
+        result += '\n';
+      }
+
+      result += line;
+    }
+  }
+
+  return result;
 }

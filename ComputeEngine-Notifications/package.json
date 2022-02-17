@@ -16,6 +16,7 @@
     "@google-cloud/logging-winston": "^4.1.1",
     "@parse/node-apn": "^5.1.0",
     "axios": "^0.25.0",
+    "html-escaper": "^3.0.3",
     "oauth-1.0a": "^2.2.6",
     "winston": "^3.5.1"
   },

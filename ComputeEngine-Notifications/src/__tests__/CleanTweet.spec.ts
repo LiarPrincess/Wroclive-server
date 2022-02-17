@@ -36,7 +36,6 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
 Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich - FAT.`;
 
     const tweet = createTweet(text);
-
     const result = CleanTweet.fromTweet(tweet);
     expect(result.text).toEqual(text);
   });
@@ -67,5 +66,40 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
         expect(result.text).toEqual(originalText);
       }
     }
+  });
+
+  it('replaces escapes with valid values', async () => {
+    const text = `\
+⚠ Brak przejazdu- ul. Żmigrodzka (kolizja z samochodem osobowym).
+🚋 Tramwaje linii 1, 7&gt;POŚWIĘTNE skierowano przez pl. Staszica, ul. Reymonta, Bałtycką.
+🚍 Kursują autobusy "za tramwaj" w relacji Dworzec Nadodrze&gt; Poświętne.&lt;`;
+
+    const expected = `\
+⚠ Brak przejazdu- ul. Żmigrodzka (kolizja z samochodem osobowym).
+🚋 Tramwaje linii 1, 7>POŚWIĘTNE skierowano przez pl. Staszica, ul. Reymonta, Bałtycką.
+🚍 Kursują autobusy "za tramwaj" w relacji Dworzec Nadodrze> Poświętne.<`;
+
+    const tweet = createTweet(text);
+    const result = CleanTweet.fromTweet(tweet);
+    expect(result.text).toEqual(expected);
+  });
+
+  it('removed double (and triple) new lines', async () => {
+    const text = `\
+⚠ Brak przejazdu - al. Hallera (kolizja tramwajów).
+
+🚋 Tramwaje linii 20 w obu kierunkach zostały skierowane objazdem przez ul. Grabiszyńską.
+
+
+🚋 Tramwaje linii 70 zostały skierowane przez ul. Powstańców Śląskich do Zajezdni BOREK, gdzie zawracają.`;
+
+    const expected = `\
+⚠ Brak przejazdu - al. Hallera (kolizja tramwajów).
+🚋 Tramwaje linii 20 w obu kierunkach zostały skierowane objazdem przez ul. Grabiszyńską.
+🚋 Tramwaje linii 70 zostały skierowane przez ul. Powstańców Śląskich do Zajezdni BOREK, gdzie zawracają.`;
+
+    const tweet = createTweet(text);
+    const result = CleanTweet.fromTweet(tweet);
+    expect(result.text).toEqual(expected);
   });
 });

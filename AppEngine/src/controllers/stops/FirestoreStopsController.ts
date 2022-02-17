@@ -6,8 +6,8 @@ import { Logger } from '../../util';
 
 export class FirestoreStopsController extends StopsControllerType {
 
-  private db: FirestoreStopsDatabase;
-  private logger: Logger;
+  private readonly db: FirestoreStopsDatabase;
+  private readonly logger: Logger;
   private stops: StopCollection;
 
   constructor(db: FirestoreStopsDatabase, logger: Logger) {

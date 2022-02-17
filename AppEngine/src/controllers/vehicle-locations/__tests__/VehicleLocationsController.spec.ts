@@ -12,6 +12,7 @@ import {
   timeForWhichToUsePreviousResultIfAllProvidersFailed
 } from '../VehicleLocationsController';
 import { subtractMilliseconds } from '../math';
+import { Logger } from '../../../util';
 
 const lineA = new LineLocationLine('A', 'Bus', 'Express');
 const line4 = new LineLocationLine('4', 'Tram', 'Regular');
@@ -31,6 +32,13 @@ const dateInPeriod = '2020-01-01 10:02:00';
 const dateAfterPeriod = '2020-01-01 10:03:01';
 const dateAfterPeriodTimestamp = '2020-01-01T09:03:01.000Z';
 
+class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
+
+const logger = new LoggerMock();
+
 function createController() {
   const lines = new LineCollection('TIMESTAMP', [
     new Line(lineA.name, lineA.type, lineA.subtype),
@@ -48,6 +56,7 @@ function createController() {
     lineProvider,
     openDataProvider,
     mpkProvider,
+    logger,
     dateProvider
   );
 

@@ -1,11 +1,10 @@
+import { subtractMilliseconds } from './math';
 import { MpkVehicleProviderType } from './mpk';
 import { OpenDataVehicleProviderType } from './open-data';
+import { IntervalErrorReporter, minute } from './helpers';
 import { LineCollection, LineLocation, LineLocationCollection } from './models';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-import { subtractMilliseconds } from './math';
-
-const second = 1000;
-const minute = 60 * second;
+import { Logger } from '../../util';
 
 export const timeForWhichToUsePreviousResultIfAllProvidersFailed = 2 * minute;
 
@@ -45,7 +44,9 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
   private readonly lineProvider: LineProviderType;
   private readonly openDataProvider: OpenDataVehicleProviderType;
   private readonly mpkProvider: MpkVehicleProviderType;
+  private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
+  private readonly updateFromAllDataSourcesFailed: IntervalErrorReporter;
 
   private state: State;
 
@@ -53,6 +54,7 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     lineProvider: LineProviderType,
     openDataProvider: OpenDataVehicleProviderType,
     mpkProvider: MpkVehicleProviderType,
+    logger: Logger,
     dateProvider?: DateProvider
   ) {
     super();
@@ -60,7 +62,15 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     this.lineProvider = lineProvider;
     this.openDataProvider = openDataProvider;
     this.mpkProvider = mpkProvider;
+    this.logger = logger;
     this.dateProvider = dateProvider || (() => new Date());
+
+    this.updateFromAllDataSourcesFailed = new IntervalErrorReporter(
+      5 * minute,
+      '[VehicleLocationsController][CRITICAL] Update from all data sources failed!',
+      logger,
+      dateProvider
+    );
 
     const lineLocations = new LineLocationCollection('INITIAL_TIMESTAMP', []);
     this.state = { kind: 'Initial', lineLocations };
@@ -124,6 +134,8 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
         break;
     }
 
+    this.updateFromAllDataSourcesFailed.report({ openDataError, mpkError });
+
     switch (this.state.kind) {
       case 'Initial':
         const timestamp = this.createTimestamp(now);
@@ -135,8 +147,7 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
       case 'SuccessfulUpdate':
         const timeSinceUpdate = subtractMilliseconds(now, this.state.date);
         if (timeSinceUpdate > timeForWhichToUsePreviousResultIfAllProvidersFailed) {
-          // TODO: Report CRITICAL error!
-
+          // The only thing we can do is to show empty map.
           const timestamp = this.createTimestamp(now);
           const lineLocations = new LineLocationCollection(timestamp, []);
           this.state = { kind: 'FailedUpdate', lineLocations };

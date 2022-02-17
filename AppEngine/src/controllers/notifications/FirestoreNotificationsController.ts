@@ -5,8 +5,8 @@ import { Logger } from '../../util';
 
 export class FirestoreNotificationsController extends NotificationsControllerType {
 
-  private db: FirestoreNotificationDatabase;
-  private logger: Logger;
+  private readonly db: FirestoreNotificationDatabase;
+  private readonly logger: Logger;
 
   constructor(db: FirestoreNotificationDatabase, logger: Logger) {
     super();

@@ -6,8 +6,8 @@ import { Logger } from '../../util';
 
 export class FirestoreLinesController extends LinesControllerType {
 
-  private db: FirestoreLinesDatabase;
-  private logger: Logger;
+  private readonly db: FirestoreLinesDatabase;
+  private readonly logger: Logger;
   private lines: LineCollection;
 
   constructor(db: FirestoreLinesDatabase, logger: Logger) {

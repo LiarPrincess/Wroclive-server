@@ -61,7 +61,8 @@ export function createControllers(logger: Logger): Controllers {
   const vehicleLocationController = new VehicleLocationsController(
     linesController, // Important!
     openDataProvider,
-    mpkProvider
+    mpkProvider,
+    logger
   );
 
   return new Controllers(

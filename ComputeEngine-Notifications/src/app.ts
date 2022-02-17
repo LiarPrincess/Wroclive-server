@@ -13,6 +13,7 @@ import {
   PushNotificationDatabase,
   PushNotificationSender
 } from './push-notifications';
+import { NotificationStore } from './notification-store';
 import { Twitter } from './twitter';
 import { twitterUsername } from './config';
 import { Logger, createLogger, getRootDir, isProduction, isLocal } from './util';
@@ -36,6 +37,7 @@ import { LoopDependencies, startLoop } from './loop';
       apn = new LocalApplePushNotifications(logger);
     }
 
+    const notificationStore = new NotificationStore(firestore, logger);
     const pushNotificationSender = createPushNotificationSender(apn, firestore, logger);
 
     const twitterUserResult = await twitter.getUser(twitterUsername);
@@ -44,11 +46,12 @@ import { LoopDependencies, startLoop } from './loop';
     switch (twitterUserResult.kind) {
       case 'Success':
         const twitterUser = twitterUserResult.user;
-        logger.info(`[PushNotifications] Got twitter user '${twitterUsername}'. Starting loop.`);
+        logger.info(`[Notifications] Got twitter user '${twitterUsername}'. Starting loop.`);
 
         const dependencies = new LoopDependencies(
           twitter,
           twitterUser,
+          notificationStore,
           pushNotificationSender,
           logger
         );
@@ -67,7 +70,7 @@ import { LoopDependencies, startLoop } from './loop';
         break;
     }
   } catch (error) {
-    logger.error('[PushNotifications] Error when starting loop', error);
+    logger.error('[Notifications] Error when starting the loop', error);
   }
 })();
 

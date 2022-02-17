@@ -1,4 +1,5 @@
 import { CleanTweet } from './CleanTweet';
+import { NotificationStore } from './notification-store';
 import { PushNotificationSender } from './push-notifications';
 import { Tweet, Twitter, TwitterUser } from './twitter';
 import { Logger } from './util';
@@ -8,6 +9,7 @@ export class LoopDependencies {
   constructor(
     public readonly twitter: Twitter,
     public readonly twitterUser: TwitterUser,
+    public readonly notificationStore: NotificationStore,
     public readonly pushNotificationSender: PushNotificationSender,
     public readonly logger: Logger
   ) { }
@@ -31,6 +33,7 @@ async function singleIteration(dependencies: LoopDependencies) {
   const {
     twitter,
     twitterUser,
+    notificationStore,
     pushNotificationSender,
     logger
   } = dependencies;
@@ -43,9 +46,15 @@ async function singleIteration(dependencies: LoopDependencies) {
   const cleanTweets = tweets.map(t => CleanTweet.fromTweet(t));
 
   try {
+    await notificationStore.store(cleanTweets);
+  } catch (error) {
+    logger.error('[Notifications] Unable to store notifications', error);
+  }
+
+  try {
     await pushNotificationSender.send(cleanTweets);
   } catch (error) {
-    logger.error('[PushNotifications] Unable to send push notifications', error);
+    logger.error('[Notifications] Unable to send push notifications', error);
   }
 }
 

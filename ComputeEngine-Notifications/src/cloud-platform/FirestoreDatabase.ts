@@ -182,6 +182,6 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
       result.push(data.token);
     });
 
-    return [];
+    return result;
   }
 }

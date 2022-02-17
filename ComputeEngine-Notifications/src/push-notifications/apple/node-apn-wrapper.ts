@@ -87,8 +87,16 @@ export class Provider {
     apnNotification.payload = notification.payload;
 
     const apnResult = await this.apnProvider.send(apnNotification, tokens);
-    const delivered = this.parseSent(apnResult.sent) || ['PARSING_ERROR'];
-    const failed = this.parseFailed(apn.failed) || [new SendError('PARSING_ERROR', JSON.stringify(apn.failed))];
+
+    let delivered = this.parseSent(apnResult.sent);
+    if (delivered === undefined) {
+      delivered = ['PARSING_ERROR'];
+    }
+
+    let failed = this.parseFailed(apn.failed);
+    if (failed === undefined) {
+      failed = [new SendError('PARSING_ERROR', JSON.stringify(apn.failed))];
+    }
 
     return new SendResult(delivered, failed);
   }

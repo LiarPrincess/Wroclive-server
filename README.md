@@ -35,6 +35,7 @@ And this is the push notification pipeline:
 
 [Compute Engine](https://cloud.google.com/compute)
 - Single instance named `backend`
+- Startup script: `/home/USERNAME/on-vm-startup.sh`
 - Runs code from following directories:
   - [ComputeEngine](ComputeEngine)
     - Manage `ComputeEngine` instance (installations, updates etc.)

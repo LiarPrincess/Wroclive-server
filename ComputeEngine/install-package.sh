@@ -79,6 +79,8 @@ rm -r "./pub-sub"
 mv "$PUBSUB_PATH" "./pub-sub"
 
 echo "Installing updater"
+# 'data' needs special treatment
+rm -rf "./updater/data"
 rm -r "./updater"
 mv "$UPDATER_PATH" "./updater"
 

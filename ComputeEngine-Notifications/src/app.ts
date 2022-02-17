@@ -19,6 +19,10 @@ import { twitterUsername } from './config';
 import { Logger, createLogger, getRootDir, isProduction, isLocal } from './util';
 import { LoopDependencies, startLoop } from './loop';
 
+// Set process title, so it is easier to kill it during install.
+// New title has to be shorter than 'node ./dist/app.js'
+process.title = 'CE-Notifications';
+
 (async function () {
   const logger = createLogger('CE-Notifications');
 

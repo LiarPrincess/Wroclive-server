@@ -1,6 +1,10 @@
 import * as fs from '@google-cloud/firestore';
 
 import {
+  FirestoreNotification,
+  FirestoreAllNotificationsDocument
+} from './FirestoreNotificationDatabase';
+import {
   FirestorePushNotification,
   FirestorePushNotificationStatus
 } from './FirestorePushNotificationDatabase';
@@ -51,6 +55,49 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
     this.db.settings({
       ignoreUndefinedProperties: true
     });
+  }
+
+  /* ===================== */
+  /* === Notifications === */
+  /* ===================== */
+
+  private get notificationsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('Notifications');
+  }
+
+  private get allNotificationsDocumentRef(): fs.DocumentReference<any> {
+    return this.notificationsCollectionRef.doc('all');
+  }
+
+  public async getNotifications(): Promise<FirestoreAllNotificationsDocument | undefined> {
+    const doc = await this.allNotificationsDocumentRef.get();
+    const data = doc.data() as FirestoreAllNotificationsDocument | undefined;
+    return data;
+  }
+
+  public async storeNotifications(document: FirestoreAllNotificationsDocument) {
+    // Firestore doesn't support JavaScript objects with custom prototypes
+    // (i.e. objects that were created via the "new" operator).
+    //
+    // Solution: we have to create a new object.
+
+    const data: FirestoreNotification[] = [];
+    for (const notification of document.data) {
+      data.push({
+        id: notification.id,
+        url: notification.url,
+        author: notification.author,
+        date: notification.date,
+        body: notification.body,
+      });
+    }
+
+    const storedDocument: FirestoreAllNotificationsDocument = {
+      timestamp: document.timestamp,
+      data
+    };
+
+    await this.allNotificationsDocumentRef.set(storedDocument);
   }
 
   /* ========================== */

@@ -10,11 +10,13 @@ import { Logger } from '../../util';
 /* ================ */
 
 enum CacheHeader {
-  // 21600s = 360 min = 6h
+  // 2 min = 120s
+  Store2min = 'max-age=120',
+  // 6h = 360 min= 21600s
   Store6h = 'max-age=21600',
-  // 43200s = 720 min = 12h
+  // 12h = 720 min= 43200s
   Store12h = 'max-age=43200',
-  // 259200s = 4320 min = 72h = 3 days
+  // 3 days = 72h = 4320 min = 259200s
   Store3days = 'max-age=259200',
   Disable = 'no-store'
 }
@@ -85,6 +87,18 @@ export function createApiV1Router(controllers: Controllers, logger: Logger): Rou
       const json = jsonCache.getVehicleLocations(data);
 
       setStandardHeaders(res, CacheHeader.Disable);
+      sendJSON(res, json);
+    } catch (err) {
+      next(err);
+    }
+  });
+
+  router.get('/notifications', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await controllers.notifications.getNotifications();
+      const json = jsonCache.getNotifications(data);
+
+      setStandardHeaders(res, CacheHeader.Store2min);
       sendJSON(res, json);
     } catch (err) {
       next(err);

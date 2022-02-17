@@ -1,6 +1,7 @@
 import { LineCollection } from '../../controllers/lines';
 import { StopCollection } from '../../controllers/stops';
 import { LineLocationCollection } from '../../controllers/vehicle-locations';
+import { NotificationCollection } from '../../controllers/notifications';
 
 interface CacheEntry {
   readonly timestamp: string;
@@ -19,7 +20,7 @@ export class JSONCache {
 
   private cachedLines?: CacheEntry = undefined;
 
-  getLines(lines: LineCollection): string {
+  public getLines(lines: LineCollection): string {
     if (this.cachedLines && this.cachedLines.timestamp == lines.timestamp) {
       return this.cachedLines.json;
     }
@@ -41,7 +42,7 @@ export class JSONCache {
 
   private cachedStops?: CacheEntry = undefined;
 
-  getStops(stops: StopCollection): string {
+  public getStops(stops: StopCollection): string {
     if (this.cachedStops && this.cachedStops.timestamp == stops.timestamp) {
       return this.cachedStops.json;
     }
@@ -55,8 +56,17 @@ export class JSONCache {
   /* === Vehicle locations === */
   /* ========================= */
 
-  getVehicleLocations(locations: LineLocationCollection): string {
+  public getVehicleLocations(locations: LineLocationCollection): string {
     // Nothing to cache here
     return JSON.stringify(locations);
+  }
+
+  /* ===================== */
+  /* === Notifications === */
+  /* ===================== */
+
+  public getNotifications(notifications: NotificationCollection): string {
+    // Nothing to cache here
+    return JSON.stringify(notifications);
   }
 }

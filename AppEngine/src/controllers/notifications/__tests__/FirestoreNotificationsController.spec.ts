@@ -38,15 +38,15 @@ describe('FirestoreNotificationsController', function () {
     expect(database.getNotificationsCallCount).toEqual(1);
   });
 
-  it('returns no notifications from database without caching', async function () {
+  it('returns notifications from database without caching', async function () {
     const database = new FirestoreDatabaseMock();
     const controller = new FirestoreNotificationsController(database, logger);
 
     const collection1: NotificationCollection = {
-      timestamp: 'TIMESTAMP_1',
+      timestamp: 'TIMESTAMP1',
       data: [
-        { id: 'id_1', url: 'url_1', author: 'author_1', date: 3, body: 'body_1' },
-        { id: 'id_2', url: 'url_2', author: 'author_2', date: 5, body: 'body_2' }
+        { id: 'ID1', url: 'URL1', author: { name: 'NAME1', username: 'USERNAME1' }, date: 'DATE1', body: 'BODY1' },
+        { id: 'ID2', url: 'URL2', author: { name: 'NAME2', username: 'USERNAME2' }, date: 'DATE2', body: 'BODY2' }
       ]
     };
     database.getNotificationsResult = collection1;
@@ -56,10 +56,10 @@ describe('FirestoreNotificationsController', function () {
     expect(result1).toEqual(collection1);
 
     const collection2: NotificationCollection = {
-      timestamp: 'TIMESTAMP_1',
+      timestamp: 'TIMESTAMP2',
       data: [
-        { id: 'id_2', url: 'url_2', author: 'author_2', date: 5, body: 'body_2' },
-        { id: 'id_3', url: 'url_3', author: 'author_3', date: 7, body: 'body_3' }
+        { id: 'ID2', url: 'URL2', author: { name: 'NAME2', username: 'USERNAME2' }, date: 'DATE2', body: 'BODY2' },
+        { id: 'ID3', url: 'URL3', author: { name: 'NAME3', username: 'USERNAME3' }, date: 'DATE3', body: 'BODY3' }
       ]
     };
     database.getNotificationsResult = collection2;

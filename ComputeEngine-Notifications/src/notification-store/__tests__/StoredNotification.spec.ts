@@ -20,7 +20,10 @@ describe('StoredNotification', () => {
     expect(notification).toEqual({
       id: 'id_1',
       url: 'url_1',
-      author: 'https://twitter.com/author_username_1',
+      author: {
+        name: 'author_name_1',
+        username: 'author_username_1'
+      },
       date,
       body: 'text_1'
     });

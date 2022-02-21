@@ -1,7 +1,10 @@
 export interface FirestoreNotification {
   readonly id: string;
   readonly url: string;
-  readonly author: string;
+  readonly author: {
+    readonly name: string;
+    readonly username: string;
+  };
   /** Creation date in ISO_8601 format. */
   readonly date: string;
   readonly body: string;

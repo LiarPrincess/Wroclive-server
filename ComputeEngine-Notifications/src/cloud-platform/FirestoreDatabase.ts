@@ -75,7 +75,10 @@ export class FirestoreDatabase implements FirestoreDatabaseType {
       data.push({
         id: notification.id,
         url: notification.url,
-        author: notification.author,
+        author: {
+          name: notification.author.name,
+          username: notification.author.username
+        },
         date: notification.date,
         body: notification.body,
       });

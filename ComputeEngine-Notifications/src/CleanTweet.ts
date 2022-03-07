@@ -3,6 +3,8 @@ import { Tweet, TweetAuthor } from './twitter';
 // No type definitions?
 const htmlEscaper = require('html-escaper');
 
+export { TweetAuthor } from './twitter';
+
 /**
  * Tweet with removed some things from its body.
  *

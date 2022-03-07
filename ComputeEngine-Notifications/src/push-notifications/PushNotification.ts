@@ -1,5 +1,7 @@
 import { CleanTweet } from '../CleanTweet';
 
+export type DateProvider = () => Date;
+
 export class PushNotification {
 
   public constructor(
@@ -13,9 +15,14 @@ export class PushNotification {
   ) { }
 
   public static fromTweet(tweet: CleanTweet): PushNotification {
+    // We will group push notifications by day.
+    // Btw. ISOString: 1970-01-01T00:00:00.001Z
+    const isoDate = tweet.createdAt.toISOString();
+    const dailyThreadId = isoDate.substring(0, 10);
+
     return new PushNotification(
       tweet.id,
-      tweet.conversationId,
+      dailyThreadId,
       tweet.url,
       tweet.author.url,
       tweet.createdAt,

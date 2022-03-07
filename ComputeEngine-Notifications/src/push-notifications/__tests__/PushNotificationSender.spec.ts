@@ -2,8 +2,7 @@ import { LoggerMock, DatabaseMock, ApplePushNotificationsMock } from './mocks';
 import { AppleSendError, AppleSendResult } from '../apple';
 import { PushNotification } from '../PushNotification';
 import { PushNotificationSender, dontSendTweetsOlderThan } from '../PushNotificationSender';
-import { CleanTweet } from '../../CleanTweet';
-import { TweetAuthor } from '../../twitter';
+import { CleanTweet, TweetAuthor } from '../../CleanTweet';
 
 const date: Date = new Date(dontSendTweetsOlderThan);
 

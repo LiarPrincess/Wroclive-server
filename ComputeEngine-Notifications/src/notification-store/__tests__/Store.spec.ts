@@ -4,8 +4,7 @@ import {
   FirestoreAllNotificationsDocument,
   FirestoreNotificationDatabase
 } from '../../cloud-platform';
-import { TweetAuthor } from '../../twitter';
-import { CleanTweet } from '../../CleanTweet';
+import { CleanTweet, TweetAuthor } from '../../CleanTweet';
 import { Logger } from '../../util';
 
 /* ============ */

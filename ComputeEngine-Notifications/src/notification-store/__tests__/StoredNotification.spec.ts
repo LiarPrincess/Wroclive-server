@@ -1,6 +1,5 @@
 import { StoredNotification } from '../StoredNotification';
-import { TweetAuthor } from '../../twitter';
-import { CleanTweet } from '../../CleanTweet';
+import { CleanTweet, TweetAuthor } from '../../CleanTweet';
 
 describe('StoredNotification', () => {
 

@@ -121,6 +121,9 @@ And this is the push notification pipeline:
   - Api by user agent
     - Query: `protoPayload.userAgent =~ "Wroclive.*"`
 
+- [Log parser](LogParser)
+  - Parse logs from [Cloud Logging](https://cloud.google.com/logging) and output them in human-readable form
+
 [Error reporting](https://cloud.google.com/error-reporting) - standard reporting by mail
 
 ## Additional files

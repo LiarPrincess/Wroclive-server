@@ -1,10 +1,11 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
-import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
+import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 // Parent dir
+import { VehicleLocationsDatabaseType } from '../database';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
+import { AngleCalculator, LineLocationsAggregator } from '../helpers';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
 /**
@@ -14,19 +15,19 @@ import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classificat
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly lineDatabase: LineDatabase;
+  public readonly database: VehicleLocationsDatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly vehicleClassifier: VehicleClassifierType;
 
   constructor(
     api: ApiType,
-    lineDatabase: LineDatabase,
+    database: VehicleLocationsDatabaseType,
     errorReporter: ErrorReporterType,
     vehicleClassifier?: VehicleClassifierType
   ) {
     this.api = api;
-    this.lineDatabase = lineDatabase;
+    this.database = database;
     this.errorReporter = errorReporter;
     this.vehicleClassifier = vehicleClassifier || new VehicleClassifier();
     this.angleCalculator = new AngleCalculator();
@@ -62,7 +63,7 @@ export class VehicleProvider implements VehicleProviderType {
     this.vehicleClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
       const lineName = vehicle.line;
-      const line = this.lineDatabase.getLineByName(lineName);
+      const line = this.database.getLineByName(lineName);
 
       const {
         isInDepot,

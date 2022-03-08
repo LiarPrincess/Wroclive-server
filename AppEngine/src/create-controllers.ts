@@ -9,10 +9,8 @@ import {
   PredefinedStopsController
 } from './controllers/stops';
 import {
-  LineDatabase,
-  OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider,
-  MpkApi, MpkErrorReporter, MpkVehicleProvider,
-  VehicleLocationsController
+  VehicleLocationsControllerType,
+  createVehicleLocationsController
 } from './controllers/vehicle-locations';
 import {
   NotificationsControllerType,
@@ -48,22 +46,7 @@ export function createControllers(logger: Logger): Controllers {
     pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
   }
 
-  const lineDatabase = new LineDatabase();
-
-  const openDataApi = new OpenDataApi();
-  const openDataError = new OpenDataErrorReporter(logger);
-  const openDataProvider = new OpenDataVehicleProvider(openDataApi, lineDatabase, openDataError);
-
-  const mpkApi = new MpkApi();
-  const mpkError = new MpkErrorReporter(logger);
-  const mpkProvider = new MpkVehicleProvider(mpkApi, lineDatabase, mpkError);
-
-  const vehicleLocationController = new VehicleLocationsController(
-    linesController, // Important!
-    openDataProvider,
-    mpkProvider,
-    logger
-  );
+  const vehicleLocationController: VehicleLocationsControllerType = createVehicleLocationsController(logger);
 
   return new Controllers(
     linesController,

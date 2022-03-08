@@ -1,8 +1,13 @@
-import { MpkVehicleProviderType, MpkVehicleLocations } from '../mpk';
-import { OpenDataVehicleProviderType, OpenDataVehicleLocations } from '../open-data';
-import { LineProviderType } from '../VehicleLocationsController';
-import { LineCollection } from '../models';
-import { LineDatabase } from '../helpers';
+import { Logger } from '../../../util';
+
+export { MpkVehicleProviderMock } from '../mpk';
+export { OpenDataVehicleProviderMock } from '../open-data';
+export { VehicleLocationsDatabaseMock } from '../database';
+
+export class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
 
 export let currentDate: Date = new Date();
 
@@ -12,45 +17,4 @@ export function getCurrentDate(): Date {
 
 export function mockCurrentDate(s: string) {
   currentDate = new Date(s);
-}
-
-export class LineProvider implements LineProviderType {
-
-  lines: LineCollection;
-
-  constructor(lines: LineCollection) {
-    this.lines = lines;
-  }
-
-  getLines(): LineCollection {
-    return this.lines;
-  }
-}
-
-export class MpkProvider implements MpkVehicleProviderType {
-
-  lineDatabase: LineDatabase = new LineDatabase();
-  result: OpenDataVehicleLocations | undefined;
-
-  getVehicleLocations(): Promise<MpkVehicleLocations> {
-    if (this.result) {
-      return Promise.resolve(this.result);
-    }
-
-    throw new Error("'MpkProvider.getVehicleLocations' was not expected to be called.");
-  }
-}
-
-export class OpenDataProvider implements OpenDataVehicleProviderType {
-
-  lineDatabase: LineDatabase = new LineDatabase();
-  result: OpenDataVehicleLocations | undefined;
-
-  getVehicleLocations(): Promise<OpenDataVehicleLocations> {
-    if (this.result) {
-      return Promise.resolve(this.result);
-    }
-
-    throw new Error("'OpenDataProvider.getVehicleLocations' was not expected to be called.");
-  }
 }

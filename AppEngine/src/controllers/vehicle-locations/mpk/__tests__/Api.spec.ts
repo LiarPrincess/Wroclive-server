@@ -1,8 +1,6 @@
 import { default as nock } from 'nock';
 
 import { Api } from '../Api';
-import { Line } from '../../models';
-import { LineDatabase } from '../../helpers';
 
 /* ============ */
 /* === Nock === */

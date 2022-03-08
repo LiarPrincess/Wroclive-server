@@ -3,8 +3,9 @@ import { ApiType, ApiResult } from './ApiType';
 import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
 // Parent dir
+import { VehicleLocationsDatabaseType } from '../database';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
+import { AngleCalculator, LineLocationsAggregator } from '../helpers';
 import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
 
 /**
@@ -14,19 +15,19 @@ import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierT
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly lineDatabase: LineDatabase;
+  public readonly database: VehicleLocationsDatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
 
   constructor(
     api: ApiType,
-    lineDatabase: LineDatabase,
+    database: VehicleLocationsDatabaseType,
     errorReporter: ErrorReporterType,
     hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType
   ) {
     this.api = api;
-    this.lineDatabase = lineDatabase;
+    this.database = database;
     this.errorReporter = errorReporter;
     this.angleCalculator = new AngleCalculator();
     this.hasMovedInLastFewMinutesClassifier = hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
@@ -60,7 +61,7 @@ export class VehicleProvider implements VehicleProviderType {
     this.hasMovedInLastFewMinutesClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
       const lineName = vehicle.line;
-      const line = this.lineDatabase.getLineByName(lineName);
+      const line = this.database.getLineByName(lineName);
 
       // Note that we still want to show this vehicle.
       // Maybe a tram broke in the middle of Powstancow and all of the other
@@ -85,7 +86,7 @@ export class VehicleProvider implements VehicleProviderType {
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
-    const lineNamesLowercase = this.lineDatabase.getLineNamesLowercase();
+    const lineNamesLowercase = this.database.getLineNamesLowercase();
 
     // Try 2 times.
     // If the 2nd one fails -> hard fail.

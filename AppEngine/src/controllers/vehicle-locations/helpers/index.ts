@@ -1,4 +1,3 @@
-export { LineDatabase } from './LineDatabase';
 export { AngleCalculator } from './AngleCalculator';
 export { LineLocationsAggregator } from './LineLocationsAggregator';
 export { IntervalErrorReporter, second, minute, hour } from './IntervalErrorReporter';

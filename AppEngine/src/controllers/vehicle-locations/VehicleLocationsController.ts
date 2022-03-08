@@ -1,18 +1,11 @@
 import { MpkVehicleProviderType } from './mpk';
 import { OpenDataVehicleProviderType } from './open-data';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
+import { VehicleLocationsDatabaseType } from './database';
 import { IntervalErrorReporter, minute, subtractMilliseconds } from './helpers';
-import { LineCollection, LineLocation, LineLocationCollection } from './models';
-import { Logger } from '../../util';
+import { Logger, LineLocation, LineLocationCollection } from './models';
 
 export const timeForWhichToUsePreviousResultIfAllProvidersFailed = 2 * minute;
-
-export interface LineProviderType {
-  /**
-   * Get all of the available lines.
-   */
-  getLines(): LineCollection;
-}
 
 export type DateProvider = () => Date;
 
@@ -40,7 +33,6 @@ type State =
 
 export class VehicleLocationsController extends VehicleLocationsControllerType {
 
-  private readonly lineProvider: LineProviderType;
   private readonly openDataProvider: OpenDataVehicleProviderType;
   private readonly mpkProvider: MpkVehicleProviderType;
   private readonly logger: Logger;
@@ -49,16 +41,15 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
   private state: State;
 
-  constructor(
-    lineProvider: LineProviderType,
+  public constructor(
+    database: VehicleLocationsDatabaseType,
     openDataProvider: OpenDataVehicleProviderType,
     mpkProvider: MpkVehicleProviderType,
     logger: Logger,
     dateProvider?: DateProvider
   ) {
-    super();
+    super(database);
 
-    this.lineProvider = lineProvider;
     this.openDataProvider = openDataProvider;
     this.mpkProvider = mpkProvider;
     this.logger = logger;
@@ -75,7 +66,7 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     this.state = { kind: 'Initial', lineLocations };
   }
 
-  getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
+  public getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
     switch (this.state.kind) {
       case 'Initial':
         return this.state.lineLocations;
@@ -99,11 +90,9 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     }
   }
 
-  async updateVehicleLocations(): Promise<void> {
+  public async updateVehicleLocations(): Promise<void> {
     const now = this.dateProvider();
-    const lines = this.lineProvider.getLines();
 
-    this.openDataProvider.lineDatabase.updateLineDefinitions(lines);
     const openDataResult = await this.openDataProvider.getVehicleLocations();
     let openDataError = '';
 
@@ -118,7 +107,6 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
         break;
     }
 
-    this.mpkProvider.lineDatabase.updateLineDefinitions(lines);
     const mpkResult = await this.mpkProvider.getVehicleLocations();
     let mpkError = '';
 

@@ -1,4 +1,3 @@
-import { LineDatabase } from '../helpers';
 import { LineLocation } from '../models';
 
 export type VehicleLocations =
@@ -8,6 +7,5 @@ export type VehicleLocations =
   { kind: 'NoVehicleHasMovedInLastFewMinutes' };
 
 export interface VehicleProviderType {
-  readonly lineDatabase: LineDatabase;
   getVehicleLocations(): Promise<VehicleLocations>;
 }

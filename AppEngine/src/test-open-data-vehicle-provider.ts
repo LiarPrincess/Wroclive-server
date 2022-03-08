@@ -3,7 +3,7 @@ import {
   OpenDataApi,
   OpenDataErrorReporter,
   OpenDataVehicleProvider,
-  LineDatabase
+  VehicleLocationsDatabase
 } from './controllers/vehicle-locations';
 import { createConsoleLogger } from './util';
 
@@ -12,11 +12,11 @@ const second = 1000;
 (async () => {
   try {
     const logger = createConsoleLogger();
-    const lineDatabase = new LineDatabase();
+    const database = new VehicleLocationsDatabase();
 
     const api = new OpenDataApi();
     const errorReporter = new OpenDataErrorReporter(logger);
-    const provider = new OpenDataVehicleProvider(api, lineDatabase, errorReporter);
+    const provider = new OpenDataVehicleProvider(api, database, errorReporter);
 
     while (true) {
       const now = new Date();

@@ -1,17 +1,18 @@
-import { LineCollection, Line } from '../models';
+import { VehicleLocationsDatabaseType } from './VehicleLocationsDatabaseType';
 import { createLineFromName as createLineFromNameFn } from './createLineFromName';
+import { LineCollection, Line } from '../models';
 
 interface LineByName {
   [key: string]: Line | undefined;
 }
 
-export class LineDatabase {
+export class VehicleLocationsDatabase implements VehicleLocationsDatabaseType {
 
   private linesByName: LineByName = {};
   private linesByNameTimestamp: string | undefined = undefined;
   private lineNamesLowercase: string[] = [];
 
-  updateLineDefinitions(lines: LineCollection) {
+  public updateLineDefinitions(lines: LineCollection) {
     const timestamp = lines.timestamp;
     const cachedTimestamp = this.linesByNameTimestamp;
     const isTimestampEqual = cachedTimestamp && cachedTimestamp == timestamp;
@@ -30,17 +31,11 @@ export class LineDatabase {
     }
   }
 
-  /**
-   * Get names of all of the lines.
-   */
-  getLineNamesLowercase(): string[] {
+  public getLineNamesLowercase(): string[] {
     return this.lineNamesLowercase;
   }
 
-  /**
-   * Get as single line by its name.
-   */
-  getLineByName(name: string): Line {
+  public getLineByName(name: string): Line {
     const lineNameLowercase = name.toLowerCase();
 
     const line = this.linesByName[lineNameLowercase];

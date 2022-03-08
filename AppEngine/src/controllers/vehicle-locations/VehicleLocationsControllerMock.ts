@@ -1,7 +1,12 @@
 import { LineLocationCollection } from './models';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
+import { VehicleLocationsDatabaseMock } from './database';
 
 export class VehicleLocationsControllerMock extends VehicleLocationsControllerType {
+
+  constructor() {
+    super(new VehicleLocationsDatabaseMock());
+  }
 
   data = new LineLocationCollection('', []);
   getVehicleLocationsCallCount = 0;

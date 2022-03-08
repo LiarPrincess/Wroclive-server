@@ -12,7 +12,6 @@ import {
   timeForWhichToUsePreviousResultIfAllProvidersFailed
 } from '../VehicleLocationsController';
 import { subtractMilliseconds } from '../helpers';
-import { Logger } from '../../../util';
 
 const lineA = new LineLocationLine('A', 'Bus', 'Express');
 const line4 = new LineLocationLine('4', 'Tram', 'Regular');
@@ -32,35 +31,28 @@ const dateInPeriod = '2020-01-01 10:02:00';
 const dateAfterPeriod = '2020-01-01 10:03:01';
 const dateAfterPeriodTimestamp = '2020-01-01T09:03:01.000Z';
 
-class LoggerMock implements Logger {
-  info(message?: any, ...optionalParams: any[]): void { }
-  error(message?: any, ...optionalParams: any[]): void { }
-}
-
-const logger = new LoggerMock();
-
 function createController() {
-  const lines = new LineCollection('TIMESTAMP', [
+  const database = new mocks.VehicleLocationsDatabaseMock();
+  database.updateLineDefinitions(new LineCollection('TIMESTAMP', [
     new Line(lineA.name, lineA.type, lineA.subtype),
     new Line(line4.name, line4.type, line4.subtype),
     new Line(line125.name, line125.type, line125.subtype)
-  ]);
+  ]));
 
-  const lineProvider = new mocks.LineProvider(lines);
-
-  const openDataProvider = new mocks.OpenDataProvider();
-  const mpkProvider = new mocks.MpkProvider();
+  const openDataProvider = new mocks.OpenDataVehicleProviderMock();
+  const mpkProvider = new mocks.MpkVehicleProviderMock();
   const dateProvider = mocks.getCurrentDate;
 
+  const logger = new mocks.LoggerMock();
   const controller = new VehicleLocationsController(
-    lineProvider,
+    database,
     openDataProvider,
     mpkProvider,
     logger,
     dateProvider
   );
 
-  return { lineProvider, openDataProvider, mpkProvider, controller };
+  return { database, openDataProvider, mpkProvider, controller };
 }
 
 function getVehicleLocations(

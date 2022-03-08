@@ -1,10 +1,5 @@
-import { Line } from '../../models';
 import { Database } from '../Database';
-import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
-
-const lineA = new Line('A', 'Bus', 'Express');
-const line4 = new Line('4', 'Tram', 'Regular');
-const line125 = new Line('125', 'Bus', 'Regular');
+import { FirestoreDatabaseMock, LoggerMock } from './Mocks';
 
 let date: Date = new Date(0);
 
@@ -14,7 +9,8 @@ function getDateMock(): Date {
 
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
-  const database = new Database(firestore, false, getDateMock);
+  const logger = new LoggerMock();
+  const database = new Database(firestore, logger, false, getDateMock);
   return { firestore, database };
 }
 

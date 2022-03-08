@@ -1,6 +1,6 @@
 import { Line } from '../../models';
 import { Database } from '../Database';
-import { FirestoreDatabaseMock } from './FirestoreDatabaseMock';
+import { FirestoreDatabaseMock, LoggerMock } from './Mocks';
 
 const lineA = new Line('A', 'Bus', 'Express');
 const line4 = new Line('4', 'Tram', 'Regular');
@@ -8,7 +8,8 @@ const line125 = new Line('125', 'Bus', 'Regular');
 
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
-  return new Database(firestore, false);
+  const logger = new LoggerMock();
+  return new Database(firestore, logger, false);
 }
 
 describe('VehicleLocationsDatabase-Lines', function () {

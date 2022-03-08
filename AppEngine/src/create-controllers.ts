@@ -54,7 +54,7 @@ export function createControllers(logger: Logger): Controllers {
 
     // We don't want to store update, just some of them (performance/free GCP tier limits).
     const limitStoreRequests = true;
-    vehicleLocationsDatabase = new VehicleLocationsDatabase(db, limitStoreRequests);
+    vehicleLocationsDatabase = new VehicleLocationsDatabase(db, logger, limitStoreRequests);
   }
 
   const vehicleLocationController = createVehicleLocationsController(vehicleLocationsDatabase, logger);

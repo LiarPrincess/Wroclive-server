@@ -1,7 +1,13 @@
+import { Logger } from '../../models';
 import {
   FirestoreVehicleLocationsDatabase,
   FirestoreVehicleLocationsDocument
 } from '../../../../cloud-platform';
+
+export class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
 
 export class FirestoreDatabaseMock implements FirestoreVehicleLocationsDatabase {
 

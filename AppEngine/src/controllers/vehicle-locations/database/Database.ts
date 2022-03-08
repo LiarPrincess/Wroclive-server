@@ -1,6 +1,8 @@
-import { createLineFromName as createLineFromNameFn } from './createLineFromName';
 import { DatabaseType, VehicleIdToLocation } from './DatabaseType';
+import { createLineFromName as createLineFromNameFn } from './createLineFromName';
+import { FirestoreStoreLimiter } from './FirestoreStoreLimiter';
 import { LineCollection, Line } from '../models';
+import { Logger } from '../../../util';
 import {
   FirestoreVehicleLocationsDatabase,
   FirestoreVehicleLocationsDocument
@@ -17,16 +19,21 @@ export class Database implements DatabaseType {
   private linesByName: LineByName = {};
   private linesByNameTimestamp: string | undefined = undefined;
   private lineNamesLowercase: string[] = [];
+
   private readonly database: FirestoreVehicleLocationsDatabase;
+  private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
 
   public constructor(
     database: FirestoreVehicleLocationsDatabase,
+    logger: Logger,
     limitStoreRequests: boolean,
     dateProvider?: DateProvider
   ) {
-    this.database = database;
-    this.dateProvider = dateProvider || (() => new Date());
+    const dp = dateProvider || (() => new Date());
+    this.database = limitStoreRequests ? new FirestoreStoreLimiter(database, logger, dp) : database;
+    this.logger = logger;
+    this.dateProvider = dp;
   }
 
   /* ============= */
@@ -76,8 +83,9 @@ export class Database implements DatabaseType {
   /* ========================= */
 
   public async getOpenDataLastVehicleAngleUpdateLocations(): Promise<VehicleIdToLocation | undefined> {
-    const result = await this.database.getOpenDataLastVehicleAngleUpdateLocations();
-    return result?.data;
+    this.logger.info(`[Open data] Getting last vehicle angle update locations.`);
+    const document = await this.database.getOpenDataLastVehicleAngleUpdateLocations();
+    return document?.data;
   }
 
   public async saveOpenDataLastVehicleAngleUpdateLocations(locations: VehicleIdToLocation) {
@@ -86,6 +94,7 @@ export class Database implements DatabaseType {
   }
 
   public async getMpkLastVehicleAngleUpdateLocations(): Promise<VehicleIdToLocation | undefined> {
+    this.logger.info(`[Mpk] Getting last vehicle angle update locations.`);
     const result = await this.database.getMpkLastVehicleAngleUpdateLocations();
     return result?.data;
   }

@@ -1,11 +1,12 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
+import { AngleCalculator } from './AngleCalculator';
 import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
 // Parent dir
+import { LineLocationsAggregator } from '../helpers';
 import { VehicleLocationsDatabaseType } from '../database';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineLocationsAggregator } from '../helpers';
 import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
 
 /**
@@ -15,12 +16,12 @@ import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierT
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly database: VehicleLocationsDatabaseType;
+  private readonly database: VehicleLocationsDatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
 
-  constructor(
+  public constructor(
     api: ApiType,
     database: VehicleLocationsDatabaseType,
     errorReporter: ErrorReporterType,
@@ -29,11 +30,11 @@ export class VehicleProvider implements VehicleProviderType {
     this.api = api;
     this.database = database;
     this.errorReporter = errorReporter;
-    this.angleCalculator = new AngleCalculator();
+    this.angleCalculator = new AngleCalculator(database);
     this.hasMovedInLastFewMinutesClassifier = hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
   }
 
-  async getVehicleLocations(): Promise<VehicleLocations> {
+  public async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
 
     const response = await this.getVehicleLocationsFromApi();
@@ -71,7 +72,7 @@ export class VehicleProvider implements VehicleProviderType {
 
       // Technically we should reset 'angleCalculator' if the mpk provider was
       // not used in a while (like 30 min etc.).
-      const angle = this.angleCalculator.calculateAngle(vehicle);
+      const angle = await this.angleCalculator.calculateAngle(vehicle);
       const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
       lineLocationsAggregator.addVehicle(line, vehicleLocation);
     }
@@ -82,6 +83,7 @@ export class VehicleProvider implements VehicleProviderType {
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
+    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
     return { kind: 'Success', lineLocations };
   }
 

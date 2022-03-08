@@ -1,4 +1,8 @@
-import { AngleCalculator, minMovementToUpdateHeading } from '../AngleCalculator';
+import {
+  AngleCalculatorBase,
+  VehicleIdToLastAngleUpdateLocation,
+  minMovementToUpdateHeading
+} from '../AngleCalculatorBase';
 import { VehicleLocationFromApi } from '../../models';
 import { calculateDistanceInMeters } from '../../helpers';
 
@@ -16,7 +20,16 @@ function calculateDistanceInMetersForVehicles(
   return calculateDistanceInMeters(before.lat, before.lng, after.lat, after.lng);
 }
 
-describe('LineLocationsFactory', function () {
+class AngleCalculator extends AngleCalculatorBase {
+
+  public databaseVehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation = {};
+
+  public async getLastVehicleAngleUpdateLocationsFromDatabase(): Promise<VehicleIdToLastAngleUpdateLocation | undefined> {
+    return this.databaseVehicleIdToLastAngleUpdateLocation;
+  }
+}
+
+describe('AngleCalculatorBase', function () {
 
   it('has correct test values', function () {
     const big1 = calculateDistanceInMetersForVehicles(vehicle1Initial, vehicle1BigMove);
@@ -29,57 +42,71 @@ describe('LineLocationsFactory', function () {
     expect(small2).toBeLessThan(minMovementToUpdateHeading);
   });
 
-  it('should point north if no previous location is present', function () {
+  it('should point north if no previous location is present', async function () {
     const calculator = new AngleCalculator();
-    const result = calculator.calculateAngle(vehicle1Initial);
+    calculator.databaseVehicleIdToLastAngleUpdateLocation[vehicle1Initial.id] = undefined;
+    const result = await calculator.calculateAngle(vehicle1Initial);
     expect(result).toEqual(0.0);
   });
 
-  it('should calculate new heading if vehicle has moved', function () {
+  it('should calculate new heading if vehicle has moved', async function () {
     const calculator = new AngleCalculator();
 
-    const initial = calculator.calculateAngle(vehicle1Initial);
+    const initial = await calculator.calculateAngle(vehicle1Initial);
     expect(initial).toEqual(0.0);
 
-    const bigMove = calculator.calculateAngle(vehicle1BigMove);
+    const bigMove = await calculator.calculateAngle(vehicle1BigMove);
     expect(bigMove).toEqual(44.82097166321205);
   });
 
-  it('should use previous heading if vehicle has not moved (or moved a little)', function () {
+  it('should calculate new heading if vehicle has moved according to database', async function () {
     const calculator = new AngleCalculator();
 
-    const initial = calculator.calculateAngle(vehicle1Initial);
+    calculator.databaseVehicleIdToLastAngleUpdateLocation[vehicle1Initial.id] = {
+      lat: vehicle1Initial.lat,
+      lng: vehicle1Initial.lng,
+      angle: 1.0
+    };
+
+    const bigMove = await calculator.calculateAngle(vehicle1BigMove);
+    expect(bigMove).toEqual(44.82097166321205);
+  });
+
+  it('should use previous heading if vehicle has not moved (or moved a little)', async function () {
+    const calculator = new AngleCalculator();
+
+    const initial = await calculator.calculateAngle(vehicle1Initial);
     expect(initial).toEqual(0.0);
 
     // Big move to calculate angle
-    const bigMove = calculator.calculateAngle(vehicle1BigMove);
+    const bigMove = await calculator.calculateAngle(vehicle1BigMove);
     expect(bigMove).toEqual(44.82097166321205);
 
     // Small move that should not change angle << this is the real test!
-    const bigMoveThenSmall = calculator.calculateAngle(vehicle1BigMoveThenSmall);
+    const bigMoveThenSmall = await calculator.calculateAngle(vehicle1BigMoveThenSmall);
     expect(bigMoveThenSmall).toEqual(44.82097166321205);
   });
 
-  it('differentiates vehicles', function () {
+  it('differentiates vehicles', async function () {
     const calculator = new AngleCalculator();
 
     // Initial
-    const initial1 = calculator.calculateAngle(vehicle1Initial);
+    const initial1 = await calculator.calculateAngle(vehicle1Initial);
     expect(initial1).toEqual(0.0);
 
-    const initial2 = calculator.calculateAngle(vehicle2Initial);
+    const initial2 = await calculator.calculateAngle(vehicle2Initial);
     expect(initial2).toEqual(0.0);
 
     // Big move vehicle1 - angle changed
-    const bigMove1 = calculator.calculateAngle(vehicle1BigMove);
+    const bigMove1 = await calculator.calculateAngle(vehicle1BigMove);
     expect(bigMove1).toEqual(44.82097166321205);
 
     // Small move vehicle2 - angle not changed
-    const smallMove2 = calculator.calculateAngle(vehicle2SmallMove);
+    const smallMove2 = await calculator.calculateAngle(vehicle2SmallMove);
     expect(smallMove2).toEqual(0.0);
 
     // Small move vehicle1 - angle changed
-    const bigMoveThenSmall1 = calculator.calculateAngle(vehicle1BigMoveThenSmall);
+    const bigMoveThenSmall1 = await calculator.calculateAngle(vehicle1BigMoveThenSmall);
     expect(bigMoveThenSmall1).toEqual(44.82097166321205);
   });
 });

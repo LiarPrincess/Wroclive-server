@@ -1,11 +1,12 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
+import { AngleCalculator } from './AngleCalculator';
 import { ErrorReporterType } from './ErrorReporter';
 import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 // Parent dir
+import { LineLocationsAggregator } from '../helpers';
 import { VehicleLocationsDatabaseType } from '../database';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineLocationsAggregator } from '../helpers';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
 /**
@@ -15,12 +16,12 @@ import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classificat
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly database: VehicleLocationsDatabaseType;
+  private readonly database: VehicleLocationsDatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly vehicleClassifier: VehicleClassifierType;
 
-  constructor(
+  public constructor(
     api: ApiType,
     database: VehicleLocationsDatabaseType,
     errorReporter: ErrorReporterType,
@@ -30,10 +31,10 @@ export class VehicleProvider implements VehicleProviderType {
     this.database = database;
     this.errorReporter = errorReporter;
     this.vehicleClassifier = vehicleClassifier || new VehicleClassifier();
-    this.angleCalculator = new AngleCalculator();
+    this.angleCalculator = new AngleCalculator(database);
   }
 
-  async getVehicleLocations(): Promise<VehicleLocations> {
+  public async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
 
     const response = await this.getVehicleLocationsFromApi();
@@ -75,7 +76,7 @@ export class VehicleProvider implements VehicleProviderType {
 
       const isVisible = !isInDepot && isWithinScheduleTimeFrame;
       if (isVisible) {
-        const angle = this.angleCalculator.calculateAngle(vehicle);
+        const angle = await this.angleCalculator.calculateAngle(vehicle);
         const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
         lineLocationsAggregator.addVehicle(line, vehicleLocation);
       }
@@ -87,6 +88,7 @@ export class VehicleProvider implements VehicleProviderType {
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
+    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
     return { kind: 'Success', lineLocations };
   }
 

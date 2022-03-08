@@ -23,3 +23,4 @@ export {
   FirestorePushNotificationTokenDatabase
 } from './FirestorePushNotificationTokenDatabase';
 export { FirestoreDatabase } from './FirestoreDatabase';
+export { FakeFirestoreDatabase } from './FakeFirestoreDatabase';

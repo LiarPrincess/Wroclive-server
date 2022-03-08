@@ -1,6 +1,5 @@
 import { Stop, StopCollection } from './models';
 import { StopsControllerType } from './StopsControllerType';
-import { PredefinedStopsController } from './PredefinedStopsController';
 import { FirestoreStopsDatabase } from '../../cloud-platform';
 import { Logger } from '../../util';
 
@@ -15,10 +14,7 @@ export class FirestoreStopsController extends StopsControllerType {
 
     this.db = db;
     this.logger = logger;
-    this.stops = {
-      timestamp: this.createTimestamp(),
-      data: PredefinedStopsController.data
-    };
+    this.stops = { timestamp: this.createTimestamp(), data: [] };
   }
 
   getStops(): StopCollection {

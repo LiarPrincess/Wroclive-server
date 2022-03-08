@@ -1,3 +1,3 @@
-export * from './logger';
-export * from './environment-check';
-export * from './sleep';
+export { Logger, LoggerMock, createLogger, createConsoleLogger } from './logger';
+export { isLocal, isProduction } from './environment-check';
+export { sleep } from './sleep';

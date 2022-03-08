@@ -1,13 +1,7 @@
 import { Line } from '../models';
 import { FirestoreLinesController } from '../FirestoreLinesController';
-import { PredefinedLinesController } from '../PredefinedLinesController';
 import { FirestoreLinesDatabase, FirestoreAllLinesDocument } from '../../../cloud-platform';
-import { Logger } from '../../../util';
-
-class LoggerMock implements Logger {
-  info(message?: any, ...optionalParams: any[]): void { }
-  error(message?: any, ...optionalParams: any[]): void { }
-}
+import { LoggerMock } from '../../../util';
 
 const logger = new LoggerMock();
 
@@ -26,12 +20,12 @@ class FirestoreLinesDatabaseMock implements FirestoreLinesDatabase {
 
 describe('FirestoreLinesController', function () {
 
-  it('starts with dummy lines', function () {
+  it('starts with no lines', function () {
     const provider = new FirestoreLinesDatabaseMock();
     const controller = new FirestoreLinesController(provider, logger);
 
-    const lines = controller.getLines();
-    expect(lines.data).toEqual(PredefinedLinesController.data);
+    const result = controller.getLines();
+    expect(result.data).toEqual([]);
   });
 
   it('get lines from provider', async function () {
@@ -48,22 +42,30 @@ describe('FirestoreLinesController', function () {
     };
 
     await controller.updateLines();
-
-    const lines = controller.getLines();
-    expect(lines).toEqual(provider.lines);
+    const result = controller.getLines();
+    expect(result).toEqual(provider.lines);
   });
 
   it('avoids update if provider returned no lines', async function () {
     const provider = new FirestoreLinesDatabaseMock();
     const controller = new FirestoreLinesController(provider, logger);
 
-    provider.lines = {
-      timestamp: 'NEW_TIMESTAMPS',
-      data: []
-    };
+    const linesOk = [
+      new Line('Name1', 'Type1', 'Subtype1', undefined),
+      new Line('Name2', 'Type2', 'Subtype2', { min: 30, max: 45 }),
+      new Line('Name3', 'Type3', 'Subtype3', undefined),
+    ];
+
+    provider.lines = { timestamp: 'NEW_TIMESTAMP', data: linesOk };
 
     await controller.updateLines();
-    const lines = controller.getLines();
-    expect(lines.data).toEqual(PredefinedLinesController.data);
+    const resultOk = controller.getLines();
+    expect(resultOk).toEqual(provider.lines);
+
+    provider.lines = { timestamp: 'NEW_TIMESTAMPS', data: [] };
+
+    await controller.updateLines();
+    const resultFailed = controller.getLines();
+    expect(resultFailed.data).toEqual(linesOk);
   });
 });

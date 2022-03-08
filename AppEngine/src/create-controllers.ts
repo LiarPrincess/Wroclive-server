@@ -51,7 +51,10 @@ export function createControllers(logger: Logger): Controllers {
     stopsController = new FirestoreStopsController(db, logger);
     notificationsController = new FirestoreNotificationsController(db, logger);
     pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
-    vehicleLocationsDatabase = new VehicleLocationsDatabase(db);
+
+    // We don't want to store update, just some of them (performance/free GCP tier limits).
+    const limitStoreRequests = true;
+    vehicleLocationsDatabase = new VehicleLocationsDatabase(db, limitStoreRequests);
   }
 
   const vehicleLocationController = createVehicleLocationsController(vehicleLocationsDatabase, logger);

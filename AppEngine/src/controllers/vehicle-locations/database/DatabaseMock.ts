@@ -1,11 +1,11 @@
-import { VehicleLocationsDatabaseType, VehicleIdToLocation } from './VehicleLocationsDatabaseType';
+import { DatabaseType, VehicleIdToLocation } from './DatabaseType';
 import { LineCollection, Line, VehicleLocation } from '../models';
 
 interface LineByName {
   [key: string]: Line;
 }
 
-export class VehicleLocationsDatabaseMock implements VehicleLocationsDatabaseType {
+export class DatabaseMock implements DatabaseType {
 
   /* ============= */
   /* === Lines === */

@@ -10,6 +10,7 @@ import {
   FirestoreStopsDatabase
 } from './FirestoreStopsDatabase';
 import {
+  FirestoreVehicleLocation,
   FirestoreVehicleLocationsDocument,
   FirestoreVehicleLocationsDatabase
 } from './FirestoreVehicleLocationsDatabase';
@@ -92,7 +93,7 @@ export class FirestoreDatabase implements
   /* ========================= */
 
   private get vehicleLocationsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
-    return this.db.collection('VehicleLocations');
+    return this.db.collection('LastVehicleAngleUpdateLocations');
   }
 
   private get openDataVehicleLocationsDocumentRef(): fs.DocumentReference<any> {
@@ -103,19 +104,19 @@ export class FirestoreDatabase implements
     return this.vehicleLocationsCollectionRef.doc('MPK');
   }
 
-  public async getOpenDataVehicleLocations(): Promise<FirestoreVehicleLocationsDocument | undefined> {
+  public async getOpenDataLastVehicleAngleUpdateLocations(): Promise<FirestoreVehicleLocationsDocument | undefined> {
     return this.getVehicleLocations(this.openDataVehicleLocationsDocumentRef);
   }
 
-  public async saveOpenDataVehicleLocations(document: FirestoreVehicleLocationsDocument) {
+  public async saveOpenDataLastVehicleAngleUpdateLocations(document: FirestoreVehicleLocationsDocument) {
     await this.saveVehicleLocations(this.openDataVehicleLocationsDocumentRef, document);
   }
 
-  public async getMpkVehicleLocations(): Promise<FirestoreVehicleLocationsDocument | undefined> {
+  public async getMpkLastVehicleAngleUpdateLocations(): Promise<FirestoreVehicleLocationsDocument | undefined> {
     return this.getVehicleLocations(this.mpkVehicleLocationsDocumentRef);
   }
 
-  public async saveMpkVehicleLocations(document: FirestoreVehicleLocationsDocument) {
+  public async saveMpkLastVehicleAngleUpdateLocations(document: FirestoreVehicleLocationsDocument) {
     await this.saveVehicleLocations(this.mpkVehicleLocationsDocumentRef, document);
   }
 
@@ -134,8 +135,9 @@ export class FirestoreDatabase implements
     const data: any = {};
     for (const vehicleId in document.data) {
       if (Object.prototype.hasOwnProperty.call(document.data, vehicleId)) {
-        const location = document.data[vehicleId];
-        if (location !== undefined) {
+        const loc = document.data[vehicleId];
+        if (loc !== undefined) {
+          const location: FirestoreVehicleLocation = { lat: loc.lat, lng: loc.lng, angle: loc.angle };
           data[vehicleId] = location;
         }
       }

@@ -12,7 +12,7 @@ export interface VehicleIdToLocation {
   [key: string]: VehicleLocation | undefined;
 }
 
-export interface VehicleLocationsDatabaseType {
+export interface DatabaseType {
 
   /** Get a single line by its name. */
   getLineByName(name: string): Line;

@@ -1,6 +1,7 @@
 export interface FirestoreVehicleLocation {
   readonly lat: number;
   readonly lng: number;
+  readonly angle: number;
 }
 
 export interface FirestoreVehicleLocationsDocument {
@@ -11,9 +12,9 @@ export interface FirestoreVehicleLocationsDocument {
 }
 
 export interface FirestoreVehicleLocationsDatabase {
-  getOpenDataVehicleLocations(): Promise<FirestoreVehicleLocationsDocument | undefined>;
-  saveOpenDataVehicleLocations(document: FirestoreVehicleLocationsDocument): Promise<void>;
+  getOpenDataLastVehicleAngleUpdateLocations(): Promise<FirestoreVehicleLocationsDocument | undefined>;
+  saveOpenDataLastVehicleAngleUpdateLocations(document: FirestoreVehicleLocationsDocument): Promise<void>;
 
-  getMpkVehicleLocations(): Promise<FirestoreVehicleLocationsDocument | undefined>;
-  saveMpkVehicleLocations(document: FirestoreVehicleLocationsDocument): Promise<void>;
+  getMpkLastVehicleAngleUpdateLocations(): Promise<FirestoreVehicleLocationsDocument | undefined>;
+  saveMpkLastVehicleAngleUpdateLocations(document: FirestoreVehicleLocationsDocument): Promise<void>;
 }

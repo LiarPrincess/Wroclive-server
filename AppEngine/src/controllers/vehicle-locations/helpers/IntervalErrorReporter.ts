@@ -1,5 +1,5 @@
 import { Logger } from '../models';
-import { subtractMilliseconds } from '../math';
+import { subtractMilliseconds } from '../helpers';
 
 // For calculating intervals.
 export const second = 1000;

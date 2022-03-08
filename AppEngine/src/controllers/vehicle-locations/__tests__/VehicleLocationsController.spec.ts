@@ -11,7 +11,7 @@ import {
   VehicleLocationsController,
   timeForWhichToUsePreviousResultIfAllProvidersFailed
 } from '../VehicleLocationsController';
-import { subtractMilliseconds } from '../math';
+import { subtractMilliseconds } from '../helpers';
 import { Logger } from '../../../util';
 
 const lineA = new LineLocationLine('A', 'Bus', 'Express');

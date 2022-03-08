@@ -1,9 +1,8 @@
-import { subtractMilliseconds } from './math';
 import { MpkVehicleProviderType } from './mpk';
 import { OpenDataVehicleProviderType } from './open-data';
-import { IntervalErrorReporter, minute } from './helpers';
-import { LineCollection, LineLocation, LineLocationCollection } from './models';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
+import { IntervalErrorReporter, minute, subtractMilliseconds } from './helpers';
+import { LineCollection, LineLocation, LineLocationCollection } from './models';
 import { Logger } from '../../util';
 
 export const timeForWhichToUsePreviousResultIfAllProvidersFailed = 2 * minute;

@@ -5,7 +5,7 @@ import {
   movementCheckInterval,
   DepotClassifier
 } from '../DepotClassifier';
-import { calculateDistanceInMeters } from '../../math';
+import { calculateDistanceInMeters } from '../../helpers';
 import * as depotTestData from './depot-test-data';
 
 /* ============ */

@@ -1,6 +1,6 @@
 import { AngleCalculator, minMovementToUpdateHeading } from '../AngleCalculator';
 import { VehicleLocationFromApi } from '../../models';
-import { calculateDistanceInMeters } from '../../math';
+import { calculateDistanceInMeters } from '../../helpers';
 
 const vehicle1Initial = new VehicleLocationFromApi('1', 'LINE', 5.0, 5.0);
 const vehicle1BigMove = new VehicleLocationFromApi('1', 'LINE', 6.0, 6.0);

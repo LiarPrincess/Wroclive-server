@@ -1,5 +1,5 @@
 import { VehicleLocationFromApi } from '../models';
-import { calculateDistanceInMeters, calculateHeading } from '../math';
+import { calculateDistanceInMeters, calculateHeading } from '../helpers';
 
 /* ============== */
 /* === Config === */

@@ -9,7 +9,9 @@ import {
   PredefinedStopsController
 } from './controllers/stops';
 import {
-  VehicleLocationsControllerType,
+  VehicleLocationsDatabaseType,
+  VehicleLocationsDatabase,
+  VehicleLocationsDatabaseMock,
   createVehicleLocationsController
 } from './controllers/vehicle-locations';
 import {
@@ -33,20 +35,26 @@ export function createControllers(logger: Logger): Controllers {
   let notificationsController: NotificationsControllerType;
   let pushNotificationTokenController: PushNotificationTokenControllerType;
 
+  // We are 'ok' with using open-data/mpk api locally,
+  // but we are not 'ok' with firestore (since it is a live system!).
+  let vehicleLocationsDatabase: VehicleLocationsDatabaseType;
+
   if (isLocal) {
     linesController = new PredefinedLinesController();
     stopsController = new PredefinedStopsController();
     notificationsController = new NoNotificationsController();
     pushNotificationTokenController = new LogPushNotificationTokenController(logger);
+    vehicleLocationsDatabase = new VehicleLocationsDatabaseMock();
   } else {
     const db = new FirestoreDatabase();
     linesController = new FirestoreLinesController(db, logger);
     stopsController = new FirestoreStopsController(db, logger);
     notificationsController = new FirestoreNotificationsController(db, logger);
     pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
+    vehicleLocationsDatabase = new VehicleLocationsDatabase(db);
   }
 
-  const vehicleLocationController: VehicleLocationsControllerType = createVehicleLocationsController(logger);
+  const vehicleLocationController = createVehicleLocationsController(vehicleLocationsDatabase, logger);
 
   return new Controllers(
     linesController,

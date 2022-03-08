@@ -1,6 +1,7 @@
 import { VehicleLocationsDatabaseType } from './VehicleLocationsDatabaseType';
 import { createLineFromName as createLineFromNameFn } from './createLineFromName';
 import { LineCollection, Line } from '../models';
+import { FirestoreVehicleLocationsDatabase } from '../../../cloud-platform';
 
 interface LineByName {
   [key: string]: Line | undefined;
@@ -8,9 +9,14 @@ interface LineByName {
 
 export class VehicleLocationsDatabase implements VehicleLocationsDatabaseType {
 
+  private readonly db: FirestoreVehicleLocationsDatabase;
   private linesByName: LineByName = {};
   private linesByNameTimestamp: string | undefined = undefined;
   private lineNamesLowercase: string[] = [];
+
+  public constructor(db: FirestoreVehicleLocationsDatabase) {
+    this.db = db;
+  }
 
   public updateLineDefinitions(lines: LineCollection) {
     const timestamp = lines.timestamp;

@@ -15,21 +15,21 @@ export {
   OpenDataVehicleProvider
 } from './open-data';
 export {
-  VehicleLocationsDatabase
+  VehicleLocationsDatabase,
+  VehicleLocationsDatabaseType,
+  VehicleLocationsDatabaseMock
 } from './database';
 export { VehicleLocationsController } from './VehicleLocationsController';
 export { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
 export { VehicleLocationsControllerMock } from './VehicleLocationsControllerMock';
 
+import { VehicleLocationsDatabaseType } from './database';
 import { VehicleLocationsController } from './VehicleLocationsController';
 import { MpkApi, MpkErrorReporter, MpkVehicleProvider } from './mpk';
 import { OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider } from './open-data';
-import { VehicleLocationsDatabase } from './database';
 import { Logger } from './models';
 
-export function createVehicleLocationsController(logger: Logger): VehicleLocationsController {
-  const database = new VehicleLocationsDatabase();
-
+export function createVehicleLocationsController(database: VehicleLocationsDatabaseType, logger: Logger): VehicleLocationsController {
   const openDataApi = new OpenDataApi();
   const openDataError = new OpenDataErrorReporter(logger);
   const openDataProvider = new OpenDataVehicleProvider(openDataApi, database, openDataError);

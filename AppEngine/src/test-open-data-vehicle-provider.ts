@@ -3,7 +3,7 @@ import {
   OpenDataApi,
   OpenDataErrorReporter,
   OpenDataVehicleProvider,
-  VehicleLocationsDatabase
+  VehicleLocationsDatabaseMock
 } from './controllers/vehicle-locations';
 import { createConsoleLogger } from './util';
 
@@ -12,7 +12,7 @@ const second = 1000;
 (async () => {
   try {
     const logger = createConsoleLogger();
-    const database = new VehicleLocationsDatabase();
+    const database = new VehicleLocationsDatabaseMock();
 
     const api = new OpenDataApi();
     const errorReporter = new OpenDataErrorReporter(logger);

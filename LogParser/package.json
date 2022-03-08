@@ -1,0 +1,16 @@
+{
+  "name": "wroclive-log-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "NoPoint",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^12.6.0",
+    "typescript": "^3.9.7"
+  }
+}

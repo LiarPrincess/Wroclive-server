@@ -1,7 +1,7 @@
 import * as mocks from './Mocks';
 import { ApiError, ApiResult } from '../ApiType';
 import { VehicleProvider } from '../VehicleProvider';
-import { VehicleLocationsDatabaseMock } from '../../database';
+import { DatabaseMock } from '../../database';
 import { VehicleLocation, Line, LineCollection, LineLocationLine, VehicleLocationFromApi, LineLocation } from '../../models';
 
 const lineA = new Line('A', 'Bus', 'Express');
@@ -21,7 +21,7 @@ const vehicle_line4_1_with0Angle = new VehicleLocation('41', 13, 17, 0);
 
 function createProvider() {
   const api = new mocks.Api();
-  const database = new VehicleLocationsDatabaseMock();
+  const database = new DatabaseMock();
   const errorReporter = new mocks.ErrorReporter();
   const hasMovedInLastFewMinutes = new mocks.HasMovedInLastFewMinutesClassifier();
 

@@ -1,11 +1,11 @@
 import { LineLocationCollection } from './models';
-import { VehicleLocationsDatabaseType } from './database';
+import { DatabaseType } from './database';
 
 export abstract class VehicleLocationsControllerType {
 
-  public readonly database: VehicleLocationsDatabaseType;
+  public readonly database: DatabaseType;
 
-  public constructor(database: VehicleLocationsDatabaseType) {
+  public constructor(database: DatabaseType) {
     this.database = database;
   }
 

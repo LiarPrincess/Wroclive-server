@@ -1,10 +1,10 @@
-import { VehicleLocationsDatabaseType } from '../database';
+import { DatabaseType } from '../database';
 import { AngleCalculatorBase, VehicleIdToLastAngleUpdateLocation } from '../helpers';
 
 export class AngleCalculator extends AngleCalculatorBase {
 
   public constructor(
-    private readonly database: VehicleLocationsDatabaseType
+    private readonly database: DatabaseType
   ) {
     super();
   }

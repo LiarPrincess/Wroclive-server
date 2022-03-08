@@ -4,8 +4,8 @@ import { AngleCalculator } from './AngleCalculator';
 import { ErrorReporterType } from './ErrorReporter';
 import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 // Parent dir
+import { DatabaseType } from '../database';
 import { LineLocationsAggregator } from '../helpers';
-import { VehicleLocationsDatabaseType } from '../database';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
@@ -16,14 +16,14 @@ import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classificat
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  private readonly database: VehicleLocationsDatabaseType;
+  private readonly database: DatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly vehicleClassifier: VehicleClassifierType;
 
   public constructor(
     api: ApiType,
-    database: VehicleLocationsDatabaseType,
+    database: DatabaseType,
     errorReporter: ErrorReporterType,
     vehicleClassifier?: VehicleClassifierType
   ) {

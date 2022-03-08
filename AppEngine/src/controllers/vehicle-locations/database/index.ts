@@ -1,3 +1,3 @@
-export { VehicleLocationsDatabase } from './VehicleLocationsDatabase';
-export { VehicleLocationsDatabaseType } from './VehicleLocationsDatabaseType';
-export { VehicleLocationsDatabaseMock } from './VehicleLocationsDatabaseMock';
+export { Database } from './Database';
+export { DatabaseType } from './DatabaseType';
+export { DatabaseMock } from './DatabaseMock';

@@ -32,7 +32,7 @@ const dateAfterPeriod = '2020-01-01 10:03:01';
 const dateAfterPeriodTimestamp = '2020-01-01T09:03:01.000Z';
 
 function createController() {
-  const database = new mocks.VehicleLocationsDatabaseMock();
+  const database = new mocks.DatabaseMock();
   database.updateLineDefinitions(new LineCollection('TIMESTAMP', [
     new Line(lineA.name, lineA.type, lineA.subtype),
     new Line(line4.name, line4.type, line4.subtype),

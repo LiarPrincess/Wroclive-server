@@ -1,7 +1,7 @@
+import { DatabaseType } from './database';
 import { MpkVehicleProviderType } from './mpk';
 import { OpenDataVehicleProviderType } from './open-data';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-import { VehicleLocationsDatabaseType } from './database';
 import { IntervalErrorReporter, minute, subtractMilliseconds } from './helpers';
 import { Logger, LineLocation, LineLocationCollection } from './models';
 
@@ -42,7 +42,7 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
   private state: State;
 
   public constructor(
-    database: VehicleLocationsDatabaseType,
+    database: DatabaseType,
     openDataProvider: OpenDataVehicleProviderType,
     mpkProvider: MpkVehicleProviderType,
     logger: Logger,

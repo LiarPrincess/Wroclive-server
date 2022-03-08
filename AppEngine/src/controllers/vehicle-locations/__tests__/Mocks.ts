@@ -2,7 +2,7 @@ import { Logger } from '../../../util';
 
 export { MpkVehicleProviderMock } from '../mpk';
 export { OpenDataVehicleProviderMock } from '../open-data';
-export { VehicleLocationsDatabaseMock } from '../database';
+export { DatabaseMock } from '../database';
 
 export class LoggerMock implements Logger {
   info(message?: any, ...optionalParams: any[]): void { }

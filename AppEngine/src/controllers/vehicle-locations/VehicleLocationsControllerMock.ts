@@ -1,11 +1,11 @@
 import { LineLocationCollection } from './models';
 import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-import { VehicleLocationsDatabaseMock } from './database';
+import { DatabaseMock } from './database';
 
 export class VehicleLocationsControllerMock extends VehicleLocationsControllerType {
 
   constructor() {
-    super(new VehicleLocationsDatabaseMock());
+    super(new DatabaseMock());
   }
 
   data = new LineLocationCollection('', []);

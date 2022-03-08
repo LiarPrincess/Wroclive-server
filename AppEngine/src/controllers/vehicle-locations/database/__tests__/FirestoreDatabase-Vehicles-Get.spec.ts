@@ -1,7 +1,7 @@
-import { Database } from '../Database';
+import { FirestoreDatabase } from '../FirestoreDatabase';
 import { FirestoreDatabaseMock, LoggerMock } from './Mocks';
 
-let date: Date = new Date(0);
+const date: Date = new Date(0);
 
 function getDateMock(): Date {
   return date;
@@ -10,11 +10,11 @@ function getDateMock(): Date {
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
   const logger = new LoggerMock();
-  const database = new Database(firestore, logger, false, getDateMock);
+  const database = new FirestoreDatabase(firestore, false, logger, getDateMock);
   return { firestore, database };
 }
 
-describe('VehicleLocationsDatabase-Vehicles', function () {
+describe('VehicleLocationsDatabase-Vehicles-Get', function () {
 
   /* ================= */
   /* === Open data === */
@@ -45,23 +45,6 @@ describe('VehicleLocationsDatabase-Vehicles', function () {
     expect(result).toBeUndefined();
   });
 
-  it('[Open data] stores data in database', async function () {
-    const { firestore, database } = createDatabase();
-
-    date = new Date(12345679012345);
-    const data = {
-      'id1': { lat: 3, lng: 5, angle: 7 },
-      'id2': { lat: 11, lng: 13, angle: 17 }
-    };
-
-    await database.saveOpenDataLastVehicleAngleUpdateLocations(data);
-    expect(firestore.saveOpenDataDocumentCallCount).toEqual(1);
-    expect(firestore.openDataDocument).toEqual({
-      timestamp: '2361-03-21T19:16:52.345Z',
-      data
-    });
-  });
-
   /* =========== */
   /* === Mpk === */
   /* =========== */
@@ -89,22 +72,5 @@ describe('VehicleLocationsDatabase-Vehicles', function () {
     const result = await database.getMpkLastVehicleAngleUpdateLocations();
     expect(firestore.getMpkDocumentCallCount).toEqual(1);
     expect(result).toBeUndefined();
-  });
-
-  it('[Mpk] stores data in database', async function () {
-    const { firestore, database } = createDatabase();
-
-    date = new Date(12345679012345);
-    const data = {
-      'id1': { lat: 3, lng: 5, angle: 7 },
-      'id2': { lat: 11, lng: 13, angle: 17 }
-    };
-
-    await database.saveMpkLastVehicleAngleUpdateLocations(data);
-    expect(firestore.saveMpkDocumentCallCount).toEqual(1);
-    expect(firestore.mpkDocument).toEqual({
-      timestamp: '2361-03-21T19:16:52.345Z',
-      data
-    });
   });
 });

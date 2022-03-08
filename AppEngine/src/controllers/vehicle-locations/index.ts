@@ -15,7 +15,7 @@ export {
   OpenDataVehicleProvider
 } from './open-data';
 export {
-  Database as VehicleLocationsDatabase,
+  FirestoreDatabase as VehicleLocationsDatabase,
   DatabaseType as VehicleLocationsDatabaseType,
   DatabaseMock as VehicleLocationsDatabaseMock
 } from './database';
@@ -23,13 +23,21 @@ export { VehicleLocationsController } from './VehicleLocationsController';
 export { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
 export { VehicleLocationsControllerMock } from './VehicleLocationsControllerMock';
 
-import { DatabaseType } from './database';
-import { VehicleLocationsController } from './VehicleLocationsController';
+import { FirestoreDatabase } from './database';
 import { MpkApi, MpkErrorReporter, MpkVehicleProvider } from './mpk';
 import { OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider } from './open-data';
-import { Logger } from './models';
+import { VehicleLocationsController } from './VehicleLocationsController';
+import { Logger } from '../../util';
+import { FirestoreVehicleLocationsDatabase } from '../../cloud-platform';
 
-export function createVehicleLocationsController(database: DatabaseType, logger: Logger): VehicleLocationsController {
+/** Factory function, since the assembly is a bit complicated. */
+export function createVehicleLocationsController(
+  firestore: FirestoreVehicleLocationsDatabase,
+  limitStoreRequests: boolean,
+  logger: Logger
+): VehicleLocationsController {
+  const database = new FirestoreDatabase(firestore, limitStoreRequests, logger);
+
   const openDataApi = new OpenDataApi();
   const openDataError = new OpenDataErrorReporter(logger);
   const openDataProvider = new OpenDataVehicleProvider(openDataApi, database, openDataError);

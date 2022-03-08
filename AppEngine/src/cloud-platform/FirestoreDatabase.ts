@@ -1,52 +1,28 @@
 import * as fs from '@google-cloud/firestore';
 
 import { CloudPlatform } from './CloudPlatform';
+import {
+  FirestoreAllLinesDocument,
+  FirestoreLinesDatabase
+} from './FirestoreLinesDatabase';
+import {
+  FirestoreAllStopsDocument,
+  FirestoreStopsDatabase
+} from './FirestoreStopsDatabase';
+import {
+  FirestorePushNotificationToken,
+  FirestorePushNotificationTokenDatabase
+} from './FirestorePushNotificationTokenDatabase';
+import {
+  FirestoreAllNotificationsDocument,
+  FirestoreNotificationDatabase
+} from './FirestoreNotificationDatabase';
 
-/* ============= */
-/* === Types === */
-/* ============= */
-
-export interface FirestoreLine {
-  readonly name: string;
-  readonly type: string;
-  readonly subtype: string;
-  /**
-   * First and last appearance of this line in schedule
-   * (as number of minutes since midnight).
-   *
-   * One day has 1440 minutes, if the time is >1440 then it means next day.
-   *
-   * Example:
-   * Line |  Min |  Max | Comment
-   * -----+------+------+----------------------------------------------------
-   *   0L |  287 | 1400 | Daily line that starts and finishes at the same day
-   *    4 |  242 | 1450 | Daily line that finishes after midnight
-   *  240 | 1400 | 1720 | Night line that starts during the day
-   *  206 | 1456 | 1738 | Night line that starts after midnight
-   */
-  readonly stopArrivalTimes?: { min: number, max: number };
-}
-
-export interface FirestoreStop {
-  readonly code: string;
-  readonly name: string;
-  readonly lat: number;
-  readonly lng: number;
-}
-
-export interface Timestamped<T> {
-  readonly timestamp: string;
-  readonly data: T;
-}
-
-export type FirestoreAllLinesDocument = Timestamped<FirestoreLine[]>;
-export type FirestoreAllStopsDocument = Timestamped<FirestoreStop[]>;
-
-/* ================ */
-/* === Database === */
-/* ================ */
-
-export class FirestoreDatabase {
+export class FirestoreDatabase implements
+  FirestoreLinesDatabase,
+  FirestoreStopsDatabase,
+  FirestoreNotificationDatabase,
+  FirestorePushNotificationTokenDatabase {
 
   private db: fs.Firestore;
 
@@ -62,9 +38,9 @@ export class FirestoreDatabase {
     });
   }
 
-  /* ----- */
-  /* Lines */
-  /* ----- */
+  /* ============= */
+  /* === Lines === */
+  /* ============= */
 
   private get linesCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Lines');
@@ -74,19 +50,19 @@ export class FirestoreDatabase {
     return this.linesCollectionRef.doc('all');
   }
 
-  async getAllLines(): Promise<FirestoreAllLinesDocument> {
+  async getAllLines(): Promise<FirestoreAllLinesDocument | undefined> {
     const doc = await this.allLinesDocumentRef.get();
-    const data = doc.data() as FirestoreAllLinesDocument;
+    const data = doc.data() as FirestoreAllLinesDocument | undefined;
     return data;
   }
 
-  async saveAllLines(document: FirestoreAllLinesDocument): Promise<void> {
+  async saveAllLines(document: FirestoreAllLinesDocument) {
     await this.allLinesDocumentRef.set(document);
   }
 
-  /* ----- */
-  /* Stops */
-  /* ----- */
+  /* ============= */
+  /* === Stops === */
+  /* ============= */
 
   private get stopsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
     return this.db.collection('Stops');
@@ -96,13 +72,55 @@ export class FirestoreDatabase {
     return this.stopsCollectionRef.doc('all');
   }
 
-  async getAllStops(): Promise<FirestoreAllStopsDocument> {
+  async getAllStops(): Promise<FirestoreAllStopsDocument | undefined> {
     const doc = await this.allStopsDocumentRef.get();
-    const data = doc.data() as FirestoreAllStopsDocument;
+    const data = doc.data() as FirestoreAllStopsDocument | undefined;
     return data;
   }
 
-  async saveAllStops(document: FirestoreAllStopsDocument): Promise<void> {
+  async saveAllStops(document: FirestoreAllStopsDocument) {
     await this.allStopsDocumentRef.set(document);
+  }
+
+  /* ===================== */
+  /* === Notifications === */
+  /* ===================== */
+
+  private get notificationsCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('Notifications');
+  }
+
+  private get allNotificationsDocumentRef(): fs.DocumentReference<any> {
+    return this.notificationsCollectionRef.doc('all');
+  }
+
+  public async getNotifications(): Promise<FirestoreAllNotificationsDocument | undefined> {
+    const doc = await this.allNotificationsDocumentRef.get();
+    const data = doc.data() as FirestoreAllNotificationsDocument | undefined;
+    return data;
+  }
+
+  /* ====================================== */
+  /* === Apple push notification tokens === */
+  /* ====================================== */
+
+  private get applePushNotificationTokensCollectionRef(): fs.CollectionReference<fs.DocumentData> {
+    return this.db.collection('PushNotificationTokensApple');
+  }
+
+  public async saveApplePushNotificationToken(token: FirestorePushNotificationToken) {
+    // Firestore doesn't support JavaScript objects with custom prototypes
+    // (i.e. objects that were created via the "new" operator).
+    //
+    // Solution: we have to create a new object.
+    const firestoreToken: FirestorePushNotificationToken = {
+      deviceId: token.deviceId,
+      token: token.token,
+      createdAt: token.createdAt
+    };
+
+    const deviceId = firestoreToken.deviceId;
+    const documentRef = this.applePushNotificationTokensCollectionRef.doc(deviceId);
+    await documentRef.set(firestoreToken);
   }
 }

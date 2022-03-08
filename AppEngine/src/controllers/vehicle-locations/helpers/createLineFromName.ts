@@ -11,7 +11,12 @@ export function createLineFromName(name: string): Line {
   // Does it start with a number?
   const number = Number.parseInt(name);
   if (!Number.isNaN(number)) {
-    // Examples: 4, 5, 31, 33, 70, 71
+    // Examples: 70, 71
+    if (70 <= number && number < 80) {
+      return createLine('Tram', 'Temporary');
+    }
+
+    // Examples: 4, 5, 31, 33
     if (number < 100) {
       return createLine('Tram', 'Regular');
     }

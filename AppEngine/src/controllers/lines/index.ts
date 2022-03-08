@@ -1,4 +1,5 @@
 export { Line, LineCollection } from './models';
-export { LinesController } from './LinesController';
-export { DummyLinesController } from './DummyLinesController';
+export { LinesControllerType } from './LinesControllerType';
+export { LinesControllerMock } from './LinesControllerMock';
+export { PredefinedLinesController } from './PredefinedLinesController';
 export { FirestoreLinesController } from './FirestoreLinesController';

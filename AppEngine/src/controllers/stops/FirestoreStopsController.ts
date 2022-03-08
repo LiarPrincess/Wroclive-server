@@ -1,24 +1,23 @@
 import { Stop, StopCollection } from './models';
-import { StopsController } from './StopsController';
-import { DummyStopsController } from './DummyStopsController';
-import { FirestoreAllStopsDocument } from '../../cloud-platform';
+import { StopsControllerType } from './StopsControllerType';
+import { PredefinedStopsController } from './PredefinedStopsController';
+import { FirestoreStopsDatabase } from '../../cloud-platform';
+import { Logger } from '../../util';
 
-export interface FirestoreStopsProvider {
-  getAllStops(): Promise<FirestoreAllStopsDocument>;
-}
+export class FirestoreStopsController extends StopsControllerType {
 
-export class FirestoreStopsController extends StopsController {
-
-  private db: FirestoreStopsProvider;
+  private readonly db: FirestoreStopsDatabase;
+  private readonly logger: Logger;
   private stops: StopCollection;
 
-  constructor(db: FirestoreStopsProvider) {
+  constructor(db: FirestoreStopsDatabase, logger: Logger) {
     super();
 
     this.db = db;
+    this.logger = logger;
     this.stops = {
       timestamp: this.createTimestamp(),
-      data: DummyStopsController.data
+      data: PredefinedStopsController.data
     };
   }
 
@@ -28,6 +27,11 @@ export class FirestoreStopsController extends StopsController {
 
   async updateStops(): Promise<void> {
     const dbStops = await this.db.getAllStops();
+
+    if (dbStops === undefined) {
+      this.logger.error('[StopsController] No stops in firestore database?');
+      return;
+    }
 
     // If the response doesn't contain any stops, then leave 'this.stops' without changes:
     // - If every response we got was error then use 'DummyStopsController.data' set in 'constructor'

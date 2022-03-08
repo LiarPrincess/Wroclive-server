@@ -1,12 +1,17 @@
 import { Stop } from '../models';
-import { DummyStopsController } from '../DummyStopsController';
-import { FirestoreAllStopsDocument } from '../../../cloud-platform';
-import {
-  FirestoreStopsController,
-  FirestoreStopsProvider
-} from '../FirestoreStopsController';
+import { FirestoreStopsController } from '../FirestoreStopsController';
+import { PredefinedStopsController } from '../PredefinedStopsController';
+import { FirestoreStopsDatabase, FirestoreAllStopsDocument } from '../../../cloud-platform';
+import { Logger } from '../../../util';
 
-class FakeFirestoreStopsProvider implements FirestoreStopsProvider {
+class LoggerMock implements Logger {
+  info(message?: any, ...optionalParams: any[]): void { }
+  error(message?: any, ...optionalParams: any[]): void { }
+}
+
+const logger = new LoggerMock();
+
+class FirestoreStopsDatabaseMock implements FirestoreStopsDatabase {
 
   stops: FirestoreAllStopsDocument;
 
@@ -22,16 +27,16 @@ class FakeFirestoreStopsProvider implements FirestoreStopsProvider {
 describe('FirestoreStopsController', function () {
 
   it('starts with dummy stops', function () {
-    const provider = new FakeFirestoreStopsProvider();
-    const controller = new FirestoreStopsController(provider);
+    const provider = new FirestoreStopsDatabaseMock();
+    const controller = new FirestoreStopsController(provider, logger);
 
     const stops = controller.getStops();
-    expect(stops.data).toEqual(DummyStopsController.data);
+    expect(stops.data).toEqual(PredefinedStopsController.data);
   });
 
   it('get stops from provider', async function () {
-    const provider = new FakeFirestoreStopsProvider();
-    const controller = new FirestoreStopsController(provider);
+    const provider = new FirestoreStopsDatabaseMock();
+    const controller = new FirestoreStopsController(provider, logger);
 
     provider.stops = {
       timestamp: 'NEW_TIMESTAMP',
@@ -49,8 +54,8 @@ describe('FirestoreStopsController', function () {
   });
 
   it('avoids update if provider returned no stops', async function () {
-    const provider = new FakeFirestoreStopsProvider();
-    const controller = new FirestoreStopsController(provider);
+    const provider = new FirestoreStopsDatabaseMock();
+    const controller = new FirestoreStopsController(provider, logger);
 
     provider.stops = {
       timestamp: 'NEW_TIMESTAMPS',
@@ -59,6 +64,6 @@ describe('FirestoreStopsController', function () {
 
     await controller.updateStops();
     const stops = controller.getStops();
-    expect(stops.data).toEqual(DummyStopsController.data);
+    expect(stops.data).toEqual(PredefinedStopsController.data);
   });
 });

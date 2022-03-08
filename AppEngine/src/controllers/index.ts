@@ -1,13 +1,15 @@
-import { LinesController } from './lines';
-import { StopsController } from './stops';
+import { LinesControllerType } from './lines';
+import { StopsControllerType } from './stops';
 import { VehicleLocationsControllerType } from './vehicle-locations';
+import { PushNotificationTokenControllerType } from './push-notification-token';
+import { NotificationsControllerType } from './notifications';
 
-export { LinesController } from './lines';
-export { StopsController } from './stops';
-export { VehicleLocationsControllerType } from './vehicle-locations';
-
-export interface Controllers {
-  readonly lines: LinesController;
-  readonly stops: StopsController;
-  readonly vehicleLocation: VehicleLocationsControllerType;
+export class Controllers {
+  constructor(
+    public readonly lines: LinesControllerType,
+    public readonly stops: StopsControllerType,
+    public readonly vehicleLocation: VehicleLocationsControllerType,
+    public readonly notifications: NotificationsControllerType,
+    public readonly pushNotificationToken: PushNotificationTokenControllerType
+  ) { }
 }

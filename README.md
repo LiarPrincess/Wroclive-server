@@ -14,30 +14,56 @@ Anyway, this is how it works:
 
 ![GCP scheme](./Assets/GCP.svg)
 
+And this is the push notification pipeline:
+
+![GCP notification scheme](./Assets/GCP-notifications.svg)
+
 [App Engine](https://cloud.google.com/appengine)
 - Handles all traffic to [wroclive.app](https://wroclive.app/) and [wroclive.app/api](https://wroclive.app/api)
 - Runs code from [AppEngine](AppEngine) directory
 - Every 1h it fetches MPK data (for example available lines and stop locations) from `Firestore`
 - Every 5 seconds it fetches new vehicle locations from [wroclaw.pl/open-data](https://www.wroclaw.pl/open-data/)
-- If you want to deploy it yourself (`make deploy`), then remember to put `GCP-Credentials.json` for `app-engine-firestore-reader` service account in [AppEngine directory](AppEngine)
+- If you want to deploy it yourself (`make deploy`), then remember to put `GCP-Credentials.json` for `app-engine-firestore` service account in [AppEngine directory](AppEngine)
 
 [Firestore](https://cloud.google.com/firestore)
-- Stores persistent data (for example available lines and stop locations)
-- Filled by `Compute Engine`
+- Stores persistent data:
+  - lines - filled by `ComputeEngine-Updater`
+  - stops - filled by `ComputeEngine-Updater`
+  - notifications - filled by `ComputeEngine-Notifications`
+  - push notification tokens - filled by `AppEngine`
+  - send push notifications - filled by `ComputeEngine-Notifications`
 
 [Compute Engine](https://cloud.google.com/compute)
 - Single instance named `backend`
-- Responsible for updating `Firestore` with latest [GTFS](https://developers.google.com/transit/gtfs) data downloaded from [wroclaw.pl/open-data](https://www.wroclaw.pl/open-data/)
+- Startup script: `/home/USERNAME/on-vm-startup.sh`
 - Runs code from following directories:
+  - [ComputeEngine](ComputeEngine)
+    - Manage `ComputeEngine` instance (installations, updates etc.)
+    - Update flow:
+      - `make package` to create `.zip` package with all of the `ComputeEngine` modules
+      - `make upload` to send package to `GCP`
+      - `make connect` to log into `GCP`
+      - (on VM) `install-package.sh`
+      - `exit`
+      - `make restart` to restart VM (if needed)
   - [ComputeEngine-Updater](ComputeEngine-Updater)
-    - Simple app that downloads GTFS file and upload it to `Firestore`
+    - Simple app that downloads [GTFS](https://developers.google.com/transit/gtfs) file from [wroclaw.pl/open-data](https://www.wroclaw.pl/open-data/) and upload it to `Firestore`
     - Uses [sqlite.org](https://www.sqlite.org/index.html) for intermediate processing
-    - Before installing remember to put `GCP-Credentials.json` for `compute-engine-firestore-writer` service account in [ComputeEngine-Updater directory](ComputeEngine-Updater)
+    - Before installing remember to put `GCP-Credentials.json` for `compute-engine-firestore` service account in [ComputeEngine-Updater directory](ComputeEngine-Updater)
   - [ComputeEngine-PubSub](ComputeEngine-PubSub)
     - `Pub/Sub` subscriber
     - After receiving `backend-update-gtfs-data` message runs `ComputeEngine-Updater`
     - Starts when the `Compute Engine` instance starts
     - Before installing remember to put `GCP-Credentials.json` for `pubsub` service account in [ComputeEngine-PubSub directory](ComputeEngine-PubSub)
+  - [ComputeEngine-Notifications](ComputeEngine-Notifications)
+    - Gets latest tweets from [@AlertMPK](https://twitter.com/AlertMPK) and sends them as push notifications
+    - Stores notifications in `Firestore`
+    - Starts when the `Compute Engine` instance starts
+    - Before installing remember to put following in [ComputeEngine-Notifications](ComputeEngine-Notifications) directory:
+      - `GCP-Credentials.json` for `compute-engine-firestore` service account
+      - `Twitter-Credentials.json` - see `Twitter-Credentials-example.json` for details
+      - `APN-Key.p8` - key for Apple Push Notification service
+      - `APN-Credentials.json` - see `APN-Credentials-example.json` for details
 
 [Cloud Functions](https://cloud.google.com/functions)
 - Runs code from [CloudFunctions](CloudFunctions) directory
@@ -54,9 +80,9 @@ Anyway, this is how it works:
 - `backend-update-gtfs-data`
 
 [Cloud Scheduler](https://cloud.google.com/scheduler)
-- Every day at 1am (`0 1 * * *`): publish `backend-stop` message on `Pub/Sub`
-- Every day at 5am (`0 5 * * *`): publish `backend-start` message on `Pub/Sub`
-- Every day at 3am (`0 3 * * *`): publish `backend-update-gtfs-data` message on `Pub/Sub`
+- Every day at 1am (`0 3 * * *`): publish `backend-stop` message on `Pub/Sub`
+- Every day at 5am (`15 3 * * *`): publish `backend-start` message on `Pub/Sub`
+- Every day at 3am (`30 3 * * *`): publish `backend-update-gtfs-data` message on `Pub/Sub`
 
 [IAM & Admin](https://cloud.google.com/iam) - following service accounts are used:
 
@@ -64,13 +90,13 @@ Anyway, this is how it works:
   - automatically created by `App Engine`
   - no configuration needed
 
-- `app-engine-firestore-reader` - account used by `App Engine` to read data from `Firestore`
-  - Role: Viewer
+- `app-engine-firestore` - account used by `App Engine` to read/write data in `Firestore`
+  - Role: Viewer, Editor
   - Key should be exported and placed in [AppEngine](AppEngine)
 
-- `compute-engine-firestore-writer` - account used in `ComputeEngine-Updater` to write data to `Firestore`
+- `compute-engine-firestore` - account used in `ComputeEngine-Updater` and `ComputeEngine-Notifications` to read/write data in `Firestore`
   - Role: Owner
-  - Key should be exported and placed in [ComputeEngine-Updater](ComputeEngine-Updater)
+  - Key should be exported and placed in [ComputeEngine-Updater](ComputeEngine-Updater) and [ComputeEngine-Notifications](ComputeEngine-Notifications)
 
 - `pubsub` - account used for creating subscriptions in `ComputeEngine-PubSub`
   - Roles: Editor, Pub/Sub Publisher, Pub/Sub Subscriber
@@ -89,9 +115,11 @@ Anyway, this is how it works:
 
 [Cloud Logging](https://cloud.google.com/logging)
 - We use [winstonjs/winston](https://github.com/winstonjs/winston) with `@google-cloud/logging-winston` backend
-- Add following filer:
-  - Name: `App Engine life cycle`
-  - Query: `resource.type="gae_app" AND (textPayload=~"(Starting app|Quitting on terminated signal)$" OR protoPayload.methodName="google.appengine.v1.Versions.CreateVersion")`
+- Add following filers:
+  - App Engine life cycle
+    - Query: `resource.type="gae_app" AND (textPayload=~"(Starting app|Quitting on terminated signal)$" OR protoPayload.methodName="google.appengine.v1.Versions.CreateVersion")`
+  - Api by user agent
+    - Query: `protoPayload.userAgent =~ "Wroclive.*"`
 
 [Error reporting](https://cloud.google.com/error-reporting) - standard reporting by mail
 

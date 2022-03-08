@@ -1,9 +1,7 @@
-import {
-  LinesController,
-  StopsController,
-  VehicleLocationsControllerType,
-  Controllers
-} from './controllers';
+import { Controllers } from './controllers';
+import { LinesControllerType } from './controllers/lines';
+import { StopsControllerType } from './controllers/stops';
+import { VehicleLocationsControllerType } from './controllers/vehicle-locations';
 import { Logger } from './util';
 
 const second = 1000;
@@ -22,7 +20,7 @@ export function startDataUpdateLoops(controllers: Controllers, logger: Logger) {
 
 const linesUpdateInterval = 1 * hour;
 
-function startUpdatingLines(controller: LinesController, logger: Logger) {
+function startUpdatingLines(controller: LinesControllerType, logger: Logger) {
   async function update() {
     try {
       await controller.updateLines();
@@ -42,7 +40,7 @@ function startUpdatingLines(controller: LinesController, logger: Logger) {
 
 const stopsUpdateInterval = 1 * hour;
 
-function startUpdatingStops(controller: StopsController, logger: Logger) {
+function startUpdatingStops(controller: StopsControllerType, logger: Logger) {
   async function update() {
     try {
       await controller.updateStops();

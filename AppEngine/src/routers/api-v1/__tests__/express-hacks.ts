@@ -1,22 +1,17 @@
 import { Router, NextFunction } from 'express';
 
-type RequestMethod = 'get';
-
 export class Request {
-
-  method: RequestMethod;
-  path: string;
-  query: any;
-
-  constructor(method: RequestMethod, path: string, query?: any) {
-    this.method = method;
-    this.path = path;
-    this.query = query;
-  }
+  public constructor(
+    public method: 'get' | 'post',
+    public path: string,
+    public query?: any,
+    public body?: any,
+  ) { }
 }
 
 export class Response {
 
+  statusCode: number | undefined;
   headers: { [key: string]: string | undefined } = {};
   body: string | undefined = undefined;
 
@@ -29,9 +24,16 @@ export class Response {
     this.body = body;
     return this;
   }
+
+  status(code: number): Response {
+    this.statusCode = code;
+    return this;
+  }
+
+  end() { }
 }
 
-export function send(router: Router, request: Request): Response {
+export async function send(router: Router, request: Request): Promise<Response> {
   const route = getExpressRoute(router, request);
   const response = new Response();
 
@@ -40,7 +42,10 @@ export function send(router: Router, request: Request): Response {
     error = err;
   }
 
-  route.handle(request, response, captureError);
+  const result = route.handle(request, response, captureError);
+  if (result instanceof Promise) {
+    await result;
+  }
 
   if (error) {
     throw error;
@@ -53,7 +58,7 @@ export function send(router: Router, request: Request): Response {
 /* === Bad things === */
 /* ================== */
 
-type RouteHandle = (req: Request, res: Response, next: NextFunction) => void;
+type RouteHandle = (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
 
 interface ExpressLayer {
   route: ExpressRoute;
@@ -77,7 +82,7 @@ function getExpressRoute(router: Router, request: Request): ExpressRouteLayer {
 
   for (const layer of routerLayers) {
     const route = layer.route;
-    if (route.path != request.path) {
+    if (route?.path != request.path) {
       continue;
     }
 

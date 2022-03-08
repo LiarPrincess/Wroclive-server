@@ -1,6 +1,11 @@
 import { Logger } from '../models';
 import { subtractMilliseconds } from '../math';
 
+// For calculating intervals.
+export const second = 1000;
+export const minute = 60 * second;
+export const hour = 60 * minute;
+
 type DateProvider = () => Date;
 
 /**

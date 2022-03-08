@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 985 460" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <defs>
+    <linearGradient id="color-0" bx:pinned="true">
+      <title>Apple row</title>
+      <stop style="stop-color: rgb(205, 180, 219);"/>
+    </linearGradient>
+    <linearGradient id="color-2" bx:pinned="true">
+      <title>Twitter row</title>
+      <stop style="stop-color: rgb(162, 210, 255);"/>
+    </linearGradient>
+    <linearGradient id="color-1" bx:pinned="true">
+      <title>Main row</title>
+      <stop style="stop-color: rgb(255, 175, 204);"/>
+    </linearGradient>
+  </defs>
+  <rect width="987" height="462" style="fill: rgb(254, 254, 254);" x="-2"/>
+  <g transform="matrix(1, 0, 0, 1, -3, -101.466629)" style="">
+    <title>Twitter</title>
+    <rect x="812.832" y="107.328" width="169.563" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-2);" rx="5.998" ry="5.998"/>
+    <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="839.197" y="137.979">twitter/AlertMPK</text>
+    <path d="M 205.796 327.634 H 339.738 L 339.738 321.15 L 351.241 328.134 L 339.738 335.119 L 339.738 328.634 H 205.796 V 327.634 Z" style="" transform="matrix(0, -1, 1, 0, 586.760315, 508.02533)" bx:shape="arrow 205.796 321.15 145.445 13.969 1 11.503 0 1@2c15272b"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" x="669.944" y="-13.485"><title>Text</title><tspan x="857.48" y="234.593" style="font-size: 14px; word-spacing: 0px;">Get latest tweets</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, -17.049458, -104)">
+    <title>Main</title>
+    <g transform="matrix(0.999734, 0, 0, 1, -9.789071, 82.173004)">
+      <title>Client</title>
+      <rect x="39.355" y="220.882" width="135.036" height="50" style="stroke: rgb(0, 0, 0); fill: none;" rx="5.998" ry="5.998"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="86.035" y="251.531">Client</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 329.669922, 82.173004)">
+      <title>App Engine</title>
+      <rect x="39.362" y="220.883" width="135" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);" rx="5.998" ry="5.998"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="64.737" y="251.531">App Engine</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 575.100037, 82.07901)">
+      <title>Firestore</title>
+      <rect x="39.366" y="220.883" width="135" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);" rx="5.998" ry="5.998"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="74.714" y="251.531">Firestore</text>
+    </g>
+    <g transform="matrix(1, 0, 0, 1, 523.266052, 100.501007)">
+      <title>Compute Engine</title>
+      <rect x="338.178" y="202.461" width="135" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-1);" rx="5.998" ry="5.998"/>
+      <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202" transform="matrix(1, 0, 0, 1, 6.772976, -0.05696)">Compute Engine<tspan x="338.1929931640625" dy="1em">​</tspan><tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    </g>
+    <path d="M 164.556 327.634 H 349.042 L 349.042 321.149 L 367.307 328.134 L 349.042 335.118 L 349.042 328.634 H 164.556 V 327.634 Z" style="" bx:shape="arrow 164.556 321.149 202.751 13.969 1 18.265 0 1@2aa57378"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" transform="matrix(1, 0, 0, 1, -9.964005, 12.48764)" x="176.52000427246094" y="292.7799987792969"><tspan>GET /api/v1/</tspan>notifications<tspan><tspan x="176.52000427246094" dy="1em">​</tspan></tspan>PUSH /api/v1/notification-tokens<tspan x="176.52000427246094" dy="1em">​</tspan></text>
+    <path d="M 504.032 327.798 H 603.861 L 603.861 321.313 L 615.311 328.298 L 603.861 335.282 L 603.861 328.798 H 504.032 V 327.798 Z" style="" bx:shape="arrow 504.032 321.313 111.279 13.969 1 11.449 0 1@f68ff359"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 383.155029, -2.679108)" y="292.7799987792969"><tspan x="176.52000427246094" dy="1em">​</tspan><tspan>Read notifications<tspan x="176.52000427246094" dy="1em">​</tspan>and write tokens</tspan></text>
+    <path d="M -861.444 328.813 H -760.99 L -760.99 322.328 L -749.466 329.313 L -760.99 336.297 L -760.99 329.813 H -861.444 V 328.813 Z" style="" transform="matrix(-1, 0, 0, 1, 0, 0)" bx:shape="arrow -861.444 322.328 111.978 13.969 1 11.524 0 1@545f2dba"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" transform="matrix(1, 0, 0, 1, 629.060181, -14.679109)" y="292.7799987792969"><tspan x="176.52000427246094" dy="1em">​</tspan><tspan>Write notifications,<tspan x="176.52000427246094" dy="1em">​</tspan>push notifications<tspan x="176.52000427246094" dy="1em">​</tspan>and read tokens</tspan></text>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, -3, -104)" style="">
+    <title>Apple</title>
+    <rect x="432.436" y="489.522" width="236.947" height="50" style="stroke: rgb(0, 0, 0); fill: url(#color-0);" rx="5.998" ry="5.998"/>
+    <text style="white-space: pre; fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 16.3px;" x="338.193" y="233.202" transform="matrix(1, 0, 0, 1, 99.035759, 286.900665)">Apple Push Notification Service<tspan x="338.1929931640625" dy="1em">​</tspan></text>
+    <path d="M 720.88 419.706 H 991.702 L 991.702 413.221 L 1003.986 420.206 L 991.702 427.19 L 991.702 420.706 H 720.88 V 419.706 Z" style="" transform="matrix(-0.875518, 0.483186, -0.483186, -0.875518, 1751.427979, 372.30661)" bx:shape="arrow 720.88 413.221 283.106 13.969 1 12.284 0 1@7b93a50d"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" x="704.781" y="426.078">Send push notifications</text>
+    <path d="M 673.362 530.736 H 971.61 L 971.61 524.252 L 989.366 531.236 L 971.61 538.221 L 971.61 531.736 H 673.362 V 530.736 Z" style="stroke-dasharray: 30px; paint-order: fill;" transform="matrix(-0.897938, -0.440122, 0.440122, -0.897938, 803.259644, 1262.900024)" bx:shape="arrow 673.362 524.252 316.004 13.969 1 17.756 0 1@9dcd1352"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; text-anchor: middle; white-space: pre;" x="381.064" y="426.078">Send push notifications</text>
+  </g>
+  <g style="">
+    <title>Legend</title>
+    <rect x="5" y="5" width="19.711" height="19.711" style="stroke: rgb(0, 0, 0); fill: url(#color-2);" rx="2.477" ry="2.477"/>
+    <rect x="5" y="29.525" width="19.711" height="19.711" style="stroke: rgb(0, 0, 0); fill: url(#color-1);" rx="2.477" ry="2.477"/>
+    <rect x="5" y="54.063" width="19.711" height="19.711" style="stroke: rgb(0, 0, 0); fill: url(#color-0);" rx="2.477" ry="2.477"/>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="30.715" y="19.721">External - Twitter owned</text>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="30.715" y="44.246">Internal - request processing</text>
+    <text style="fill: rgb(51, 51, 51); font-family: Arial, sans-serif; font-size: 14px; white-space: pre;" x="30.715" y="68.784">External - Apple owned</text>
+  </g>
+</svg>

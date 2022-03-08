@@ -1,0 +1,8 @@
+# General
+node_modules
+dist
+
+GCP-Credentials.json
+Twitter-Credentials.json
+APN-Credentials.json
+APN-Key.p8

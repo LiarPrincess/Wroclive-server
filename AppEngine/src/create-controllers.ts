@@ -1,12 +1,12 @@
 import {
-  LinesController,
+  LinesControllerType,
   FirestoreLinesController,
-  DummyLinesController
+  PredefinedLinesController
 } from './controllers/lines';
 import {
-  StopsController,
+  StopsControllerType,
   FirestoreStopsController,
-  DummyStopsController
+  PredefinedStopsController
 } from './controllers/stops';
 import {
   LineDatabase,
@@ -14,21 +14,38 @@ import {
   MpkApi, MpkErrorReporter, MpkVehicleProvider,
   VehicleLocationsController
 } from './controllers/vehicle-locations';
+import {
+  NotificationsControllerType,
+  FirestoreNotificationsController,
+  NoNotificationsController
+} from './controllers/notifications';
+import {
+  LogPushNotificationTokenController,
+  PushNotificationTokenControllerType,
+  FirestorePushNotificationTokenController
+} from './controllers/push-notification-token';
 import { Controllers } from './controllers';
+
 import { Logger, isLocal } from './util';
 import { FirestoreDatabase } from './cloud-platform';
 
 export function createControllers(logger: Logger): Controllers {
-  let linesController: LinesController;
-  let stopsController: StopsController;
+  let linesController: LinesControllerType;
+  let stopsController: StopsControllerType;
+  let notificationsController: NotificationsControllerType;
+  let pushNotificationTokenController: PushNotificationTokenControllerType;
 
   if (isLocal) {
-    linesController = new DummyLinesController();
-    stopsController = new DummyStopsController();
+    linesController = new PredefinedLinesController();
+    stopsController = new PredefinedStopsController();
+    notificationsController = new NoNotificationsController();
+    pushNotificationTokenController = new LogPushNotificationTokenController(logger);
   } else {
     const db = new FirestoreDatabase();
-    linesController = new FirestoreLinesController(db);
-    stopsController = new FirestoreStopsController(db);
+    linesController = new FirestoreLinesController(db, logger);
+    stopsController = new FirestoreStopsController(db, logger);
+    notificationsController = new FirestoreNotificationsController(db, logger);
+    pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
   }
 
   const lineDatabase = new LineDatabase();
@@ -44,12 +61,15 @@ export function createControllers(logger: Logger): Controllers {
   const vehicleLocationController = new VehicleLocationsController(
     linesController, // Important!
     openDataProvider,
-    mpkProvider
+    mpkProvider,
+    logger
   );
 
-  return {
-    lines: linesController,
-    stops: stopsController,
-    vehicleLocation: vehicleLocationController
-  };
+  return new Controllers(
+    linesController,
+    stopsController,
+    vehicleLocationController,
+    notificationsController,
+    pushNotificationTokenController
+  );
 }

@@ -16,7 +16,7 @@ import { createLogger } from './util';
 
 // Set process title, so it is easier to kill it during install.
 // New title has to be shorter than 'node ./dist/app.js'
-process.title = 'NodePubSub';
+process.title = 'CE-PubSub';
 
 // All of our scripts are in HOME.
 process.chdir('/home/michal');
@@ -86,6 +86,6 @@ function exec(file: string) {
 
 subscribe('backend-update-gtfs-data', message => {
   logger.info(`Got message: ${message.id}`);
-  exec('./run-updater.sh');
+  exec('./run-updater.sh'); // <-- THIS
   message.ack();
 });

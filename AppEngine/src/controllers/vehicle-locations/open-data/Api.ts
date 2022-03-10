@@ -7,7 +7,7 @@ import {
   ResourceIdError
 } from './ApiType';
 import { ApiBase } from '../ApiBase';
-import { subtractMilliseconds } from '../math';
+import { subtractMilliseconds } from '../helpers';
 import { VehicleLocationFromApi } from '../models';
 
 /* ============== */

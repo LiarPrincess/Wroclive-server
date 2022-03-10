@@ -3,7 +3,7 @@ import {
   MpkApi,
   MpkErrorReporter,
   MpkVehicleProvider,
-  LineDatabase
+  VehicleLocationsDatabaseMock
 } from './controllers/vehicle-locations';
 import { Line, LineCollection } from './controllers/vehicle-locations/models';
 import { createConsoleLogger } from './util';
@@ -13,14 +13,14 @@ const second = 1000;
 (async () => {
   try {
     const logger = createConsoleLogger();
-    const lineDatabase = new LineDatabase();
-    lineDatabase.updateLineDefinitions(new LineCollection('', [
+    const database = new VehicleLocationsDatabaseMock();
+    database.updateLineDefinitions(new LineCollection('', [
       new Line('A', 'Tram', 'Express')
     ]));
 
     const api = new MpkApi();
     const errorReporter = new MpkErrorReporter(logger);
-    const provider = new MpkVehicleProvider(api, lineDatabase, errorReporter);
+    const provider = new MpkVehicleProvider(api, database, errorReporter);
 
     while (true) {
       const now = new Date();

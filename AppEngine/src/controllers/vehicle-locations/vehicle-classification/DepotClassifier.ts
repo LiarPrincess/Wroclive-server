@@ -1,5 +1,5 @@
 import { VehicleLocationFromApi } from '../models';
-import { subtractMilliseconds, calculateDistanceInMeters } from '../math';
+import { subtractMilliseconds, calculateDistanceInMeters } from '../helpers';
 import { isInDepot as isInDepotFn } from './isInDepot';
 
 /* ============== */

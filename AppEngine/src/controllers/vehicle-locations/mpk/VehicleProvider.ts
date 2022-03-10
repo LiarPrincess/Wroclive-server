@@ -1,10 +1,12 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
+import { AngleCalculator } from './AngleCalculator';
 import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 import { ErrorReporterType } from './ErrorReporter';
 // Parent dir
+import { DatabaseType } from '../database';
+import { LineLocationsAggregator } from '../helpers';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
 import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
 
 /**
@@ -14,25 +16,25 @@ import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierT
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly lineDatabase: LineDatabase;
+  private readonly database: DatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
 
-  constructor(
+  public constructor(
     api: ApiType,
-    lineDatabase: LineDatabase,
+    database: DatabaseType,
     errorReporter: ErrorReporterType,
     hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType
   ) {
     this.api = api;
-    this.lineDatabase = lineDatabase;
+    this.database = database;
     this.errorReporter = errorReporter;
-    this.angleCalculator = new AngleCalculator();
+    this.angleCalculator = new AngleCalculator(database);
     this.hasMovedInLastFewMinutesClassifier = hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
   }
 
-  async getVehicleLocations(): Promise<VehicleLocations> {
+  public async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
 
     const response = await this.getVehicleLocationsFromApi();
@@ -60,7 +62,7 @@ export class VehicleProvider implements VehicleProviderType {
     this.hasMovedInLastFewMinutesClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
       const lineName = vehicle.line;
-      const line = this.lineDatabase.getLineByName(lineName);
+      const line = this.database.getLineByName(lineName);
 
       // Note that we still want to show this vehicle.
       // Maybe a tram broke in the middle of Powstancow and all of the other
@@ -70,7 +72,7 @@ export class VehicleProvider implements VehicleProviderType {
 
       // Technically we should reset 'angleCalculator' if the mpk provider was
       // not used in a while (like 30 min etc.).
-      const angle = this.angleCalculator.calculateAngle(vehicle);
+      const angle = await this.angleCalculator.calculateAngle(vehicle);
       const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
       lineLocationsAggregator.addVehicle(line, vehicleLocation);
     }
@@ -81,11 +83,12 @@ export class VehicleProvider implements VehicleProviderType {
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
+    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
     return { kind: 'Success', lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
-    const lineNamesLowercase = this.lineDatabase.getLineNamesLowercase();
+    const lineNamesLowercase = this.database.getLineNamesLowercase();
 
     // Try 2 times.
     // If the 2nd one fails -> hard fail.

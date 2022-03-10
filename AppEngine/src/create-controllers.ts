@@ -1,69 +1,27 @@
-import {
-  LinesControllerType,
-  FirestoreLinesController,
-  PredefinedLinesController
-} from './controllers/lines';
-import {
-  StopsControllerType,
-  FirestoreStopsController,
-  PredefinedStopsController
-} from './controllers/stops';
-import {
-  LineDatabase,
-  OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider,
-  MpkApi, MpkErrorReporter, MpkVehicleProvider,
-  VehicleLocationsController
-} from './controllers/vehicle-locations';
-import {
-  NotificationsControllerType,
-  FirestoreNotificationsController,
-  NoNotificationsController
-} from './controllers/notifications';
-import {
-  LogPushNotificationTokenController,
-  PushNotificationTokenControllerType,
-  FirestorePushNotificationTokenController
-} from './controllers/push-notification-token';
+import { Logger, isLocal } from './util';
+import { FirestoreDatabase, FakeFirestoreDatabase } from './cloud-platform';
+
+import { FirestoreLinesController } from './controllers/lines';
+import { FirestoreStopsController } from './controllers/stops';
+import { createVehicleLocationsController } from './controllers/vehicle-locations';
+import { FirestoreNotificationsController, } from './controllers/notifications';
+import { FirestorePushNotificationTokenController } from './controllers/push-notification-token';
 import { Controllers } from './controllers';
 
-import { Logger, isLocal } from './util';
-import { FirestoreDatabase } from './cloud-platform';
-
 export function createControllers(logger: Logger): Controllers {
-  let linesController: LinesControllerType;
-  let stopsController: StopsControllerType;
-  let notificationsController: NotificationsControllerType;
-  let pushNotificationTokenController: PushNotificationTokenControllerType;
+  // We are 'ok' with using open-data/mpk api locally,
+  // but we are not 'ok' with firestore (since it is a live system!).
+  const firestore = isLocal ? new FakeFirestoreDatabase(logger) : new FirestoreDatabase();
 
-  if (isLocal) {
-    linesController = new PredefinedLinesController();
-    stopsController = new PredefinedStopsController();
-    notificationsController = new NoNotificationsController();
-    pushNotificationTokenController = new LogPushNotificationTokenController(logger);
-  } else {
-    const db = new FirestoreDatabase();
-    linesController = new FirestoreLinesController(db, logger);
-    stopsController = new FirestoreStopsController(db, logger);
-    notificationsController = new FirestoreNotificationsController(db, logger);
-    pushNotificationTokenController = new FirestorePushNotificationTokenController(db);
-  }
+  const linesController = new FirestoreLinesController(firestore, logger);
+  const stopsController = new FirestoreStopsController(firestore, logger);
 
-  const lineDatabase = new LineDatabase();
+  // We don't want to store all updates, just some of them (performance/free GCP tier limits).
+  const limitStoreRequests = true;
+  const vehicleLocationController = createVehicleLocationsController(firestore, limitStoreRequests, logger);
 
-  const openDataApi = new OpenDataApi();
-  const openDataError = new OpenDataErrorReporter(logger);
-  const openDataProvider = new OpenDataVehicleProvider(openDataApi, lineDatabase, openDataError);
-
-  const mpkApi = new MpkApi();
-  const mpkError = new MpkErrorReporter(logger);
-  const mpkProvider = new MpkVehicleProvider(mpkApi, lineDatabase, mpkError);
-
-  const vehicleLocationController = new VehicleLocationsController(
-    linesController, // Important!
-    openDataProvider,
-    mpkProvider,
-    logger
-  );
+  const notificationsController = new FirestoreNotificationsController(firestore, logger);
+  const pushNotificationTokenController = new FirestorePushNotificationTokenController(firestore);
 
   return new Controllers(
     linesController,

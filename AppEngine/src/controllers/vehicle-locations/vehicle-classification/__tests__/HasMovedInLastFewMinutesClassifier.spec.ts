@@ -1,5 +1,5 @@
 import { VehicleLocationFromApi } from '../../models';
-import { calculateDistanceInMeters } from '../../math';
+import { calculateDistanceInMeters } from '../../helpers';
 import {
   timeToConsiderAsNotMoved,
   minMovement,

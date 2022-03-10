@@ -1,6 +1,5 @@
 import { Line, LineCollection } from './models';
 import { LinesControllerType } from './LinesControllerType';
-import { PredefinedLinesController } from './PredefinedLinesController';
 import { FirestoreLinesDatabase } from '../../cloud-platform';
 import { Logger } from '../../util';
 
@@ -17,7 +16,7 @@ export class FirestoreLinesController extends LinesControllerType {
     this.logger = logger;
     this.lines = {
       timestamp: this.createTimestamp(),
-      data: PredefinedLinesController.data
+      data: []
     };
   }
 

@@ -1,10 +1,12 @@
 // This dir
 import { ApiType, ApiResult } from './ApiType';
-import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
+import { AngleCalculator } from './AngleCalculator';
 import { ErrorReporterType } from './ErrorReporter';
+import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
 // Parent dir
+import { DatabaseType } from '../database';
+import { LineLocationsAggregator } from '../helpers';
 import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { AngleCalculator, LineDatabase, LineLocationsAggregator } from '../helpers';
 import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
 
 /**
@@ -14,25 +16,25 @@ import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classificat
 export class VehicleProvider implements VehicleProviderType {
 
   private readonly api: ApiType;
-  public readonly lineDatabase: LineDatabase;
+  private readonly database: DatabaseType;
   private readonly angleCalculator: AngleCalculator;
   private readonly errorReporter: ErrorReporterType;
   private readonly vehicleClassifier: VehicleClassifierType;
 
-  constructor(
+  public constructor(
     api: ApiType,
-    lineDatabase: LineDatabase,
+    database: DatabaseType,
     errorReporter: ErrorReporterType,
     vehicleClassifier?: VehicleClassifierType
   ) {
     this.api = api;
-    this.lineDatabase = lineDatabase;
+    this.database = database;
     this.errorReporter = errorReporter;
     this.vehicleClassifier = vehicleClassifier || new VehicleClassifier();
-    this.angleCalculator = new AngleCalculator();
+    this.angleCalculator = new AngleCalculator(database);
   }
 
-  async getVehicleLocations(): Promise<VehicleLocations> {
+  public async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
 
     const response = await this.getVehicleLocationsFromApi();
@@ -62,7 +64,7 @@ export class VehicleProvider implements VehicleProviderType {
     this.vehicleClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
       const lineName = vehicle.line;
-      const line = this.lineDatabase.getLineByName(lineName);
+      const line = this.database.getLineByName(lineName);
 
       const {
         isInDepot,
@@ -74,7 +76,7 @@ export class VehicleProvider implements VehicleProviderType {
 
       const isVisible = !isInDepot && isWithinScheduleTimeFrame;
       if (isVisible) {
-        const angle = this.angleCalculator.calculateAngle(vehicle);
+        const angle = await this.angleCalculator.calculateAngle(vehicle);
         const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
         lineLocationsAggregator.addVehicle(line, vehicleLocation);
       }
@@ -86,6 +88,7 @@ export class VehicleProvider implements VehicleProviderType {
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
+    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
     return { kind: 'Success', lineLocations };
   }
 

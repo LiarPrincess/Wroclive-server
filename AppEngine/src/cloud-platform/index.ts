@@ -9,6 +9,11 @@ export {
   FirestoreStopsDatabase
 } from './FirestoreStopsDatabase';
 export {
+  FirestoreVehicleLocation,
+  FirestoreVehicleLocationsDocument,
+  FirestoreVehicleLocationsDatabase
+} from './FirestoreVehicleLocationsDatabase';
+export {
   FirestoreNotification,
   FirestoreAllNotificationsDocument,
   FirestoreNotificationDatabase
@@ -18,3 +23,4 @@ export {
   FirestorePushNotificationTokenDatabase
 } from './FirestorePushNotificationTokenDatabase';
 export { FirestoreDatabase } from './FirestoreDatabase';
+export { FakeFirestoreDatabase } from './FakeFirestoreDatabase';

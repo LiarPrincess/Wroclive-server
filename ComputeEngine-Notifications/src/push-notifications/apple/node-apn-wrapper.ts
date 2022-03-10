@@ -1,6 +1,6 @@
-import { DeviceToken, SendResult, SendError } from './ApplePushNotificationsType';
+import * as apn from '@parse/node-apn';
 
-const apn = require('@parse/node-apn');
+import { DeviceToken, SendResult, SendError } from './ApplePushNotificationsType';
 
 export type Environment = 'development' | 'production';
 
@@ -55,14 +55,9 @@ export interface Notification {
   readonly pushType: 'alert';
 }
 
-interface APNProvider {
-  send(notification: any, recipients: string[]): Promise<any>;
-  shutdown(): void;
-}
-
 export class Provider {
 
-  private readonly apnProvider: APNProvider;
+  private readonly apnProvider: apn.Provider;
   private readonly appBundle: string;
 
   public constructor(options: Options) {
@@ -87,73 +82,82 @@ export class Provider {
     apnNotification.payload = notification.payload;
 
     const apnResult = await this.apnProvider.send(apnNotification, tokens);
-
-    let delivered = this.parseSent(apnResult.sent);
-    if (delivered === undefined) {
-      delivered = ['PARSING_ERROR'];
-    }
-
-    let failed = this.parseFailed(apn.failed);
-    if (failed === undefined) {
-      failed = [new SendError('PARSING_ERROR', JSON.stringify(apn.failed))];
-    }
-
-    return new SendResult(delivered, failed);
-  }
-
-  private parseSent(sent: any): DeviceToken[] | undefined {
-    // {
-    //   sent: [{ device: "xxx" }],
-    //   failed: [],
-    // }
-
-    try {
-      const result: DeviceToken[] = [];
-      for (const obj of sent) {
-        if (Object.prototype.hasOwnProperty.call(obj, 'device')) {
-          result.push(obj.device);
-        } else {
-          result.push(obj);
-        }
-      }
-
-      return result;
-    } catch (error) {
-      return undefined;
-    }
-  }
-
-  private parseFailed(failed: any): SendError[] | undefined {
-    // {
-    //   sent: [],
-    //   failed: [
-    //     { device: "xxx", status: 403, response: { reason: "InvalidProviderToken" } },
-    //   ],
-    // }
-
-    try {
-      // https://github.com/parse-community/node-apn/blob/master/doc/provider.markdown#failed
-      const result: SendError[] = [];
-      for (const obj of failed) {
-        const device = obj.device;
-        if (obj.error) {
-          const reason = obj.error.message || JSON.stringify(obj.error);
-          result.push(new SendError(device, reason));
-        } else {
-          const status = obj.status;
-          const message = obj.response?.reason;
-          const reason = `Status: '${status}', message: '${message}'`;
-          result.push(new SendError(device, reason));
-        }
-      }
-
-      return result;
-    } catch (error) {
-      return undefined;
-    }
+    const result = parseResult(apnResult);
+    return result;
   }
 
   public shutdown() {
     this.apnProvider.shutdown();
   }
+}
+
+export function parseResult(result: apn.Responses): SendResult {
+  let delivered = parseSent(result.sent);
+  if (delivered === undefined) {
+    delivered = ['PARSING_ERROR'];
+  }
+
+  let failed = parseFailed(result.failed);
+  if (failed === undefined) {
+    failed = [new SendError('PARSING_ERROR', JSON.stringify(result.failed))];
+  }
+
+  return new SendResult(delivered, failed);
+}
+
+function parseSent(sentResponses: apn.ResponseSent[]): DeviceToken[] | undefined {
+  // {
+  //   sent: [{ device: "xxx" }],
+  //   failed: [],
+  // }
+
+  const result: DeviceToken[] = [];
+  for (const response of sentResponses) {
+    const deviceToken = response.device;
+
+    if (deviceToken !== undefined) {
+      result.push(deviceToken);
+    } else {
+      const json = JSON.stringify(response);
+      result.push(json);
+    }
+  }
+
+  return result;
+}
+
+function parseFailed(failedResponses: apn.ResponseFailure[]): SendError[] | undefined {
+  // {
+  //   sent: [],
+  //   failed: [
+  //     { device: "xxx", status: 403, response: { reason: "InvalidProviderToken" } },
+  //   ],
+  // }
+
+  const result: SendError[] = [];
+  for (const response of failedResponses) {
+    try {
+      // https://github.com/parse-community/node-apn/blob/master/doc/provider.markdown#failed
+      const deviceToken = response.device;
+
+      if (response.error) {
+        const reason = response.error?.message || JSON.stringify(response.error);
+        result.push(new SendError(deviceToken, reason));
+      } else {
+        const status = response.status;
+        const message = response.response?.reason;
+
+        const isAnyUndefined = status === undefined || message === undefined;
+        const reason = isAnyUndefined ?
+          JSON.stringify(response) :
+          `Status: '${status}', message: '${message}'`;
+
+        result.push(new SendError(deviceToken, reason));
+      }
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  return result;
 }

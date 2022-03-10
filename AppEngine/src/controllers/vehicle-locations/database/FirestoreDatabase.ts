@@ -106,7 +106,6 @@ export class FirestoreDatabase implements DatabaseType {
 
     if (shouldStore) {
       try {
-        this.logger.info('[Open data] Storing last vehicle angle update locations.');
         const document = this.createDocument(now, locations);
         await this.database.saveOpenDataLastVehicleAngleUpdateLocations(document);
         this.openDataLastStore = now;
@@ -133,7 +132,6 @@ export class FirestoreDatabase implements DatabaseType {
 
     if (shouldStore) {
       try {
-        this.logger.info('[Mpk] Storing last vehicle angle update locations.');
         const document = this.createDocument(now, locations);
         await this.database.saveMpkLastVehicleAngleUpdateLocations(document);
         this.mpkLastStore = now;

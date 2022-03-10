@@ -1,7 +1,5 @@
 import { CleanTweet } from '../CleanTweet';
 
-export type DateProvider = () => Date;
-
 export class PushNotification {
 
   public constructor(

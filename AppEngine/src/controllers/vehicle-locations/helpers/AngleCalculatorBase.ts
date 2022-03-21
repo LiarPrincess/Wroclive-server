@@ -33,18 +33,27 @@ export abstract class AngleCalculatorBase {
   /**
    * Last place at which we updated vehicle angle/heading.
    */
-  protected vehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation | undefined;
+  protected vehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation = {};
+  /**
+   * Sometimes Google restarts AppEngine instances.
+   * We will store the last heading locations in the database.
+   *
+   * We want to have a separate 'vehicleIdToLastAngleUpdateLocation' and the
+   * 'databaseVehicleIdToLastAngleUpdateLocation' because of the Firestore limit
+   * on number of keys in an object. If we go too crazy with the past data then
+   * the save will fail.
+   */
+  private databaseVehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation | undefined;
 
   public async calculateAngle(vehicle: VehicleLocationFromApi): Promise<number> {
     const id = vehicle.id;
     const lat = vehicle.lat;
     const lng = vehicle.lng;
 
-    const vehicleIdToLastAngleUpdateLocation = await this.getLastVehicleAngleUpdateLocations();
-    const lastUpdateLocation = vehicleIdToLastAngleUpdateLocation[vehicle.id];
+    const lastUpdateLocation = await this.getLastVehicleAngleUpdateLocation(id);
     if (lastUpdateLocation === undefined) {
       const angle = 0.0;
-      vehicleIdToLastAngleUpdateLocation[id] = new LastAngleUpdateLocation(lat, lng, angle);
+      this.vehicleIdToLastAngleUpdateLocation[id] = new LastAngleUpdateLocation(lat, lng, angle);
       return angle;
     }
 
@@ -57,22 +66,28 @@ export abstract class AngleCalculatorBase {
     }
 
     const angle = calculateHeading(oldLat, oldLng, lat, lng);
-    vehicleIdToLastAngleUpdateLocation[id] = new LastAngleUpdateLocation(lat, lng, angle);
+    this.vehicleIdToLastAngleUpdateLocation[id] = new LastAngleUpdateLocation(lat, lng, angle);
     return angle;
   }
 
-  private async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToLastAngleUpdateLocation> {
-    const fromMemory = this.vehicleIdToLastAngleUpdateLocation;
-    if (fromMemory !== undefined) {
-      return fromMemory;
+  private async getLastVehicleAngleUpdateLocation(vehicleId: string): Promise<LastAngleUpdateLocation | undefined> {
+    const location = this.vehicleIdToLastAngleUpdateLocation[vehicleId];
+    if (location !== undefined) {
+      return location;
     }
 
-    // Sometimes Google restarts AppEngine instances.
-    // We will store the last heading locations in the database.
-    const fromDatabase = await this.getLastVehicleAngleUpdateLocationsFromDatabase();
-    const result = fromDatabase || {};
-    this.vehicleIdToLastAngleUpdateLocation = result;
-    return result;
+    let databaseData = this.databaseVehicleIdToLastAngleUpdateLocation;
+    if (databaseData === undefined) {
+      databaseData = await this.getLastVehicleAngleUpdateLocationsFromDatabase();
+      this.databaseVehicleIdToLastAngleUpdateLocation = databaseData;
+    }
+
+    // Not really sure why this would be undefined, but TypeScript says so...
+    if (databaseData !== undefined) {
+      return databaseData[vehicleId];
+    }
+
+    return undefined;
   }
 
   protected abstract getLastVehicleAngleUpdateLocationsFromDatabase(): Promise<VehicleIdToLastAngleUpdateLocation | undefined>;

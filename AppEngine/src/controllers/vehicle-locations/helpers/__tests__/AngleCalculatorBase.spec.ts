@@ -22,10 +22,10 @@ function calculateDistanceInMetersForVehicles(
 
 class AngleCalculator extends AngleCalculatorBase {
 
-  public databaseVehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation = {};
+  public dataToReadFromDatabase: VehicleIdToLastAngleUpdateLocation = {};
 
   public async getLastVehicleAngleUpdateLocationsFromDatabase(): Promise<VehicleIdToLastAngleUpdateLocation | undefined> {
-    return this.databaseVehicleIdToLastAngleUpdateLocation;
+    return this.dataToReadFromDatabase;
   }
 }
 
@@ -44,7 +44,7 @@ describe('AngleCalculatorBase', function () {
 
   it('should point north if no previous location is present', async function () {
     const calculator = new AngleCalculator();
-    calculator.databaseVehicleIdToLastAngleUpdateLocation[vehicle1Initial.id] = undefined;
+    calculator.dataToReadFromDatabase[vehicle1Initial.id] = undefined;
     const result = await calculator.calculateAngle(vehicle1Initial);
     expect(result).toEqual(0.0);
   });
@@ -62,7 +62,7 @@ describe('AngleCalculatorBase', function () {
   it('should calculate new heading if vehicle has moved according to database', async function () {
     const calculator = new AngleCalculator();
 
-    calculator.databaseVehicleIdToLastAngleUpdateLocation[vehicle1Initial.id] = {
+    calculator.dataToReadFromDatabase[vehicle1Initial.id] = {
       lat: vehicle1Initial.lat,
       lng: vehicle1Initial.lng,
       angle: 1.0

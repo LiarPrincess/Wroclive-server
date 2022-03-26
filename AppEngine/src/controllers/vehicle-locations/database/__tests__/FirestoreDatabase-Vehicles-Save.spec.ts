@@ -23,13 +23,13 @@ function createDatabase(limitStoreRequests: boolean) {
 }
 
 const data1 = {
-  'id1': { lat: 3, lng: 5, angle: 7 },
-  'id2': { lat: 11, lng: 13, angle: 17 }
+  'id1': { lat: 3, lng: 5, angle: 7, millisecondsSince1970: 1971 },
+  'id2': { lat: 11, lng: 13, angle: 17, millisecondsSince1970: 1973 }
 };
 
 const data2 = {
-  'id3': { lat: 19, lng: 23, angle: 27 },
-  'id4': { lat: 29, lng: 31, angle: 37 }
+  'id3': { lat: 19, lng: 23, angle: 27, millisecondsSince1970: 1975 },
+  'id4': { lat: 29, lng: 31, angle: 37, millisecondsSince1970: 1977 }
 };
 
 describe('VehicleLocationsDatabase-Save', function () {

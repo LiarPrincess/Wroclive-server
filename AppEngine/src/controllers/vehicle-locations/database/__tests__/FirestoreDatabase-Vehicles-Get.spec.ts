@@ -24,8 +24,8 @@ describe('VehicleLocationsDatabase-Vehicles-Get', function () {
     const { firestore, database } = createDatabase();
 
     const data = {
-      'id1': { lat: 3, lng: 5, angle: 7 },
-      'id2': { lat: 11, lng: 13, angle: 17 }
+      'id1': { lat: 3, lng: 5, angle: 7, millisecondsSince1970: 1971 },
+      'id2': { lat: 11, lng: 13, angle: 17, millisecondsSince1970: 1973 }
     };
 
     firestore.openDataDocument = { timestamp: 'TIMESTAMP', data };
@@ -53,8 +53,8 @@ describe('VehicleLocationsDatabase-Vehicles-Get', function () {
     const { firestore, database } = createDatabase();
 
     const data = {
-      'id1': { lat: 3, lng: 5, angle: 7 },
-      'id2': { lat: 11, lng: 13, angle: 17 }
+      'id1': { lat: 3, lng: 5, angle: 7, millisecondsSince1970: 1971 },
+      'id2': { lat: 11, lng: 13, angle: 17, millisecondsSince1970: 1973 }
     };
 
     firestore.mpkDocument = { timestamp: 'TIMESTAMP', data };

@@ -140,8 +140,8 @@ describe('OpenDataVehicleProvider', function () {
     expect(result).toEqual({ kind: 'Success', lineLocations });
     expect(errorReporter.errors).toEqual([]);
     expect(vehicleClassifier.prepareCallCount).toEqual(1);
-    expect(database.saveOpenDataVehicleLocationsCallCount).toEqual(1);
-    expect(database.savedMpkVehicleLocations).toEqual(vehiclesFrom(lineLocations));
+    expect(database.saveOpenDataVehicleLocationsCallCount).toEqual(0);
+    expect(database.savedOpenDataVehicleLocations).toEqual(vehiclesFrom(lineLocations));
   });
 
   it('returns result even if one of the vehicles has not moved', async function () {

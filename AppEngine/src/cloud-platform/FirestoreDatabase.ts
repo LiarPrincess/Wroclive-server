@@ -137,7 +137,12 @@ export class FirestoreDatabase implements
       if (Object.prototype.hasOwnProperty.call(document.data, vehicleId)) {
         const loc = document.data[vehicleId];
         if (loc !== undefined) {
-          const location: FirestoreVehicleLocation = { lat: loc.lat, lng: loc.lng, angle: loc.angle };
+          const location: FirestoreVehicleLocation = {
+            lat: loc.lat,
+            lng: loc.lng,
+            angle: loc.angle,
+            millisecondsSince1970: loc.millisecondsSince1970
+          };
           data[vehicleId] = location;
         }
       }

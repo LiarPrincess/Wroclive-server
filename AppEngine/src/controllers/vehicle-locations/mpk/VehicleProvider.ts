@@ -59,6 +59,7 @@ export class VehicleProvider implements VehicleProviderType {
     // It may be possible that api hangs (returns the same data over and over).
     let hasAnyVehicleMovedInLastFewMinutes = false;
 
+    this.angleCalculator.prepareForAngleCalculation();
     this.hasMovedInLastFewMinutesClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
       const lineName = vehicle.line;

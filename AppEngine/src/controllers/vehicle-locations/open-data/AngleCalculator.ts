@@ -9,15 +9,11 @@ export class AngleCalculator extends AngleCalculatorBase {
     super();
   }
 
-  protected async getLastVehicleAngleUpdateLocationsFromDatabase(): Promise<VehicleIdToLastAngleUpdateLocation | undefined> {
-    const result = await this.database.getOpenDataLastVehicleAngleUpdateLocations();
-    return result;
+  protected async getUpdateLocationsFromDatabase(): Promise<VehicleIdToLastAngleUpdateLocation | undefined> {
+    return this.database.getOpenDataLastVehicleAngleUpdateLocations();
   }
 
-  public async storeLastVehicleAngleUpdateLocationInDatabase() {
-    const locations = this.vehicleIdToLastAngleUpdateLocation;
-    if (locations !== undefined) {
-      this.database.saveOpenDataLastVehicleAngleUpdateLocations(locations);
-    }
+  protected async storeUpdateLocationsInDatabase(locations: VehicleIdToLastAngleUpdateLocation) {
+    this.database.saveOpenDataLastVehicleAngleUpdateLocations(locations);
   }
 }

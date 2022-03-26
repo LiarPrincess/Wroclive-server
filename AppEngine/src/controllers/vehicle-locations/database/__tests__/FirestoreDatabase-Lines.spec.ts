@@ -9,7 +9,7 @@ const line125 = new Line('125', 'Bus', 'Regular');
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
   const logger = new LoggerMock();
-  return new FirestoreDatabase(firestore, false, logger);
+  return new FirestoreDatabase(firestore, logger);
 }
 
 describe('VehicleLocationsDatabase-Lines', function () {

@@ -10,7 +10,7 @@ function getDateMock(): Date {
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
   const logger = new LoggerMock();
-  const database = new FirestoreDatabase(firestore, false, logger, getDateMock);
+  const database = new FirestoreDatabase(firestore, logger, getDateMock);
   return { firestore, database };
 }
 

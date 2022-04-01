@@ -2,6 +2,7 @@ export interface FirestoreVehicleLocation {
   readonly lat: number;
   readonly lng: number;
   readonly angle: number;
+  readonly millisecondsSince1970: number;
 }
 
 export interface FirestoreVehicleLocationsDocument {

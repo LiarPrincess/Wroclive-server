@@ -33,10 +33,9 @@ import { FirestoreVehicleLocationsDatabase } from '../../cloud-platform';
 /** Factory function, since the assembly is a bit complicated. */
 export function createVehicleLocationsController(
   firestore: FirestoreVehicleLocationsDatabase,
-  limitStoreRequests: boolean,
   logger: Logger
 ): VehicleLocationsController {
-  const database = new FirestoreDatabase(firestore, limitStoreRequests, logger);
+  const database = new FirestoreDatabase(firestore, logger);
 
   const openDataApi = new OpenDataApi();
   const openDataError = new OpenDataErrorReporter(logger);

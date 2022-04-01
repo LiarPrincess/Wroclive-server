@@ -4,7 +4,8 @@ export class VehicleLocation {
   public constructor(
     public readonly lat: number,
     public readonly lng: number,
-    public readonly angle: number
+    public readonly angle: number,
+    public readonly millisecondsSince1970: number
   ) { }
 }
 

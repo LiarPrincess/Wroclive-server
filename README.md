@@ -24,6 +24,7 @@ And this is the push notification pipeline:
 - Every 1h it fetches MPK data (for example available lines and stop locations) from `Firestore`
 - Every 5 seconds it fetches new vehicle locations from [wroclaw.pl/open-data](https://www.wroclaw.pl/open-data/)
 - If you want to deploy it yourself (`make deploy`), then remember to put `GCP-Credentials.json` for `app-engine-firestore` service account in [AppEngine directory](AppEngine)
+- Since AppEngine instances should not have state (they may be restarted by Google at whim) every 30s we store last heading/angle update location for every vehicle in the database. If something goes wrong we will use those locations to calculate new headings. This is also nice because now we can update the app without worrying about losing the state.
 
 [Firestore](https://cloud.google.com/firestore)
 - Stores persistent data:

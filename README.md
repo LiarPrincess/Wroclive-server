@@ -44,7 +44,7 @@ And this is the push notification pipeline:
       - `make package` to create `.zip` package with all of the `ComputeEngine` modules
       - `make upload` to send package to `GCP`
       - `make connect` to log into `GCP`
-      - (on VM) `install-package.sh`
+      - (on VM) `./install-package.sh`
       - `exit`
       - `make restart` to restart VM (if needed)
   - [ComputeEngine-Updater](ComputeEngine-Updater)

@@ -16,23 +16,18 @@ export function getAvailableLinesFromHtml(html: string): Line[] {
   const result: Line[] = [];
 
   const $ = cheerio.load(html);
-  const lineNodes = $('.table-schedule a');
+  const lineNodes = $('.busTimetableContainer .tramNr');
 
   lineNodes.each((index, node) => {
-    const href: string | undefined = node.attribs.href;
-    const isLineHref = href?.startsWith('/linia') || false;
+    const lineName = $(node).text();
 
-    if (isLineHref) {
-      const lineName = $(node).text();
-
-      // We do not support '9XX' lines
-      if (lineName.length == 3 && lineName[0] == '9') {
-        return;
-      }
-
-      const line = createLineFromName(lineName);
-      result.push(line);
+    // We do not support '9XX' lines
+    if (lineName.length == 3 && lineName[0] == '9') {
+      return;
     }
+
+    const line = createLineFromName(lineName);
+    result.push(line);
   });
 
   return result;

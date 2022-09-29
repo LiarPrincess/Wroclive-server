@@ -44,6 +44,19 @@
       "outputCapture": "std"
     },
     {
+      "name": "AppEngine - Test live stops",
+      "type": "node",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/AppEngine/dist/test-stops-live.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "outputCapture": "std"
+    },
+    {
       "name": "ComputeEngine-Updater",
       "type": "node",
       "request": "launch",

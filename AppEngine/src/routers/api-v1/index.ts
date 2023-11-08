@@ -78,13 +78,26 @@ export function createApiV1Router(controllers: Controllers, logger: Logger): Rou
     }
   });
 
+  router.get('/stops/:id/live', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const stopId = req.params['id'];
+      const data = await controllers.stopsLive.getNextArrivals(stopId);
+      const json = JSON.stringify(data);
+
+      setStandardHeaders(res, CacheHeader.Disable);
+      sendJSON(res, json);
+    } catch (err) {
+      next(err);
+    }
+  });
+
   router.get('/vehicles', (req: Request, res: Response, next: NextFunction) => {
     try {
       const query = asString(req.query?.lines) || '';
       const lineNames = splitLowerCase(query, ';');
 
       const data = controllers.vehicleLocation.getVehicleLocations(lineNames);
-      const json = jsonCache.getVehicleLocations(data);
+      const json = JSON.stringify(data);
 
       setStandardHeaders(res, CacheHeader.Disable);
       sendJSON(res, json);
@@ -96,7 +109,7 @@ export function createApiV1Router(controllers: Controllers, logger: Logger): Rou
   router.get('/notifications', async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await controllers.notifications.getNotifications();
-      const json = jsonCache.getNotifications(data);
+      const json = JSON.stringify(data);
 
       setStandardHeaders(res, CacheHeader.Store2min);
       sendJSON(res, json);

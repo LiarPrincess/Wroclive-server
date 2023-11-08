@@ -51,22 +51,4 @@ export class JSONCache {
     this.cachedStops = { timestamp: stops.timestamp, json: json };
     return json;
   }
-
-  /* ========================= */
-  /* === Vehicle locations === */
-  /* ========================= */
-
-  public getVehicleLocations(locations: LineLocationCollection): string {
-    // Nothing to cache here
-    return JSON.stringify(locations);
-  }
-
-  /* ===================== */
-  /* === Notifications === */
-  /* ===================== */
-
-  public getNotifications(notifications: NotificationCollection): string {
-    // Nothing to cache here
-    return JSON.stringify(notifications);
-  }
 }

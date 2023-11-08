@@ -1,5 +1,6 @@
 import { LinesControllerMock } from '../../../controllers/lines';
 import { StopsControllerMock } from '../../../controllers/stops';
+import { StopsLiveControllerMock } from '../../../controllers/stops-live';
 import { NotificationsControllerMock } from '../../../controllers/notifications';
 import { VehicleLocationsControllerMock } from '../../../controllers/vehicle-locations';
 import { PushNotificationTokenControllerMock } from '../../../controllers/push-notification-token';
@@ -19,6 +20,7 @@ export class ControllersMock implements Controllers {
   constructor(
     public readonly lines: LinesControllerMock,
     public readonly stops: StopsControllerMock,
+    public readonly stopsLive: StopsLiveControllerMock,
     public readonly vehicleLocation: VehicleLocationsControllerMock,
     public readonly notifications: NotificationsControllerMock,
     public readonly pushNotificationToken: PushNotificationTokenControllerMock
@@ -28,8 +30,9 @@ export class ControllersMock implements Controllers {
 export function createControllers(): ControllersMock {
   const lines = new LinesControllerMock();
   const stops = new StopsControllerMock();
+  const stopsLive = new StopsLiveControllerMock();
   const vehicleLocation = new VehicleLocationsControllerMock();
   const notifications = new NotificationsControllerMock();
   const pushNotificationToken = new PushNotificationTokenControllerMock();
-  return new ControllersMock(lines, stops, vehicleLocation, notifications, pushNotificationToken);
+  return new ControllersMock(lines, stops, stopsLive, vehicleLocation, notifications, pushNotificationToken);
 }

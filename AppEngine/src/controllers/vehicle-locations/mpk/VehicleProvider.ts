@@ -1,20 +1,19 @@
 // This dir
-import { ApiType, ApiResult } from './ApiType';
-import { AngleCalculator } from './AngleCalculator';
-import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
-import { ErrorReporterType } from './ErrorReporter';
+import { ApiType, ApiResult } from "./ApiType";
+import { AngleCalculator } from "./AngleCalculator";
+import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
-import { DatabaseType } from '../database';
-import { LineLocationsAggregator } from '../helpers';
-import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from '../vehicle-classification';
+import { DatabaseType } from "../database";
+import { LineLocationsAggregator } from "../helpers";
+import { VehicleLocation, VehicleLocationFromApi } from "../models";
+import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from "../vehicle-classification";
+import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
 
 /**
  * Mpk is designed as a SECONDARY data source.
  * We are more lenient on what we show.
  */
-export class VehicleProvider implements VehicleProviderType {
-
+export class VehicleProvider extends VehicleProviderBase {
   private readonly api: ApiType;
   private readonly database: DatabaseType;
   private readonly angleCalculator: AngleCalculator;
@@ -27,11 +26,14 @@ export class VehicleProvider implements VehicleProviderType {
     errorReporter: ErrorReporterType,
     hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType
   ) {
+    super();
+
     this.api = api;
     this.database = database;
     this.errorReporter = errorReporter;
     this.angleCalculator = new AngleCalculator(database);
-    this.hasMovedInLastFewMinutesClassifier = hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
+    this.hasMovedInLastFewMinutesClassifier =
+      hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
   }
 
   public async getVehicleLocations(): Promise<VehicleLocations> {
@@ -39,18 +41,18 @@ export class VehicleProvider implements VehicleProviderType {
 
     const response = await this.getVehicleLocationsFromApi();
     switch (response.kind) {
-      case 'Success':
+      case "Success":
         vehicles = response.vehicles;
         this.errorReporter.responseContainsInvalidRecords(response.invalidRecords);
         break;
-      case 'Error':
+      case "Error":
         this.errorReporter.apiError(response.error);
-        return { kind: 'ApiError' };
+        return { kind: "ApiError" };
     }
 
     if (!vehicles.length) {
       this.errorReporter.responseContainsNoVehicles(response);
-      return { kind: 'ResponseContainsNoVehicles' };
+      return { kind: "ResponseContainsNoVehicles" };
     }
 
     const lineLocationsAggregator = new LineLocationsAggregator();
@@ -80,12 +82,12 @@ export class VehicleProvider implements VehicleProviderType {
 
     if (!hasAnyVehicleMovedInLastFewMinutes) {
       this.errorReporter.noVehicleHasMovedInLastFewMinutes();
-      return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
+      return { kind: "NoVehicleHasMovedInLastFewMinutes" };
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
     await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
-    return { kind: 'Success', lineLocations };
+    return { kind: "Success", lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
@@ -95,9 +97,9 @@ export class VehicleProvider implements VehicleProviderType {
     // If the 2nd one fails -> hard fail.
     const response1 = await this.api.getVehicleLocations(lineNamesLowercase);
     switch (response1.kind) {
-      case 'Success':
+      case "Success":
         return response1;
-      case 'Error':
+      case "Error":
         break;
     }
 

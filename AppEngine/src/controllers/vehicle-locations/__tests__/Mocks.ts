@@ -1,12 +1,11 @@
-import { Logger } from '../../../util';
+import { Logger } from "../../../util";
 
-export { MpkVehicleProviderMock } from '../mpk';
-export { OpenDataVehicleProviderMock } from '../open-data';
-export { DatabaseMock } from '../database';
+export { DatabaseMock } from "../database";
+export { VehicleProviderMock } from "../vehicle-provider";
 
 export class LoggerMock implements Logger {
-  info(message?: any, ...optionalParams: any[]): void { }
-  error(message?: any, ...optionalParams: any[]): void { }
+  info(message?: any, ...optionalParams: any[]): void {}
+  error(message?: any, ...optionalParams: any[]): void {}
 }
 
 export let currentDate: Date = new Date();

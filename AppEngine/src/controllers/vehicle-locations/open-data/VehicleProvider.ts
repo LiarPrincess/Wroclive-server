@@ -1,20 +1,19 @@
 // This dir
-import { ApiType, ApiResult } from './ApiType';
-import { AngleCalculator } from './AngleCalculator';
-import { ErrorReporterType } from './ErrorReporter';
-import { VehicleProviderType, VehicleLocations } from './VehicleProviderType';
+import { ApiType, ApiResult } from "./ApiType";
+import { AngleCalculator } from "./AngleCalculator";
+import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
-import { DatabaseType } from '../database';
-import { LineLocationsAggregator } from '../helpers';
-import { VehicleLocation, VehicleLocationFromApi } from '../models';
-import { VehicleClassifierType, VehicleClassifier } from '../vehicle-classification';
+import { DatabaseType } from "../database";
+import { LineLocationsAggregator } from "../helpers";
+import { VehicleLocation, VehicleLocationFromApi } from "../models";
+import { VehicleClassifierType, VehicleClassifier } from "../vehicle-classification";
+import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
 
 /**
  * Open data is designed as a PRIMARY data source.
  * We are more strict on what we show.
  */
-export class VehicleProvider implements VehicleProviderType {
-
+export class VehicleProvider extends VehicleProviderBase {
   private readonly api: ApiType;
   private readonly database: DatabaseType;
   private readonly angleCalculator: AngleCalculator;
@@ -27,6 +26,8 @@ export class VehicleProvider implements VehicleProviderType {
     errorReporter: ErrorReporterType,
     vehicleClassifier?: VehicleClassifierType
   ) {
+    super();
+
     this.api = api;
     this.database = database;
     this.errorReporter = errorReporter;
@@ -39,20 +40,20 @@ export class VehicleProvider implements VehicleProviderType {
 
     const response = await this.getVehicleLocationsFromApi();
     switch (response.kind) {
-      case 'Success':
+      case "Success":
         vehicles = response.vehicles;
         this.errorReporter.responseContainsInvalidRecords(response.invalidRecords);
         this.errorReporter.resourceIdError(response.resourceIdError);
         break;
-      case 'Error':
+      case "Error":
         this.errorReporter.apiError(response.error);
         this.errorReporter.resourceIdError(response.resourceIdError);
-        return { kind: 'ApiError' };
+        return { kind: "ApiError" };
     }
 
     if (!vehicles.length) {
       this.errorReporter.responseContainsNoVehicles(response);
-      return { kind: 'ResponseContainsNoVehicles' };
+      return { kind: "ResponseContainsNoVehicles" };
     }
 
     const lineLocationsAggregator = new LineLocationsAggregator();
@@ -67,11 +68,10 @@ export class VehicleProvider implements VehicleProviderType {
       const lineName = vehicle.line;
       const line = this.database.getLineByName(lineName);
 
-      const {
-        isInDepot,
-        isWithinScheduleTimeFrame,
-        hasMovedInLastFewMinutes
-      } = this.vehicleClassifier.classify(line, vehicle);
+      const { isInDepot, isWithinScheduleTimeFrame, hasMovedInLastFewMinutes } = this.vehicleClassifier.classify(
+        line,
+        vehicle
+      );
 
       hasAnyVehicleMovedInLastFewMinutes = hasAnyVehicleMovedInLastFewMinutes || hasMovedInLastFewMinutes;
 
@@ -85,12 +85,12 @@ export class VehicleProvider implements VehicleProviderType {
 
     if (!hasAnyVehicleMovedInLastFewMinutes) {
       this.errorReporter.noVehicleHasMovedInLastFewMinutes();
-      return { kind: 'NoVehicleHasMovedInLastFewMinutes' };
+      return { kind: "NoVehicleHasMovedInLastFewMinutes" };
     }
 
     const lineLocations = lineLocationsAggregator.getLineLocations();
     await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
-    return { kind: 'Success', lineLocations };
+    return { kind: "Success", lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
@@ -98,9 +98,9 @@ export class VehicleProvider implements VehicleProviderType {
     // If the 2nd one fails -> hard fail.
     const response1 = await this.api.getVehicleLocations();
     switch (response1.kind) {
-      case 'Success':
+      case "Success":
         return response1;
-      case 'Error':
+      case "Error":
         break;
     }
 

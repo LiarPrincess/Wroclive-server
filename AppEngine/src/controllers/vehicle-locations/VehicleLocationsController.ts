@@ -1,9 +1,8 @@
-import { DatabaseType } from './database';
-import { MpkVehicleProviderType } from './mpk';
-import { OpenDataVehicleProviderType } from './open-data';
-import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-import { IntervalErrorReporter, minute, subtractMilliseconds } from './helpers';
-import { Logger, LineLocation, LineLocationCollection } from './models';
+import { DatabaseType } from "./database";
+import { VehicleProviderBase } from "./vehicle-provider";
+import { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
+import { IntervalErrorReporter, minute, subtractMilliseconds } from "./helpers";
+import { Logger, LineLocation, LineLocationCollection } from "./models";
 
 export const timeForWhichToUsePreviousResultIfAllProvidersFailed = 2 * minute;
 
@@ -18,23 +17,24 @@ interface LineLocationsByLineNameLowercase {
 // - SuccessfulUpdate -> SuccessfulUpdate|FailedUpdate
 // - FailedUpdate -> SuccessfulUpdate|FailedUpdate
 type State =
-  {
-    kind: 'Initial',
-    lineLocations: LineLocationCollection
-  } | {
-    kind: 'SuccessfulUpdate',
-    date: Date,
-    timestamp: string,
-    lineLocationsByLineNameLowercase: LineLocationsByLineNameLowercase
-  } | {
-    kind: 'FailedUpdate',
-    lineLocations: LineLocationCollection
-  };
+  | {
+      kind: "Initial";
+      lineLocations: LineLocationCollection;
+    }
+  | {
+      kind: "SuccessfulUpdate";
+      date: Date;
+      timestamp: string;
+      lineLocationsByLineNameLowercase: LineLocationsByLineNameLowercase;
+    }
+  | {
+      kind: "FailedUpdate";
+      lineLocations: LineLocationCollection;
+    };
 
 export class VehicleLocationsController extends VehicleLocationsControllerType {
-
-  private readonly openDataProvider: OpenDataVehicleProviderType;
-  private readonly mpkProvider: MpkVehicleProviderType;
+  private readonly openDataProvider: VehicleProviderBase;
+  private readonly mpkProvider: VehicleProviderBase;
   private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
   private readonly updateFromAllDataSourcesFailed: IntervalErrorReporter;
@@ -43,8 +43,8 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
   public constructor(
     database: DatabaseType,
-    openDataProvider: OpenDataVehicleProviderType,
-    mpkProvider: MpkVehicleProviderType,
+    openDataProvider: VehicleProviderBase,
+    mpkProvider: VehicleProviderBase,
     logger: Logger,
     dateProvider?: DateProvider
   ) {
@@ -57,21 +57,21 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
     this.updateFromAllDataSourcesFailed = new IntervalErrorReporter(
       5 * minute,
-      '[VehicleLocationsController][CRITICAL] Update from all data sources failed!',
+      "[VehicleLocationsController][CRITICAL] Update from all data sources failed!",
       logger,
       dateProvider
     );
 
-    const lineLocations = new LineLocationCollection('INITIAL_TIMESTAMP', []);
-    this.state = { kind: 'Initial', lineLocations };
+    const lineLocations = new LineLocationCollection("INITIAL_TIMESTAMP", []);
+    this.state = { kind: "Initial", lineLocations };
   }
 
   public getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
     switch (this.state.kind) {
-      case 'Initial':
+      case "Initial":
         return this.state.lineLocations;
 
-      case 'SuccessfulUpdate':
+      case "SuccessfulUpdate":
         const result: LineLocation[] = [];
         const lastLineLocationsByLineName = this.state.lineLocationsByLineNameLowercase;
 
@@ -85,7 +85,7 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
         const timestamp = this.state.timestamp;
         return new LineLocationCollection(timestamp, result);
 
-      case 'FailedUpdate':
+      case "FailedUpdate":
         return this.state.lineLocations;
     }
   }
@@ -108,15 +108,15 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     }
 
     const mpkResult = await this.mpkProvider.getVehicleLocations();
-    let mpkError = '';
+    let mpkError = "";
 
     switch (mpkResult.kind) {
-      case 'Success':
+      case "Success":
         this.handleLineLocationsFromProvider(now, mpkResult.lineLocations);
         return;
-      case 'ApiError':
-      case 'ResponseContainsNoVehicles':
-      case 'NoVehicleHasMovedInLastFewMinutes':
+      case "ApiError":
+      case "ResponseContainsNoVehicles":
+      case "NoVehicleHasMovedInLastFewMinutes":
         mpkError = mpkResult.kind;
         break;
     }
@@ -124,24 +124,24 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
     this.updateFromAllDataSourcesFailed.report({ openDataError, mpkError });
 
     switch (this.state.kind) {
-      case 'Initial':
+      case "Initial":
         const timestamp = this.createTimestamp(now);
         const data = this.state.lineLocations.data;
         const lineLocations = new LineLocationCollection(timestamp, data);
-        this.state = { kind: 'FailedUpdate', lineLocations };
+        this.state = { kind: "FailedUpdate", lineLocations };
         break;
 
-      case 'SuccessfulUpdate':
+      case "SuccessfulUpdate":
         const timeSinceUpdate = subtractMilliseconds(now, this.state.date);
         if (timeSinceUpdate > timeForWhichToUsePreviousResultIfAllProvidersFailed) {
           // The only thing we can do is to show empty map.
           const timestamp = this.createTimestamp(now);
           const lineLocations = new LineLocationCollection(timestamp, []);
-          this.state = { kind: 'FailedUpdate', lineLocations };
+          this.state = { kind: "FailedUpdate", lineLocations };
         }
         break;
 
-      case 'FailedUpdate':
+      case "FailedUpdate":
         // We are already failing, nothing to do.
         break;
     }
@@ -157,10 +157,10 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
     const timestamp = this.createTimestamp(now);
     this.state = {
-      kind: 'SuccessfulUpdate',
+      kind: "SuccessfulUpdate",
       date: now,
       timestamp,
-      lineLocationsByLineNameLowercase
+      lineLocationsByLineNameLowercase,
     };
   }
 

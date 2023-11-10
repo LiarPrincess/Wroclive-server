@@ -4,8 +4,9 @@ import { AngleCalculator } from "./AngleCalculator";
 import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
 import { DatabaseType } from "../database";
+import { createLineFromName } from "../database/createLineFromName";
 import { LineLocationsAggregator } from "../helpers";
-import { VehicleLocation, VehicleLocationFromApi } from "../models";
+import { Line, VehicleLocation, VehicleLocationFromApi } from "../models";
 import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from "../vehicle-classification";
 import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
 
@@ -55,6 +56,14 @@ export class VehicleProvider extends VehicleProviderBase {
       return { kind: "ResponseContainsNoVehicles" };
     }
 
+    const lines = await this.database.getLines();
+    const lineNameLowercaseToLine = new Map<string, Line>();
+
+    for (const line of lines) {
+      const nameLowercase = line.name.toLowerCase();
+      lineNameLowercaseToLine.set(nameLowercase, line);
+    }
+
     const lineLocationsAggregator = new LineLocationsAggregator();
 
     // Check if any of the vehicles has moved the last few minutes.
@@ -64,8 +73,16 @@ export class VehicleProvider extends VehicleProviderBase {
     this.angleCalculator.prepareForAngleCalculation();
     this.hasMovedInLastFewMinutesClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
-      const lineName = vehicle.line;
-      const line = this.database.getLineByName(lineName);
+      let line: Line;
+      const lineNameLowercase = vehicle.line.toLowerCase();
+      const lineOrUndefined = lineNameLowercaseToLine.get(lineNameLowercase);
+
+      if (lineOrUndefined !== undefined) {
+        line = lineOrUndefined;
+      } else {
+        line = createLineFromName(vehicle.line);
+        lineNameLowercaseToLine.set(lineNameLowercase, line);
+      }
 
       // Note that we still want to show this vehicle.
       // Maybe a tram broke in the middle of Powstancow and all of the other
@@ -91,7 +108,13 @@ export class VehicleProvider extends VehicleProviderBase {
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {
-    const lineNamesLowercase = this.database.getLineNamesLowercase();
+    const lines = await this.database.getLines();
+    const lineNamesLowercase: string[] = [];
+
+    for (const line of lines) {
+      const nameLower = line.name.toLowerCase();
+      lineNamesLowercase.push(nameLower);
+    }
 
     // Try 2 times.
     // If the 2nd one fails -> hard fail.

@@ -31,9 +31,9 @@ const dateInPeriod = "2020-01-01 10:02:00";
 const dateAfterPeriod = "2020-01-01 10:03:01";
 const dateAfterPeriodTimestamp = "2020-01-01T09:03:01.000Z";
 
-function createController() {
+async function createController() {
   const database = new mocks.DatabaseMock();
-  database.updateLineDefinitions(
+  database.setLines(
     new LineCollection("TIMESTAMP", [
       new Line(lineA.name, lineA.type, lineA.subtype),
       new Line(line4.name, line4.type, line4.subtype),
@@ -79,8 +79,8 @@ describe("VehicleLocationsController", () => {
     expect(diffAfterPeriod).toBeGreaterThan(timeForWhichToUsePreviousResultIfAllProvidersFailed);
   });
 
-  it("responds with no locations as soon as it is created", function () {
-    const { controller } = createController();
+  it("responds with no locations as soon as it is created", async function () {
+    const { controller } = await createController();
 
     const result1 = getVehicleLocations(controller, []);
     expect(result1).toEqual({
@@ -96,7 +96,7 @@ describe("VehicleLocationsController", () => {
   });
 
   it("returns lines from open data when provided multiple line names", async function () {
-    const { openDataProvider, controller } = createController();
+    const { openDataProvider, controller } = await createController();
 
     mocks.mockCurrentDate(date);
     openDataProvider.result = {
@@ -121,7 +121,7 @@ describe("VehicleLocationsController", () => {
   });
 
   it("returns lines from mpk when provided multiple line names", async function () {
-    const { openDataProvider, mpkProvider, controller } = createController();
+    const { openDataProvider, mpkProvider, controller } = await createController();
 
     mocks.mockCurrentDate(date);
     openDataProvider.result = {
@@ -149,7 +149,7 @@ describe("VehicleLocationsController", () => {
   });
 
   it("returns no lines after: INITIAL -> all failed", async function () {
-    const { openDataProvider, mpkProvider, controller } = createController();
+    const { openDataProvider, mpkProvider, controller } = await createController();
 
     mocks.mockCurrentDate(date);
     openDataProvider.result = { kind: "ApiError" };
@@ -165,7 +165,7 @@ describe("VehicleLocationsController", () => {
   });
 
   it("returns no lines after: INITIAL -> SUCCESSFUL -> all failed -> (waiting) -> all failed -> FAILED", async function () {
-    const { openDataProvider, mpkProvider, controller } = createController();
+    const { openDataProvider, mpkProvider, controller } = await createController();
 
     // Success
     mocks.mockCurrentDate(date);

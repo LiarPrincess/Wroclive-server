@@ -1,12 +1,12 @@
-import { sleep } from './util';
+import { sleep } from "./util";
 import {
   MpkApi,
   MpkErrorReporter,
   MpkVehicleProvider,
-  VehicleLocationsDatabaseMock
-} from './controllers/vehicle-locations';
-import { Line, LineCollection } from './controllers/vehicle-locations/models';
-import { createConsoleLogger } from './util';
+  VehicleLocationsDatabaseMock,
+} from "./controllers/vehicle-locations";
+import { Line, LineCollection } from "./controllers/vehicle-locations/models";
+import { createConsoleLogger } from "./util";
 
 const second = 1000;
 
@@ -14,9 +14,7 @@ const second = 1000;
   try {
     const logger = createConsoleLogger();
     const database = new VehicleLocationsDatabaseMock();
-    database.updateLineDefinitions(new LineCollection('', [
-      new Line('A', 'Tram', 'Express')
-    ]));
+    await database.setLines(new LineCollection("", [new Line("A", "Tram", "Express")]));
 
     const api = new MpkApi();
     const errorReporter = new MpkErrorReporter(logger);
@@ -28,7 +26,7 @@ const second = 1000;
 
       const result = await provider.getVehicleLocations();
       switch (result.kind) {
-        case 'Success':
+        case "Success":
           for (const lineLocation of result.lineLocations) {
             const line = lineLocation.line;
             console.log(`  ${line.name} (${line.type}, ${line.subtype})`);
@@ -38,14 +36,14 @@ const second = 1000;
             }
           }
           break;
-        case 'ApiError':
-          console.log('ApiError');
+        case "ApiError":
+          console.log("ApiError");
           break;
-        case 'ResponseContainsNoVehicles':
-          console.log('ResponseContainsNoVehicles');
+        case "ResponseContainsNoVehicles":
+          console.log("ResponseContainsNoVehicles");
           break;
-        case 'NoVehicleHasMovedInLastFewMinutes':
-          console.log('NoVehicleHasMovedInLastFewMinutes');
+        case "NoVehicleHasMovedInLastFewMinutes":
+          console.log("NoVehicleHasMovedInLastFewMinutes");
           break;
       }
 

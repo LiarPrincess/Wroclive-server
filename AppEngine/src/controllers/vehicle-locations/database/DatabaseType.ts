@@ -1,4 +1,4 @@
-import { LineCollection, Line } from '../models';
+import { LineCollection, Line } from "../models";
 
 export class VehicleLocation {
   public constructor(
@@ -6,7 +6,7 @@ export class VehicleLocation {
     public readonly lng: number,
     public readonly angle: number,
     public readonly millisecondsSince1970: number
-  ) { }
+  ) {}
 }
 
 export interface VehicleIdToLocation {
@@ -14,12 +14,8 @@ export interface VehicleIdToLocation {
 }
 
 export interface DatabaseType {
-
-  /** Get a single line by its name. */
-  getLineByName(name: string): Line;
-  /** Get names of all of the lines. */
-  getLineNamesLowercase(): string[];
-  updateLineDefinitions(lines: LineCollection): void;
+  getLines(): Promise<Line[]>;
+  setLines(lines: LineCollection): Promise<void>;
 
   getOpenDataLastVehicleAngleUpdateLocations(): Promise<VehicleIdToLocation | undefined>;
   saveOpenDataLastVehicleAngleUpdateLocations(locations: VehicleIdToLocation): Promise<void>;

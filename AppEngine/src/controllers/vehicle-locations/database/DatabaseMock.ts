@@ -1,46 +1,25 @@
-import { DatabaseType, VehicleIdToLocation } from './DatabaseType';
-import { LineCollection, Line, VehicleLocation } from '../models';
-
-interface LineByName {
-  [key: string]: Line;
-}
+import { DatabaseType, VehicleIdToLocation } from "./DatabaseType";
+import { LineCollection, Line, VehicleLocation } from "../models";
 
 export class DatabaseMock implements DatabaseType {
-
   /* ============= */
   /* === Lines === */
   /* ============= */
 
-  public getLineByNameCallCount = 0;
-  private linesByNameLowercase: LineByName = {};
+  public getLinesResult: Line[] = [];
+  public getLinesCallCount = 0;
 
-  public getLineByName(name: string): Line {
-    this.getLineByNameCallCount++;
-
-    const nameLower = name.toLowerCase();
-    const result = this.linesByNameLowercase[nameLower];
-    return result || new Line(name, 'NO_MOCK_PROVIDED', 'NO_MOCK_PROVIDED');
+  public async getLines(): Promise<Line[]> {
+    this.getLinesCallCount += 1;
+    return this.getLinesResult;
   }
 
-  public getLineNamesLowercaseCallCount = 0;
-  private lineNamesLowercase: string[] = [];
+  public setLinesArg: Line[] = [];
+  public setLinesCallCount = 0;
 
-  public getLineNamesLowercase(): string[] {
-    this.getLineNamesLowercaseCallCount++;
-    return this.lineNamesLowercase;
-  }
-
-  public updateLineDefinitionsCallCount = 0;
-
-  public updateLineDefinitions(lines: LineCollection): void {
-    this.updateLineDefinitionsCallCount++;
-
-    this.lineNamesLowercase = [];
-    for (const line of lines.data) {
-      const lineNameLower = line.name.toLowerCase();
-      this.lineNamesLowercase.push(lineNameLower);
-      this.linesByNameLowercase[lineNameLower] = line;
-    }
+  public async setLines(lines: LineCollection) {
+    this.setLinesCallCount += 1;
+    this.setLinesArg = lines.data;
   }
 
   /* ================= */
@@ -92,6 +71,6 @@ export class DatabaseMock implements DatabaseType {
       }
     }
 
-    return result.sort((lhs, rhs) => lhs.id < rhs.id ? -1 : 1);
+    return result.sort((lhs, rhs) => (lhs.id < rhs.id ? -1 : 1));
   }
 }

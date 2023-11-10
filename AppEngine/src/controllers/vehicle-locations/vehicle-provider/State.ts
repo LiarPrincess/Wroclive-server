@@ -22,12 +22,6 @@ export const removeVehiclesWithoutUpdateAfter = 1 * minute;
 /* === Types === */
 /* ============== */
 
-export type VehicleLocations =
-  | { kind: "Success"; lineLocations: LineLocation[] }
-  | { kind: "ApiError" }
-  | { kind: "ResponseContainsNoVehicles" }
-  | { kind: "NoVehicleHasMovedInLastFewMinutes" };
-
 export type UpdateResult =
   | { kind: "Success"; lineLocations: LineLocation[] }
   | { kind: "ResponseContainsNoVehicles" }
@@ -62,7 +56,7 @@ export class VehicleState {
 /* === Main === */
 /* ============ */
 
-export abstract class VehicleProviderBase<Database extends VehicleProviderDatabaseType> {
+export class State<Database extends VehicleProviderDatabaseType> {
   private readonly dateProvider: DateProvider;
   private readonly vehicleIdToState = new Map<string, VehicleState>();
 
@@ -76,8 +70,6 @@ export abstract class VehicleProviderBase<Database extends VehicleProviderDataba
   ) {
     this.dateProvider = dateProvider || dateProviderDefault;
   }
-
-  public abstract getVehicleLocations(): Promise<VehicleLocations>;
 
   protected async updateState(vehicleLocations: VehicleLocationFromApi[]): Promise<UpdateResult> {
     if (vehicleLocations.length === 0) {

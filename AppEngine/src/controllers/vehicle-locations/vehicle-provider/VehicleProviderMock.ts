@@ -1,6 +1,7 @@
 import { VehicleProviderBase, VehicleLocations } from "./VehicleProviderBase";
+import { VehicleProviderDatabaseMock } from "./VehicleProviderDatabase";
 
-export class VehicleProviderMock extends VehicleProviderBase {
+export class VehicleProviderMock extends VehicleProviderBase<VehicleProviderDatabaseMock> {
   result: VehicleLocations | undefined;
 
   getVehicleLocations(): Promise<VehicleLocations> {

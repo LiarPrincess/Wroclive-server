@@ -1,5 +1,5 @@
-import { Controllers } from './controllers';
-import { Logger } from './util';
+import { Controllers } from "./controllers";
+import { Logger } from "./util";
 
 const second = 1000;
 const minute = 60 * second;
@@ -24,9 +24,9 @@ function startUpdatingLines(controllers: Controllers, logger: Logger) {
 
       // We also need to push them to vehicle controller.
       const lines = controllers.lines.getLines();
-      controllers.vehicleLocation.database.updateLineDefinitions(lines);
+      controllers.vehicleLocation.database.setLines(lines);
     } catch (error) {
-      logger.error('Failed to update lines', error);
+      logger.error("Failed to update lines", error);
     }
 
     setTimeout(update, linesUpdateInterval);
@@ -46,7 +46,7 @@ function startUpdatingStops(controllers: Controllers, logger: Logger) {
     try {
       await controllers.stops.updateStops();
     } catch (error) {
-      logger.error('Failed to update stops', error);
+      logger.error("Failed to update stops", error);
     }
 
     setTimeout(update, stopsUpdateInterval);
@@ -73,7 +73,7 @@ function startUpdatingVehicleLocations(controllers: Controllers, logger: Logger)
       const failedFor = vehicleLocationUpdateErrorCount * vehicleLocationUpdateInterval;
       if (failedFor >= reportVehicleLocationUpdateErrorAfter) {
         vehicleLocationUpdateErrorCount = 0;
-        logger.error('Error while updating vehicle locations.', error);
+        logger.error("Error while updating vehicle locations.", error);
       } else {
         vehicleLocationUpdateErrorCount += 1;
       }

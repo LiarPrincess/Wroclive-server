@@ -1,10 +1,10 @@
-import { Line } from '../../models';
-import { FirestoreDatabase } from '../FirestoreDatabase';
-import { FirestoreDatabaseMock, LoggerMock } from './Mocks';
+import { Line } from "../../models";
+import { FirestoreDatabase } from "../FirestoreDatabase";
+import { FirestoreDatabaseMock, LoggerMock } from "./Mocks";
 
-const lineA = new Line('A', 'Bus', 'Express');
-const line4 = new Line('4', 'Tram', 'Regular');
-const line125 = new Line('125', 'Bus', 'Regular');
+const lineA = new Line("A", "Bus", "Express");
+const line4 = new Line("4", "Tram", "Regular");
+const line125 = new Line("125", "Bus", "Regular");
 
 function createDatabase() {
   const firestore = new FirestoreDatabaseMock();
@@ -12,55 +12,22 @@ function createDatabase() {
   return new FirestoreDatabase(firestore, logger);
 }
 
-describe('VehicleLocationsDatabase-Lines', function () {
-
-  describe('getLineNamesLowercase', function () {
-
-    it('starts with no lines', function () {
-      const db = createDatabase();
-      expect(db.getLineNamesLowercase()).toEqual([]);
-    });
-
-    it('adding lines adds names', function () {
-      const db = createDatabase();
-
-      db.updateLineDefinitions({ timestamp: 'TIMESTAMP', data: [lineA, line125] });
-      expect(db.getLineNamesLowercase()).toEqual(['a', '125']);
-    });
-
-    it('updating lines changes names', function () {
-      const db = createDatabase();
-
-      db.updateLineDefinitions({ timestamp: 'TIMESTAMP_1', data: [lineA, line125] });
-      expect(db.getLineNamesLowercase()).toEqual(['a', '125']);
-
-      db.updateLineDefinitions({ timestamp: 'TIMESTAMP_2', data: [line125, line4] });
-      expect(db.getLineNamesLowercase()).toEqual(['125', '4']);
-    });
+describe("VehicleLocationsDatabase-Lines", function () {
+  it("no lines", async function () {
+    const db = createDatabase();
+    const lines = await db.getLines();
+    expect(lines).toEqual([]);
   });
 
-  describe('getLineByName', function () {
-    it('without lines creates one', function () {
-      const db = createDatabase();
-      const lineA = new Line('A', 'Bus', 'Express');
-      expect(db.getLineByName('A')).toEqual(lineA);
-      expect(db.getLineByName('a')).toEqual(lineA);
-    });
+  it("add lines", async function () {
+    const db = createDatabase();
 
-    it('with lines returns existing line ignoring case', function () {
-      const db = createDatabase();
-      db.updateLineDefinitions({ timestamp: 'TIMESTAMP_1', data: [lineA, line125] });
-      expect(db.getLineByName('A')).toEqual(lineA);
-      expect(db.getLineByName('a')).toEqual(lineA);
-    });
+    await db.setLines({ timestamp: "TIMESTAMP_1", data: [lineA, line125] });
+    const lines1 = await db.getLines();
+    expect(lines1).toEqual([lineA, line125]);
 
-    it('with lines returns existing line ignoring case', function () {
-      const db = createDatabase();
-      db.updateLineDefinitions({ timestamp: 'TIMESTAMP_1', data: [lineA, line125] });
-
-      const lineD = new Line('D', 'Bus', 'Express');
-      expect(db.getLineByName('D')).toEqual(lineD);
-      expect(db.getLineByName('d')).toEqual(lineD);
-    });
+    await db.setLines({ timestamp: "TIMESTAMP_2", data: [line125, line4] });
+    const lines2 = await db.getLines();
+    expect(lines2).toEqual([line125, line4]);
   });
 });

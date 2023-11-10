@@ -4,8 +4,9 @@ import { AngleCalculator } from "./AngleCalculator";
 import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
 import { DatabaseType } from "../database";
+import { createLineFromName } from "../database/createLineFromName";
 import { LineLocationsAggregator } from "../helpers";
-import { VehicleLocation, VehicleLocationFromApi } from "../models";
+import { Line, VehicleLocation, VehicleLocationFromApi } from "../models";
 import { VehicleClassifierType, VehicleClassifier } from "../vehicle-classification";
 import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
 
@@ -62,11 +63,27 @@ export class VehicleProvider extends VehicleProviderBase {
     // It may be possible that api hangs (returns the same data over and over).
     let hasAnyVehicleMovedInLastFewMinutes = false;
 
+    const lines = await this.database.getLines();
+    const lineNameLowercaseToLine = new Map<string, Line>();
+
+    for (const line of lines) {
+      const nameLowercase = line.name.toLowerCase();
+      lineNameLowercaseToLine.set(nameLowercase, line);
+    }
+
     this.angleCalculator.prepareForAngleCalculation();
     this.vehicleClassifier.prepareForClassification();
     for (const vehicle of vehicles) {
-      const lineName = vehicle.line;
-      const line = this.database.getLineByName(lineName);
+      let line: Line;
+      const lineNameLowercase = vehicle.line.toLowerCase();
+      const lineOrUndefined = lineNameLowercaseToLine.get(lineNameLowercase);
+
+      if (lineOrUndefined !== undefined) {
+        line = lineOrUndefined;
+      } else {
+        line = createLineFromName(vehicle.line);
+        lineNameLowercaseToLine.set(lineNameLowercase, line);
+      }
 
       const { isInDepot, isWithinScheduleTimeFrame, hasMovedInLastFewMinutes } = this.vehicleClassifier.classify(
         line,

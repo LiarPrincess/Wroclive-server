@@ -1,45 +1,30 @@
 // This dir
 import { ApiType, ApiResult } from "./ApiType";
-import { AngleCalculator } from "./AngleCalculator";
 import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
+import { StateType } from "../state";
 import { DatabaseType } from "../database";
-import { createLineFromName } from "../database/createLineFromName";
-import { LineLocationsAggregator } from "../helpers";
-import { Line, VehicleLocation, VehicleLocationFromApi } from "../models";
-import { VehicleClassifierType, VehicleClassifier } from "../vehicle-classification";
-import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
+import { VehicleLocationFromApi } from "../models";
+import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
 /**
  * Open data is designed as a PRIMARY data source.
  * We are more strict on what we show.
  */
 export class VehicleProvider extends VehicleProviderBase {
-  private readonly api: ApiType;
-  private readonly database: DatabaseType;
-  private readonly angleCalculator: AngleCalculator;
-  private readonly errorReporter: ErrorReporterType;
-  private readonly vehicleClassifier: VehicleClassifierType;
-
   public constructor(
-    api: ApiType,
-    database: DatabaseType,
-    errorReporter: ErrorReporterType,
-    vehicleClassifier?: VehicleClassifierType
+    private readonly api: ApiType,
+    private readonly database: DatabaseType,
+    private readonly state: StateType,
+    private readonly errorReporter: ErrorReporterType
   ) {
     super();
-
-    this.api = api;
-    this.database = database;
-    this.errorReporter = errorReporter;
-    this.vehicleClassifier = vehicleClassifier || new VehicleClassifier();
-    this.angleCalculator = new AngleCalculator(database);
   }
 
   public async getVehicleLocations(): Promise<VehicleLocations> {
     let vehicles: VehicleLocationFromApi[] = [];
-
     const response = await this.getVehicleLocationsFromApi();
+
     switch (response.kind) {
       case "Success":
         vehicles = response.vehicles;
@@ -50,64 +35,25 @@ export class VehicleProvider extends VehicleProviderBase {
         this.errorReporter.apiError(response.error);
         this.errorReporter.resourceIdError(response.resourceIdError);
         return { kind: "ApiError" };
+      default:
+        this.assertUnreachable(response);
     }
-
-    if (!vehicles.length) {
-      this.errorReporter.responseContainsNoVehicles(response);
-      return { kind: "ResponseContainsNoVehicles" };
-    }
-
-    const lineLocationsAggregator = new LineLocationsAggregator();
-
-    // Check if any of the vehicles has moved the last few minutes.
-    // It may be possible that api hangs (returns the same data over and over).
-    let hasAnyVehicleMovedInLastFewMinutes = false;
 
     const lines = await this.database.getLines();
-    const lineNameLowercaseToLine = new Map<string, Line>();
+    const result = await this.state.update(lines, vehicles);
 
-    for (const line of lines) {
-      const nameLowercase = line.name.toLowerCase();
-      lineNameLowercaseToLine.set(nameLowercase, line);
+    switch (result.kind) {
+      case "Success":
+        return result;
+      case "ResponseContainsNoVehicles":
+        this.errorReporter.responseContainsNoVehicles(response);
+        return { kind: "ResponseContainsNoVehicles" };
+      case "NoVehicleHasMovedInLastFewMinutes":
+        this.errorReporter.noVehicleHasMovedInLastFewMinutes();
+        return { kind: "NoVehicleHasMovedInLastFewMinutes" };
+      default:
+        this.assertUnreachable(result);
     }
-
-    this.angleCalculator.prepareForAngleCalculation();
-    this.vehicleClassifier.prepareForClassification();
-    for (const vehicle of vehicles) {
-      let line: Line;
-      const lineNameLowercase = vehicle.line.toLowerCase();
-      const lineOrUndefined = lineNameLowercaseToLine.get(lineNameLowercase);
-
-      if (lineOrUndefined !== undefined) {
-        line = lineOrUndefined;
-      } else {
-        line = createLineFromName(vehicle.line);
-        lineNameLowercaseToLine.set(lineNameLowercase, line);
-      }
-
-      const { isInDepot, isWithinScheduleTimeFrame, hasMovedInLastFewMinutes } = this.vehicleClassifier.classify(
-        line,
-        vehicle
-      );
-
-      hasAnyVehicleMovedInLastFewMinutes = hasAnyVehicleMovedInLastFewMinutes || hasMovedInLastFewMinutes;
-
-      const isVisible = !isInDepot && isWithinScheduleTimeFrame;
-      if (isVisible) {
-        const angle = await this.angleCalculator.calculateAngle(vehicle);
-        const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
-        lineLocationsAggregator.addVehicle(line, vehicleLocation);
-      }
-    }
-
-    if (!hasAnyVehicleMovedInLastFewMinutes) {
-      this.errorReporter.noVehicleHasMovedInLastFewMinutes();
-      return { kind: "NoVehicleHasMovedInLastFewMinutes" };
-    }
-
-    const lineLocations = lineLocationsAggregator.getLineLocations();
-    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
-    return { kind: "Success", lineLocations };
   }
 
   private async getVehicleLocationsFromApi(): Promise<ApiResult> {

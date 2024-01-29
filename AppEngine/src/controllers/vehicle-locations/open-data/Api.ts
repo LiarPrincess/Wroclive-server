@@ -1,14 +1,9 @@
-import { default as axios, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { default as axios, AxiosRequestConfig, AxiosResponse } from "axios";
 
-import {
-  ApiType,
-  ApiResult,
-  VehicleLocationsError,
-  ResourceIdError
-} from './ApiType';
-import { ApiBase } from '../ApiBase';
-import { subtractMilliseconds } from '../helpers';
-import { VehicleLocationFromApi } from '../models';
+import { ApiType, ApiResult, ApiError, ResourceIdError } from "./ApiType";
+import { ApiBase } from "../ApiBase";
+import { subtractMilliseconds } from "../helpers";
+import { VehicleLocationFromApi } from "../models";
 
 /* ============== */
 /* === Config === */
@@ -44,22 +39,18 @@ interface ResourceIdCache {
  * Sometimes the obsolete one, sometimes the hard-coded one. But it will be there.
  */
 class ResourceIdResult {
-  constructor(
-    public readonly resourceId: ResourceId,
-    public readonly error: ResourceIdError | undefined,
-  ) { }
+  constructor(public readonly resourceId: ResourceId, public readonly error: ResourceIdError | undefined) {}
 }
 
 type QueryVehicleLocationsResult =
-  { kind: 'Success', vehicles: VehicleLocationFromApi[], invalidRecords: any[] } |
-  { kind: 'Error', error: VehicleLocationsError };
+  | { kind: "Success"; vehicles: VehicleLocationFromApi[]; invalidRecords: any[] }
+  | { kind: "Error"; error: ApiError };
 
 /* ============ */
 /* === Main === */
 /* ============ */
 
 export class Api extends ApiBase implements ApiType {
-
   private resourceIdCache?: ResourceIdCache;
 
   /* ============================= */
@@ -76,19 +67,19 @@ export class Api extends ApiBase implements ApiType {
     const queryResult = await this.queryVehicleLocations(resourceId, oldVehiclesCheckDate);
 
     switch (queryResult.kind) {
-      case 'Success':
+      case "Success":
         return {
-          kind: 'Success',
+          kind: "Success",
           vehicles: queryResult.vehicles,
           invalidRecords: queryResult.invalidRecords,
-          resourceIdError: resourceErrorIfAny
+          resourceIdError: resourceErrorIfAny,
         };
 
-      case 'Error':
+      case "Error":
         return {
-          kind: 'Error',
+          kind: "Error",
           error: queryResult.error,
-          resourceIdError: resourceErrorIfAny
+          resourceIdError: resourceErrorIfAny,
         };
     }
   }
@@ -97,56 +88,43 @@ export class Api extends ApiBase implements ApiType {
   /* === Query vehicle locations === */
   /* =============================== */
 
-  async queryVehicleLocations(
-    resourceId: string,
-    now: Date
-  ): Promise<QueryVehicleLocationsResult> {
+  async queryVehicleLocations(resourceId: string, now: Date): Promise<QueryVehicleLocationsResult> {
     let responseData: any;
     try {
       // https://docs.ckan.org/en/latest/api/index.html#making-an-api-request
-      const url = 'https://www.wroclaw.pl/open-data/api/action/datastore_search';
+      const url = "https://www.wroclaw.pl/open-data/api/action/datastore_search";
 
       const params = new URLSearchParams();
-      params.append('resource_id', resourceId);
-      params.append('limit', '99999'); // Required, otherwise 100
-      params.append('fields', 'Nr_Boczny'); // Part of id
-      params.append('fields', 'Nazwa_Linii'); // Line
-      params.append('fields', 'Ostatnia_Pozycja_Szerokosc'); // Lat
-      params.append('fields', 'Ostatnia_Pozycja_Dlugosc'); // Lng
-      params.append('fields', 'Data_Aktualizacji'); // Remove stale vehicles
+      params.append("resource_id", resourceId);
+      params.append("limit", "99999"); // Required, otherwise 100
+      params.append("fields", "Nr_Boczny"); // Part of id
+      params.append("fields", "Nazwa_Linii"); // Line
+      params.append("fields", "Ostatnia_Pozycja_Szerokosc"); // Lat
+      params.append("fields", "Ostatnia_Pozycja_Dlugosc"); // Lng
+      params.append("fields", "Data_Aktualizacji"); // Remove stale vehicles
 
       const config: AxiosRequestConfig = { params };
       const response = await axios.get(url, config);
       responseData = response.data;
     } catch (responseError) {
       const statusCode = this.getStatusCode(responseError);
-      const message = statusCode ?
-        `Response with status: ${statusCode}.` :
-        `Unknown request error.`;
+      const message = statusCode ? `Response with status: ${statusCode}.` : `Unknown request error.`;
 
-      const error = new VehicleLocationsError('Network error', message, responseError);
-      return { kind: 'Error', error };
+      const error = new ApiError("Network error", message, responseError);
+      return { kind: "Error", error };
     }
 
     if (responseData.error) {
-      const error = new VehicleLocationsError(
-        'Response with error',
-        'Response contains error field.',
-        responseData
-      );
+      const error = new ApiError("Response with error", "Response contains error field.", responseData);
 
-      return { kind: 'Error', error };
+      return { kind: "Error", error };
     }
 
     const records = responseData?.result?.records;
     if (!records) {
-      const error = new VehicleLocationsError(
-        'No records',
-        'Response does not contain any records.',
-        responseData
-      );
+      const error = new ApiError("No records", "Response does not contain any records.", responseData);
 
-      return { kind: 'Error', error };
+      return { kind: "Error", error };
     }
 
     const result: VehicleLocationFromApi[] = [];
@@ -160,11 +138,12 @@ export class Api extends ApiBase implements ApiType {
       const lng: number = record.Ostatnia_Pozycja_Dlugosc;
       const date = this.parseDate(record.Data_Aktualizacji);
 
-      const isValid = this.isString(sideNumber)
-        && this.isString(line)
-        && this.isNumber(lat)
-        && this.isNumber(lng)
-        && date !== undefined;
+      const isValid =
+        this.isString(sideNumber) &&
+        this.isString(line) &&
+        this.isNumber(lat) &&
+        this.isNumber(lng) &&
+        date !== undefined;
 
       if (!isValid) {
         invalidRecords.push(record);
@@ -173,13 +152,13 @@ export class Api extends ApiBase implements ApiType {
 
       // Some records are permanently invalid, which means that they are always there,
       // but do not represent the valid vehicle.
-      if (line === 'None') {
+      if (line === "None") {
         continue;
       }
 
       // We can ignore time zone, because both 'now' and 'date' are in the same time zone.
       // Note that this does not mean that it is 'Europe/Warsaw', but it should work anyway.
-      const timeSinceUpdate = subtractMilliseconds(now, (date as Date));
+      const timeSinceUpdate = subtractMilliseconds(now, date as Date);
       if (timeSinceUpdate > RemoveVehiclesOlderThan) {
         continue;
       }
@@ -189,16 +168,16 @@ export class Api extends ApiBase implements ApiType {
     }
 
     if (!result.length) {
-      const error = new VehicleLocationsError(
-        'All records invalid',
-        'Response contains records, but all of them are invalid.',
+      const error = new ApiError(
+        "All records invalid",
+        "Response contains records, but all of them are invalid.",
         responseData
       );
 
-      return { kind: 'Error', error };
+      return { kind: "Error", error };
     }
 
-    return { kind: 'Success', vehicles: result, invalidRecords };
+    return { kind: "Success", vehicles: result, invalidRecords };
   }
 
   private getStatusCode(error: any): string | undefined {
@@ -212,7 +191,7 @@ export class Api extends ApiBase implements ApiType {
   async getResourceId(now: Date): Promise<ResourceIdResult> {
     // If everything failed then we will still try to return some id.
     // For now let's use hard-coded one and hope that it has not changed!
-    let resourceIdOnError = '17308285-3977-42f7-81b7-fdd168c210a2';
+    let resourceIdOnError = "17308285-3977-42f7-81b7-fdd168c210a2";
 
     if (this.resourceIdCache) {
       // Ignore DST and other nonsense.
@@ -229,7 +208,8 @@ export class Api extends ApiBase implements ApiType {
 
     // Try to get resource id from 'wroclaw.pl/open-data'
     try {
-      const url = 'https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data.jsonld';
+      const url =
+        "https://www.wroclaw.pl/open-data/dataset/lokalizacjapojazdowkomunikacjimiejskiejnatrasie_data.jsonld";
       const config: AxiosRequestConfig = {};
 
       const response = await axios.get(url, config);
@@ -241,31 +221,31 @@ export class Api extends ApiBase implements ApiType {
       }
 
       const resourceError = new ResourceIdError(
-        'Response without Id',
-        'Unable to get resource id from response',
+        "Response without Id",
+        "Unable to get resource id from response",
         response.data
       );
 
       return new ResourceIdResult(resourceIdOnError, resourceError);
     } catch (error) {
       const statusCode = this.getStatusCode(error);
-      const message = statusCode ?
-        `Resource id response with status: ${statusCode}.` :
-        `Unknown resource id request error.`;
+      const message = statusCode
+        ? `Resource id response with status: ${statusCode}.`
+        : `Unknown resource id request error.`;
 
-      const resourceError = new ResourceIdError('Network error', message, error);
+      const resourceError = new ResourceIdError("Network error", message, error);
       return new ResourceIdResult(resourceIdOnError, resourceError);
     }
   }
 
   private getResourceIdFromResponse(response: AxiosResponse<any>): ResourceId | undefined {
     const data = response.data;
-    const graph: any[] = data['@graph'];
+    const graph: any[] = data["@graph"];
 
     // Try: [@graph][dcat:Dataset][dcat:distribution][@id]
     try {
-      const dataset: any = graph.find(node => node['@type'] === 'dcat:Dataset');
-      const url = dataset['dcat:distribution']['@id'];
+      const dataset: any = graph.find((node) => node["@type"] === "dcat:Dataset");
+      const url = dataset["dcat:distribution"]["@id"];
       const id = this.getSuffixAfterLastSlash(url);
 
       if (id) {
@@ -277,8 +257,8 @@ export class Api extends ApiBase implements ApiType {
 
     // Try: [@graph][dcat:Distribution][dcat:accessURL][@id]
     try {
-      const distribution: any = graph.find(node => node['@type'] === 'dcat:Distribution');
-      const url = distribution['dcat:accessURL']['@id'];
+      const distribution: any = graph.find((node) => node["@type"] === "dcat:Distribution");
+      const url = distribution["dcat:accessURL"]["@id"];
       const id = this.getSuffixAfterLastSlash(url);
 
       if (id) {
@@ -290,8 +270,8 @@ export class Api extends ApiBase implements ApiType {
 
     // Try: [@graph][dcat:Distribution][@id]
     try {
-      const distribution: any = graph.find(node => node['@type'] === 'dcat:Distribution');
-      const url = distribution['@id'];
+      const distribution: any = graph.find((node) => node["@type"] === "dcat:Distribution");
+      const url = distribution["@id"];
       const id = this.getSuffixAfterLastSlash(url);
 
       if (id) {
@@ -308,7 +288,7 @@ export class Api extends ApiBase implements ApiType {
    * Look for the last '/' in the string and return the part after it.
    */
   private getSuffixAfterLastSlash(url: string): string | undefined {
-    const lastSlashIndex = url.lastIndexOf('/');
+    const lastSlashIndex = url.lastIndexOf("/");
 
     if (lastSlashIndex == -1) {
       return undefined;

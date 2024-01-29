@@ -5,10 +5,19 @@ import {
   MpkVehicleProvider,
   VehicleLocationsDatabaseMock,
 } from "./controllers/vehicle-locations";
+import { State, AngleCalculator, AngleCalculatorDatabaseType } from "./controllers/vehicle-locations/state";
 import { Line, LineCollection } from "./controllers/vehicle-locations/models";
 import { createConsoleLogger } from "./util";
+import { VehicleIdToDatabaseLocation } from "./controllers/vehicle-locations/database";
 
 const second = 1000;
+
+class AngleCalculatorDatabase implements AngleCalculatorDatabaseType {
+  async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToDatabaseLocation | undefined> {
+    return undefined;
+  }
+  async saveLastVehicleAngleUpdateLocations(locations: VehicleIdToDatabaseLocation): Promise<void> {}
+}
 
 (async () => {
   try {
@@ -18,7 +27,9 @@ const second = 1000;
 
     const api = new MpkApi();
     const errorReporter = new MpkErrorReporter(logger);
-    const provider = new MpkVehicleProvider(api, database, errorReporter);
+    const angleCalculator = new AngleCalculator(new AngleCalculatorDatabase());
+    const state = new State(angleCalculator);
+    const provider = new MpkVehicleProvider(api, database, state, errorReporter);
 
     while (true) {
       const now = new Date();

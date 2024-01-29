@@ -16,6 +16,9 @@ watch:
 test:
 	npm run-script test
 
+test-watch:
+	npm run-script test -- --watch
+
 coverage:
 	npm run-script test -- --coverage
 

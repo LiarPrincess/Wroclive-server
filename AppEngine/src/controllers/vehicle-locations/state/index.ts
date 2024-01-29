@@ -2,7 +2,12 @@ export { State } from "./State";
 export { StateMock } from "./StateMock";
 export { StateType, UpdateResult } from "./StateType";
 
-export { AngleCalculatorType, AngleCalculator, AngleCalculatorMock } from "./AngleCalculator";
+export {
+  AngleCalculatorType,
+  AngleCalculator,
+  AngleCalculatorMock,
+  AngleCalculatorDatabaseType,
+} from "./AngleCalculator";
 export { DepotClassifierType, DepotClassifier, DepotClassifierMock } from "./DepotClassifier";
 
 export {

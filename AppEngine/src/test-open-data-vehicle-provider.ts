@@ -1,13 +1,22 @@
-import { sleep } from './util';
+import { sleep } from "./util";
 import {
   OpenDataApi,
   OpenDataErrorReporter,
   OpenDataVehicleProvider,
-  VehicleLocationsDatabaseMock
-} from './controllers/vehicle-locations';
-import { createConsoleLogger } from './util';
+  VehicleLocationsDatabaseMock,
+} from "./controllers/vehicle-locations";
+import { State, AngleCalculator, AngleCalculatorDatabaseType } from "./controllers/vehicle-locations/state";
+import { createConsoleLogger } from "./util";
+import { VehicleIdToDatabaseLocation } from "./controllers/vehicle-locations/database";
 
 const second = 1000;
+
+class AngleCalculatorDatabase implements AngleCalculatorDatabaseType {
+  async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToDatabaseLocation | undefined> {
+    return undefined;
+  }
+  async saveLastVehicleAngleUpdateLocations(locations: VehicleIdToDatabaseLocation): Promise<void> {}
+}
 
 (async () => {
   try {
@@ -16,7 +25,9 @@ const second = 1000;
 
     const api = new OpenDataApi();
     const errorReporter = new OpenDataErrorReporter(logger);
-    const provider = new OpenDataVehicleProvider(api, database, errorReporter);
+    const angleCalculator = new AngleCalculator(new AngleCalculatorDatabase());
+    const state = new State(angleCalculator);
+    const provider = new OpenDataVehicleProvider(api, database, state, errorReporter);
 
     while (true) {
       const now = new Date();
@@ -24,10 +35,10 @@ const second = 1000;
 
       const result = await provider.getVehicleLocations();
       switch (result.kind) {
-        case 'Success':
+        case "Success":
           for (const lineLocation of result.lineLocations) {
             const line = lineLocation.line;
-            if (line.name !== 'A') {
+            if (line.name !== "A") {
               continue;
             }
 
@@ -38,14 +49,14 @@ const second = 1000;
             }
           }
           break;
-        case 'ApiError':
-          console.log('ApiError');
+        case "ApiError":
+          console.log("ApiError");
           break;
-        case 'ResponseContainsNoVehicles':
-          console.log('ResponseContainsNoVehicles');
+        case "ResponseContainsNoVehicles":
+          console.log("ResponseContainsNoVehicles");
           break;
-        case 'NoVehicleHasMovedInLastFewMinutes':
-          console.log('NoVehicleHasMovedInLastFewMinutes');
+        case "NoVehicleHasMovedInLastFewMinutes":
+          console.log("NoVehicleHasMovedInLastFewMinutes");
           break;
       }
 

@@ -1,46 +1,31 @@
 // This dir
 import { ApiType, ApiResult } from "./ApiType";
-import { AngleCalculator } from "./AngleCalculator";
 import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
+import { StateType } from "../state";
 import { DatabaseType } from "../database";
-import { createLineFromName } from "../database/createLineFromName";
-import { LineLocationsAggregator } from "../helpers";
-import { Line, VehicleLocation, VehicleLocationFromApi } from "../models";
-import { HasMovedInLastFewMinutesClassifier, HasMovedInLastFewMinutesClassifierType } from "../vehicle-classification";
-import { VehicleProviderBase, VehicleLocations } from "../vehicle-provider";
+import { Line, VehicleLocationFromApi } from "../models";
+import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
 /**
  * Mpk is designed as a SECONDARY data source.
  * We are more lenient on what we show.
  */
 export class VehicleProvider extends VehicleProviderBase {
-  private readonly api: ApiType;
-  private readonly database: DatabaseType;
-  private readonly angleCalculator: AngleCalculator;
-  private readonly errorReporter: ErrorReporterType;
-  private readonly hasMovedInLastFewMinutesClassifier: HasMovedInLastFewMinutesClassifierType;
-
   public constructor(
-    api: ApiType,
-    database: DatabaseType,
-    errorReporter: ErrorReporterType,
-    hasMovedInLastFewMinutesClassifier?: HasMovedInLastFewMinutesClassifierType
+    private readonly api: ApiType,
+    private readonly database: DatabaseType,
+    private readonly state: StateType,
+    private readonly errorReporter: ErrorReporterType
   ) {
     super();
-
-    this.api = api;
-    this.database = database;
-    this.errorReporter = errorReporter;
-    this.angleCalculator = new AngleCalculator(database);
-    this.hasMovedInLastFewMinutesClassifier =
-      hasMovedInLastFewMinutesClassifier || new HasMovedInLastFewMinutesClassifier();
   }
 
   public async getVehicleLocations(): Promise<VehicleLocations> {
+    const lines = await this.database.getLines();
+    const response = await this.getVehicleLocationsFromApi(lines);
     let vehicles: VehicleLocationFromApi[] = [];
 
-    const response = await this.getVehicleLocationsFromApi();
     switch (response.kind) {
       case "Success":
         vehicles = response.vehicles;
@@ -49,66 +34,27 @@ export class VehicleProvider extends VehicleProviderBase {
       case "Error":
         this.errorReporter.apiError(response.error);
         return { kind: "ApiError" };
+      default:
+        this.assertUnreachable(response);
     }
 
-    if (!vehicles.length) {
-      this.errorReporter.responseContainsNoVehicles(response);
-      return { kind: "ResponseContainsNoVehicles" };
+    const result = await this.state.update(lines, vehicles);
+
+    switch (result.kind) {
+      case "Success":
+        return result;
+      case "ResponseContainsNoVehicles":
+        this.errorReporter.responseContainsNoVehicles(response);
+        return { kind: "ResponseContainsNoVehicles" };
+      case "NoVehicleHasMovedInLastFewMinutes":
+        this.errorReporter.noVehicleHasMovedInLastFewMinutes();
+        return { kind: "NoVehicleHasMovedInLastFewMinutes" };
+      default:
+        this.assertUnreachable(result);
     }
-
-    const lines = await this.database.getLines();
-    const lineNameLowercaseToLine = new Map<string, Line>();
-
-    for (const line of lines) {
-      const nameLowercase = line.name.toLowerCase();
-      lineNameLowercaseToLine.set(nameLowercase, line);
-    }
-
-    const lineLocationsAggregator = new LineLocationsAggregator();
-
-    // Check if any of the vehicles has moved the last few minutes.
-    // It may be possible that api hangs (returns the same data over and over).
-    let hasAnyVehicleMovedInLastFewMinutes = false;
-
-    this.angleCalculator.prepareForAngleCalculation();
-    this.hasMovedInLastFewMinutesClassifier.prepareForClassification();
-    for (const vehicle of vehicles) {
-      let line: Line;
-      const lineNameLowercase = vehicle.line.toLowerCase();
-      const lineOrUndefined = lineNameLowercaseToLine.get(lineNameLowercase);
-
-      if (lineOrUndefined !== undefined) {
-        line = lineOrUndefined;
-      } else {
-        line = createLineFromName(vehicle.line);
-        lineNameLowercaseToLine.set(lineNameLowercase, line);
-      }
-
-      // Note that we still want to show this vehicle.
-      // Maybe a tram broke in the middle of Powstancow and all of the other
-      // wait int line.
-      const hasMoved = this.hasMovedInLastFewMinutesClassifier.hasMovedInLastFewMinutes(vehicle);
-      hasAnyVehicleMovedInLastFewMinutes = hasAnyVehicleMovedInLastFewMinutes || hasMoved;
-
-      // Technically we should reset 'angleCalculator' if the mpk provider was
-      // not used in a while (like 30 min etc.).
-      const angle = await this.angleCalculator.calculateAngle(vehicle);
-      const vehicleLocation = new VehicleLocation(vehicle.id, vehicle.lat, vehicle.lng, angle);
-      lineLocationsAggregator.addVehicle(line, vehicleLocation);
-    }
-
-    if (!hasAnyVehicleMovedInLastFewMinutes) {
-      this.errorReporter.noVehicleHasMovedInLastFewMinutes();
-      return { kind: "NoVehicleHasMovedInLastFewMinutes" };
-    }
-
-    const lineLocations = lineLocationsAggregator.getLineLocations();
-    await this.angleCalculator.storeLastVehicleAngleUpdateLocationInDatabase();
-    return { kind: "Success", lineLocations };
   }
 
-  private async getVehicleLocationsFromApi(): Promise<ApiResult> {
-    const lines = await this.database.getLines();
+  private async getVehicleLocationsFromApi(lines: Line[]): Promise<ApiResult> {
     const lineNamesLowercase: string[] = [];
 
     for (const line of lines) {

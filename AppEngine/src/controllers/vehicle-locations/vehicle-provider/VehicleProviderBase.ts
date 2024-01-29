@@ -196,4 +196,8 @@ export abstract class VehicleProviderBase<Database extends VehicleProviderDataba
 
     return this.hasMovedInLastFewMinutesClassifier.hasMovedInLastFewMinutes(now, vehicle);
   }
+
+  protected assertUnreachable(x: never): never {
+    throw new Error("Didn't expect to get here");
+  }
 }

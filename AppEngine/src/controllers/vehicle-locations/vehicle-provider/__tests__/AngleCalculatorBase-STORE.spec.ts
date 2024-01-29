@@ -82,7 +82,5 @@ describe("AngleCalculatorBase-STORE", function () {
       [vehicleId1]: new LastAngleUpdateLocation(5, 7, 0, now),
       [vehicleId2]: new LastAngleUpdateLocation(11, 13, 0, now - locationExpirationInMilliseconds),
     });
-
-    console.log(database.savedAngleLocations);
   });
 });

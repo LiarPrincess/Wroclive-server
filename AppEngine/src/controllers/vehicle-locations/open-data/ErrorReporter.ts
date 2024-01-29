@@ -1,4 +1,4 @@
-import { ApiResult, ResourceIdError, VehicleLocationsError } from "./ApiType";
+import { ApiResult, ResourceIdError, ApiError } from "./ApiType";
 import { IntervalErrorReporter } from "../helpers";
 import { Logger } from "../models";
 
@@ -11,7 +11,7 @@ const minute = 60 * second;
 /* ============ */
 
 export interface ErrorReporterType {
-  apiError(error: VehicleLocationsError): void;
+  apiError(error: ApiError): void;
   resourceIdError(error: ResourceIdError | undefined): void;
   responseContainsInvalidRecords(records: any[]): void;
   responseContainsNoVehicles(result: ApiResult): void;
@@ -54,7 +54,8 @@ export class ErrorReporter implements ErrorReporterType {
       logger
     );
   }
-  apiError(error: VehicleLocationsError): void {
+
+  apiError(error: ApiError): void {
     this.api.report(error);
   }
 
@@ -90,7 +91,7 @@ class ReportedError {
 export class ErrorReporterMock implements ErrorReporterType {
   public readonly errors: ReportedError[] = [];
 
-  apiError(error: VehicleLocationsError): void {
+  apiError(error: ApiError): void {
     this.errors.push(new ReportedError("ApiError", error));
   }
 

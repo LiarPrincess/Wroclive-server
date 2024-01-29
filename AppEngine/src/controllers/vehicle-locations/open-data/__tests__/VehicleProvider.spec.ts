@@ -1,8 +1,8 @@
 import { ApiMock } from "../ApiMock";
+import { DatabaseMock } from "../../database";
 import { VehicleProvider } from "../VehicleProvider";
 import { ErrorReporterMock } from "../ErrorReporter";
-import { ApiResult, ResourceIdError, VehicleLocationsError } from "../ApiType";
-import { DatabaseMock } from "../../database";
+import { ApiResult, ApiError, ResourceIdError } from "../ApiType";
 import { StateMock, UpdateResult } from "../../state";
 import { VehicleLocation, Line, LineLocationLine, VehicleLocationFromApi } from "../../models";
 
@@ -41,28 +41,6 @@ async function createProvider(): Promise<{
 }
 
 describe("OpenDataVehicleProvider", function () {
-  it("returns error if no vehicle has moved", async function () {
-    const { provider, api, database, state, errorReporter } = await createProvider();
-
-    const vehiclesFromApi = [vehicle_lineA_1, vehicle_line4_1];
-    api.results = [
-      {
-        kind: "Success",
-        vehicles: vehiclesFromApi,
-        invalidRecords: [],
-        resourceIdError: undefined,
-      },
-    ];
-
-    state.updateResult = { kind: "NoVehicleHasMovedInLastFewMinutes" };
-
-    const result = await provider.getVehicleLocations();
-    expect(result).toEqual({ kind: "NoVehicleHasMovedInLastFewMinutes" });
-    expect(state.updateCallArgs).toEqual([{ lines, vehicleLocations: vehiclesFromApi }]);
-    expect(database.getLinesCallCount).toEqual(1);
-    expect(errorReporter.errors).toEqual([{ kind: "NoVehicleHasMovedInLastFewMinutes" }]);
-  });
-
   it("returns error if api returns no vehicles", async function () {
     const { provider, api, database, state, errorReporter } = await createProvider();
 
@@ -110,6 +88,28 @@ describe("OpenDataVehicleProvider", function () {
     expect(errorReporter.errors).toEqual([]);
   });
 
+  it("returns error if no vehicle has moved", async function () {
+    const { provider, api, database, state, errorReporter } = await createProvider();
+
+    const vehiclesFromApi = [vehicle_lineA_1, vehicle_line4_1];
+    api.results = [
+      {
+        kind: "Success",
+        vehicles: vehiclesFromApi,
+        invalidRecords: [],
+        resourceIdError: undefined,
+      },
+    ];
+
+    state.updateResult = { kind: "NoVehicleHasMovedInLastFewMinutes" };
+
+    const result = await provider.getVehicleLocations();
+    expect(result).toEqual({ kind: "NoVehicleHasMovedInLastFewMinutes" });
+    expect(state.updateCallArgs).toEqual([{ lines, vehicleLocations: vehiclesFromApi }]);
+    expect(database.getLinesCallCount).toEqual(1);
+    expect(errorReporter.errors).toEqual([{ kind: "NoVehicleHasMovedInLastFewMinutes" }]);
+  });
+
   it("calls api 2 times before returning error", async function () {
     const { provider, api, database, state, errorReporter } = await createProvider();
 
@@ -117,7 +117,7 @@ describe("OpenDataVehicleProvider", function () {
     api.results = [
       {
         kind: "Error",
-        error: new VehicleLocationsError("Network error", "MESSAGE", "DATA"),
+        error: new ApiError("Network error", "MESSAGE", "DATA"),
         resourceIdError: undefined,
       },
       {
@@ -142,8 +142,8 @@ describe("OpenDataVehicleProvider", function () {
   it("returns error on api error", async function () {
     const { provider, api, database, state, errorReporter } = await createProvider();
 
-    const error1 = new VehicleLocationsError("Network error", "MESSAGE_1", "DATA_1");
-    const error2 = new VehicleLocationsError("No records", "MESSAGE_2", "DATA_2");
+    const error1 = new ApiError("Network error", "MESSAGE_1", "DATA_1");
+    const error2 = new ApiError("No records", "MESSAGE_2", "DATA_2");
     api.results = [
       { kind: "Error", error: error1, resourceIdError: undefined },
       { kind: "Error", error: error2, resourceIdError: undefined },
@@ -181,7 +181,7 @@ describe("OpenDataVehicleProvider", function () {
     expect(errorReporter.errors).toEqual([{ kind: "ResourceIdError", arg: resourceIdError }]);
   });
 
-  it("reports invalid records from", async function () {
+  it("reports invalid records from api", async function () {
     const { provider, api, database, state, errorReporter } = await createProvider();
 
     const vehiclesFromApi = [vehicle_lineA_1];

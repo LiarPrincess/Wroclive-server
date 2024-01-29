@@ -1,32 +1,32 @@
-import { VehicleLocationFromApi } from '../models';
+import { VehicleLocationFromApi } from "../models";
 
 export type ApiResult =
-  {
-    kind: 'Success',
-    vehicles: VehicleLocationFromApi[],
-    invalidRecords: any[]
-    resourceIdError: ResourceIdError | undefined
-  } |
-  {
-    kind: 'Error',
-    error: VehicleLocationsError,
-    resourceIdError: ResourceIdError | undefined
-  };
+  | {
+      kind: "Success";
+      vehicles: VehicleLocationFromApi[];
+      invalidRecords: any[];
+      resourceIdError: ResourceIdError | undefined;
+    }
+  | {
+      kind: "Error";
+      error: ApiError;
+      resourceIdError: ResourceIdError | undefined;
+    };
 
-export class VehicleLocationsError {
+export class ApiError {
   constructor(
-    public readonly kind: 'Network error' | 'Response with error' | 'No records' | 'All records invalid',
+    public readonly kind: "Network error" | "Response with error" | "No records" | "All records invalid",
     public readonly message: string,
     public readonly data: any
-  ) { }
+  ) {}
 }
 
 export class ResourceIdError {
   constructor(
-    public readonly kind: 'Response without Id' | 'Network error',
+    public readonly kind: "Response without Id" | "Network error",
     public readonly message: string,
     public readonly errorData: any
-  ) { }
+  ) {}
 }
 
 export interface ApiType {

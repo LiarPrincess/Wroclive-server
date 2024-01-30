@@ -66,7 +66,7 @@ async function updateVehicleLocations(controller: VehicleLocationsController) {
   await controller.updateVehicleLocations();
 }
 
-describe("VehicleLocationsController", () => {
+describe("VehicleLocationsController", function () {
   it("has correct test values", function () {
     const dateDate = new Date(date);
 

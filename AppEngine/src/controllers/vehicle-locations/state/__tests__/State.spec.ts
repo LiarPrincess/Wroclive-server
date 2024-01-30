@@ -1,9 +1,9 @@
 import { UpdateResult } from "../StateType";
 import { State, DateProviderResult, removeVehiclesWithoutUpdateAfter } from "../State";
 import { AngleCalculatorMock } from "../AngleCalculator";
-import { DepotClassifierMock } from "../DepotClassifier";
-import { LineScheduleClassifierMock } from "../LineScheduleClassifier";
-import { HasMovedInLastFewMinutesClassifierMock } from "../HasMovedInLastFewMinutesClassifier";
+import { DepotClassifierMock } from "../../vehicle-classification/DepotClassifier";
+import { LineScheduleClassifierMock } from "../../vehicle-classification/LineScheduleClassifier";
+import { HasMovedInLastFewMinutesClassifierMock } from "../../vehicle-classification/HasMovedInLastFewMinutesClassifier";
 import { Line, LineLocation, VehicleLocation, VehicleLocationFromApi } from "../../models";
 
 /* ============= */

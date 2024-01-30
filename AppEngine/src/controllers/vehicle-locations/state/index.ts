@@ -8,16 +8,3 @@ export {
   AngleCalculatorMock,
   AngleCalculatorDatabaseType,
 } from "./AngleCalculator";
-export { DepotClassifierType, DepotClassifier, DepotClassifierMock } from "./DepotClassifier";
-
-export {
-  LineScheduleClassifierType,
-  LineScheduleClassifier,
-  LineScheduleClassifierMock,
-} from "./LineScheduleClassifier";
-
-export {
-  HasMovedInLastFewMinutesClassifierType,
-  HasMovedInLastFewMinutesClassifier,
-  HasMovedInLastFewMinutesClassifierMock,
-} from "./HasMovedInLastFewMinutesClassifier";

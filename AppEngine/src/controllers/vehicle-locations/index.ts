@@ -10,14 +10,8 @@ export { VehicleLocationsController } from "./VehicleLocationsController";
 export { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
 export { VehicleLocationsControllerMock } from "./VehicleLocationsControllerMock";
 
-import {
-  State,
-  AngleCalculator,
-  AngleCalculatorDatabaseType,
-  DepotClassifier,
-  LineScheduleClassifier,
-  HasMovedInLastFewMinutesClassifier,
-} from "./state";
+import { State, AngleCalculator, AngleCalculatorDatabaseType } from "./state";
+import { DepotClassifier, LineScheduleClassifier, HasMovedInLastFewMinutesClassifier } from "./vehicle-classification";
 import { FirestoreDatabase, VehicleIdToDatabaseLocation } from "./database";
 import { MpkApi, MpkErrorReporter, MpkVehicleProvider } from "./mpk";
 import { OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider } from "./open-data";
@@ -74,6 +68,8 @@ export function createVehicleLocationsController(
   // =================
   // === Open data ===
   // =================
+  // Open data is designed as a PRIMARY data source.
+  // We are more strict on what we show.
 
   const openDataApi = new OpenDataApi();
   const openDataError = new OpenDataErrorReporter(logger);
@@ -91,6 +87,8 @@ export function createVehicleLocationsController(
   // ===========
   // === MPK ===
   // ===========
+  // Mpk is designed as a SECONDARY data source.
+  // We are more lenient on what we show.
 
   const mpkApi = new MpkApi();
   const mpkError = new MpkErrorReporter(logger);

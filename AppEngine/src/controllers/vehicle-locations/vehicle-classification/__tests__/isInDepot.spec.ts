@@ -1,10 +1,4 @@
-import {
-  isInBorekDepot,
-  isInMichalczewskiDepot,
-  isInGajDepot,
-  isInOlbinDepot,
-  isInObornickaDepot
-} from '../isInDepot';
+import { isInBorekDepot, isInMichalczewskiDepot, isInGajDepot, isInOlbinDepot, isInObornickaDepot } from "../isInDepot";
 
 import {
   vehicles,
@@ -12,21 +6,19 @@ import {
   michalczewskiVehicleIds,
   gajVehicleIds,
   olbinVehicleIds,
-  obornickaVehicleIds
-} from './depot-test-data';
+  obornickaVehicleIds,
+} from "./depot-test-data";
 
 type locationFilter = (lat: number, lng: number) => boolean;
 
 function filterVehicles(filter: locationFilter): Set<string> {
-  const ids = vehicles
-    .filter(entry => filter(entry.lat, entry.lng))
-    .map(entry => entry.sideNumber);
+  const ids = vehicles.filter((entry) => filter(entry.lat, entry.lng)).map((entry) => entry.sideNumber);
 
   return new Set(ids);
 }
 
-describe('isInBorekDepot', () => {
-  it('should find correct vehicles', function () {
+describe("isInBorekDepot", () => {
+  it("should find correct vehicles", function () {
     const fn = isInBorekDepot;
     const expected = borekVehicleIds;
 
@@ -35,8 +27,8 @@ describe('isInBorekDepot', () => {
   });
 });
 
-describe('isInMichalczewskiDepot', () => {
-  it('should find correct vehicles', function () {
+describe("isInMichalczewskiDepot", () => {
+  it("should find correct vehicles", function () {
     const fn = isInMichalczewskiDepot;
     const expected = michalczewskiVehicleIds;
 
@@ -45,8 +37,8 @@ describe('isInMichalczewskiDepot', () => {
   });
 });
 
-describe('isInGajDepot', () => {
-  it('should find correct vehicles', function () {
+describe("isInGajDepot", () => {
+  it("should find correct vehicles", function () {
     const fn = isInGajDepot;
     const expected = gajVehicleIds;
 
@@ -55,8 +47,8 @@ describe('isInGajDepot', () => {
   });
 });
 
-describe('isInOlbinDepot', () => {
-  it('should find correct vehicles', function () {
+describe("isInOlbinDepot", () => {
+  it("should find correct vehicles", function () {
     const fn = isInOlbinDepot;
     const expected = olbinVehicleIds;
 
@@ -65,8 +57,8 @@ describe('isInOlbinDepot', () => {
   });
 });
 
-describe('isInObornickaDepot', () => {
-  it('should find correct vehicles', function () {
+describe("isInObornickaDepot", () => {
+  it("should find correct vehicles", function () {
     const fn = isInObornickaDepot;
     const expected = obornickaVehicleIds;
 

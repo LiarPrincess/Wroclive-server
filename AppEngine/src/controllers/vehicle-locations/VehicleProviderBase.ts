@@ -7,6 +7,8 @@ export type VehicleLocations =
   | { kind: "NoVehicleHasMovedInLastFewMinutes" };
 
 export abstract class VehicleProviderBase {
+  abstract getVehicleLocations(): Promise<VehicleLocations>;
+
   protected assertUnreachable(x: never): never {
     throw new Error("Didn't expect to get here");
   }

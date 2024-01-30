@@ -46,7 +46,7 @@ async function createController() {
   const dateProvider = mocks.getCurrentDate;
 
   const logger = new mocks.LoggerMock();
-  const controller = new VehicleLocationsController(database, openDataProvider, mpkProvider, logger, dateProvider);
+  const controller = new VehicleLocationsController(openDataProvider, mpkProvider, logger, dateProvider);
 
   return { database, openDataProvider, mpkProvider, controller };
 }
@@ -77,6 +77,24 @@ describe("VehicleLocationsController", function () {
     const dateAfterPeriodDate = new Date(dateAfterPeriod);
     const diffAfterPeriod = subtractMilliseconds(dateAfterPeriodDate, dateDate);
     expect(diffAfterPeriod).toBeGreaterThan(timeForWhichToUsePreviousResultIfAllProvidersFailed);
+  });
+
+  it("sets lines on both providers", async function () {
+    const { controller, openDataProvider, mpkProvider } = await createController();
+
+    const lines1 = new LineCollection("TIMESTAMP_1", [lineA, line4, line125]);
+    await controller.setLines(lines1);
+    expect(openDataProvider.setLinesArg).toEqual(lines1.data);
+    expect(openDataProvider.setLinesCallCount).toEqual(1);
+    expect(mpkProvider.setLinesArg).toEqual(lines1.data);
+    expect(mpkProvider.setLinesCallCount).toEqual(1);
+
+    const lines2 = new LineCollection("TIMESTAMP_2", [lineA, line125]);
+    await controller.setLines(lines2);
+    expect(openDataProvider.setLinesArg).toEqual(lines2.data);
+    expect(openDataProvider.setLinesCallCount).toEqual(2);
+    expect(mpkProvider.setLinesArg).toEqual(lines2.data);
+    expect(mpkProvider.setLinesCallCount).toEqual(2);
   });
 
   it("responds with no locations as soon as it is created", async function () {

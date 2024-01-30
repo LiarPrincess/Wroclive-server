@@ -1,4 +1,4 @@
-import { AngleCalculatorDatabaseMock } from "../AngleCalculatorMock";
+import { DatabaseMock } from "../DatabaseMock";
 import { AngleCalculator, minMovementToUpdateHeading, locationExpirationInMilliseconds } from "../AngleCalculator";
 import { VehicleLocationFromApi } from "../../models";
 import { calculateDistanceInMeters } from "../../helpers";
@@ -15,8 +15,8 @@ function calculateDistanceInMetersForVehicles(before: VehicleLocationFromApi, af
   return calculateDistanceInMeters(before.lat, before.lng, after.lat, after.lng);
 }
 
-function createAngleCalculator(): [AngleCalculator, AngleCalculatorDatabaseMock] {
-  const database = new AngleCalculatorDatabaseMock();
+function createAngleCalculator(): [AngleCalculator, DatabaseMock] {
+  const database = new DatabaseMock();
   const calculator = new AngleCalculator(database);
   return [calculator, database];
 }
@@ -117,7 +117,6 @@ describe("AngleCalculatorBase-GET", function () {
 
   it("[Vehicle not in database] Initial -> small move within time-frame [NO UPDATE] -> move within time-frame [UPDATE]", async function () {
     const [calculator, database] = createAngleCalculator();
-
     database.getAngleLocationsResult[vehicle1Initial.id] = undefined;
 
     // Initial, angle: 0
@@ -144,7 +143,6 @@ describe("AngleCalculatorBase-GET", function () {
 
   it("differentiates vehicles", async function () {
     const [calculator, database] = createAngleCalculator();
-
     database.getAngleLocationsResult[vehicle1Initial.id] = undefined;
     database.getAngleLocationsResult[vehicle2Initial.id] = undefined;
 

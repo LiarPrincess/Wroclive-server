@@ -1,4 +1,4 @@
-import { LineLocation } from "./models";
+import { LineCollection, LineLocation } from "./models";
 
 export type VehicleLocations =
   | { kind: "Success"; lineLocations: LineLocation[] }
@@ -7,6 +7,7 @@ export type VehicleLocations =
   | { kind: "NoVehicleHasMovedInLastFewMinutes" };
 
 export abstract class VehicleProviderBase {
+  abstract setLines(lines: LineCollection): Promise<void>;
   abstract getVehicleLocations(): Promise<VehicleLocations>;
 
   protected assertUnreachable(x: never): never {

@@ -1,9 +1,8 @@
 import { ApiMock } from "../ApiMock";
-import { DatabaseMock } from "../../database";
 import { VehicleProvider } from "../VehicleProvider";
 import { ErrorReporterMock } from "../ErrorReporter";
 import { ApiResult, ApiError, ResourceIdError } from "../ApiType";
-import { StateMock, UpdateResult } from "../../state";
+import { StateMock, UpdateResult, DatabaseMock } from "../../state";
 import { VehicleLocation, Line, LineLocationLine, VehicleLocationFromApi } from "../../models";
 
 const lineA = new Line("A", "Bus", "Express");

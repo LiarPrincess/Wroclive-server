@@ -1,26 +1,24 @@
-import { LineLocationCollection } from './models';
-import { VehicleLocationsControllerType } from './VehicleLocationsControllerType';
-import { DatabaseMock } from './database';
+import { LineCollection, LineLocationCollection } from "./models";
+import { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
 
-export class VehicleLocationsControllerMock extends VehicleLocationsControllerType {
-
-  constructor() {
-    super(new DatabaseMock());
-  }
-
-  data = new LineLocationCollection('', []);
+export class VehicleLocationsControllerMock implements VehicleLocationsControllerType {
+  data = new LineLocationCollection("", []);
   getVehicleLocationsCallCount = 0;
-  updateVehicleLocationsCallCount = 0;
   lineNamesLowerCaseArg: Set<string> = new Set();
 
-  getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
+  public getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {
     this.getVehicleLocationsCallCount++;
     this.lineNamesLowerCaseArg = lineNamesLowercase;
     return this.data;
   }
 
-  updateVehicleLocations(): Promise<void> {
+  updateVehicleLocationsCallCount = 0;
+
+  public async updateVehicleLocations(): Promise<void> {
     this.updateVehicleLocationsCallCount++;
-    return Promise.resolve();
+  }
+
+  public async setLines(lines: LineCollection): Promise<void> {
+    throw new Error("[VehicleLocationsControllerMock.setLines] Should not be called.");
   }
 }

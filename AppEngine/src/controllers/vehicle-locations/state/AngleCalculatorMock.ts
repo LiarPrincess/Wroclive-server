@@ -1,28 +1,5 @@
-import { AngleCalculatorType, AngleCalculatorDatabaseType } from "./AngleCalculatorType";
+import { AngleCalculatorType } from "./AngleCalculatorType";
 import { VehicleLocationFromApi } from "../models";
-import { VehicleIdToDatabaseLocation } from "../database";
-
-export class AngleCalculatorDatabaseMock implements AngleCalculatorDatabaseType {
-  public getAngleLocationsResult: VehicleIdToDatabaseLocation = {};
-  public getAngleLocationsCallCount = 0;
-
-  public async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToDatabaseLocation | undefined> {
-    if (this.getAngleLocationsResult === undefined) {
-      throw new Error("[DatabaseMock.getLastVehicleAngleUpdateLocations] was not expected to be called.");
-    }
-
-    this.getAngleLocationsCallCount += 1;
-    return this.getAngleLocationsResult;
-  }
-
-  public savedAngleLocations: VehicleIdToDatabaseLocation | undefined;
-  public saveAngleLocationsCallCount = 0;
-
-  public async saveLastVehicleAngleUpdateLocations(locations: VehicleIdToDatabaseLocation) {
-    this.saveAngleLocationsCallCount += 1;
-    this.savedAngleLocations = locations;
-  }
-}
 
 export class AngleCalculatorMock implements AngleCalculatorType {
   public vehicleIdToAngle = new Map<string, number>();

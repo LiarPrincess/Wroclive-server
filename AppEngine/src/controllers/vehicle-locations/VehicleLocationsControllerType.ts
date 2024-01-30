@@ -1,21 +1,18 @@
-import { LineLocationCollection } from './models';
-import { DatabaseType } from './database';
+import { LineCollection, LineLocationCollection } from "./models";
 
-export abstract class VehicleLocationsControllerType {
-
-  public readonly database: DatabaseType;
-
-  public constructor(database: DatabaseType) {
-    this.database = database;
-  }
-
+export interface VehicleLocationsControllerType {
   /**
    * Get vehicle locations for selected lines.
    */
-  public abstract getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection;
+  getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection;
 
   /**
    * Update locations for all of the vehicles.
    */
-  public abstract updateVehicleLocations(): Promise<void>;
+  updateVehicleLocations(): Promise<void>;
+
+  /**
+   * Update line definitions.
+   */
+  setLines(lines: LineCollection): Promise<void>;
 }

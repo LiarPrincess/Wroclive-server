@@ -1,18 +1,18 @@
+import { DatabaseMock } from "../DatabaseMock";
 import {
   AngleCalculator,
   LastAngleUpdateLocation,
   locationExpirationInMilliseconds,
   storeInDatabaseIntervalInMilliseconds,
 } from "../AngleCalculator";
-import { AngleCalculatorDatabaseMock } from "../AngleCalculatorMock";
 import { VehicleLocationFromApi } from "../../models";
 
 const vehicleId1 = "1";
 const vehicleId2 = "2";
 const vehicleId3 = "3";
 
-function createAngleCalculator(): [AngleCalculator, AngleCalculatorDatabaseMock] {
-  const database = new AngleCalculatorDatabaseMock();
+function createAngleCalculator(): [AngleCalculator, DatabaseMock] {
+  const database = new DatabaseMock();
   const calculator = new AngleCalculator(database);
   return [calculator, database];
 }

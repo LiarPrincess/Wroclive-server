@@ -1,4 +1,5 @@
-import { AngleCalculatorType, AngleCalculatorDatabaseType } from "./AngleCalculatorType";
+import { DatabaseType } from "./DatabaseType";
+import { AngleCalculatorType } from "./AngleCalculatorType";
 import { VehicleLocationFromApi } from "../models";
 import { calculateDistanceInMeters, calculateHeading, minute, second } from "../helpers";
 
@@ -38,14 +39,14 @@ export interface VehicleIdToLastAngleUpdateLocation {
 /* ============ */
 
 export class AngleCalculator implements AngleCalculatorType {
-  private readonly database: AngleCalculatorDatabaseType;
+  private readonly database: DatabaseType;
   /** Last place at which we updated vehicle angle/heading. */
   protected vehicleIdToLastAngleUpdateLocation: VehicleIdToLastAngleUpdateLocation = {};
   /** Date of the last database save. */
   private lastStoreAsMillisecondsSince1970 = 0;
   private hasRetrievedLastAngleUpdateLocationFromDatabase = false;
 
-  public constructor(database: AngleCalculatorDatabaseType) {
+  public constructor(database: DatabaseType) {
     this.database = database;
   }
 

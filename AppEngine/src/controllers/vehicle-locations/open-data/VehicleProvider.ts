@@ -7,10 +7,6 @@ import { DatabaseType } from "../database";
 import { VehicleLocationFromApi } from "../models";
 import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
-/**
- * Open data is designed as a PRIMARY data source.
- * We are more strict on what we show.
- */
 export class VehicleProvider extends VehicleProviderBase {
   public constructor(
     private readonly api: ApiType,

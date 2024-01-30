@@ -1,10 +1,9 @@
 import { Logger } from "../../../util";
-import { VehicleLocations } from "../VehicleProviderBase";
-import { VehicleProviderType } from "../VehicleLocationsController";
+import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
 export { DatabaseMock } from "../database";
 
-export class VehicleProviderMock implements VehicleProviderType {
+export class VehicleProviderMock extends VehicleProviderBase {
   public result: VehicleLocations | undefined;
 
   public getVehicleLocations(): Promise<VehicleLocations> {

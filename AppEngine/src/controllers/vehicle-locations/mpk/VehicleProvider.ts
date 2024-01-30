@@ -7,10 +7,6 @@ import { DatabaseType } from "../database";
 import { Line, VehicleLocationFromApi } from "../models";
 import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
-/**
- * Mpk is designed as a SECONDARY data source.
- * We are more lenient on what we show.
- */
 export class VehicleProvider extends VehicleProviderBase {
   public constructor(
     private readonly api: ApiType,

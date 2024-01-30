@@ -1,11 +1,15 @@
 // This dir
 import { StateType, UpdateResult } from "./StateType";
 import { AngleCalculatorType } from "./AngleCalculator";
-import { DepotClassifierType } from "./DepotClassifier";
 import { createLineFromName } from "./createLineFromName";
-import { HasMovedInLastFewMinutesClassifierType } from "./HasMovedInLastFewMinutesClassifier";
-import { LineScheduleClassifierType, Time, getCurrentTimeInWroclaw } from "./LineScheduleClassifier";
 // Parent dir
+import {
+  DepotClassifierType,
+  HasMovedInLastFewMinutesClassifierType,
+  LineScheduleClassifierType,
+  Time,
+  getCurrentTimeInWroclaw,
+} from "../vehicle-classification";
 import { subtractMilliseconds, minute } from "../helpers";
 import { Line, LineLocation, LineLocationLine, VehicleLocation, VehicleLocationFromApi } from "../models";
 

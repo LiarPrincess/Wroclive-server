@@ -1,6 +1,6 @@
 import { UpdateResult } from "../StateType";
 import { State, DateProviderResult, removeVehiclesWithoutUpdateAfter } from "../State";
-import { AngleCalculatorMock } from "../AngleCalculator";
+import { AngleCalculatorMock } from "../AngleCalculatorMock";
 import { DepotClassifierMock } from "../../vehicle-classification/DepotClassifier";
 import { LineScheduleClassifierMock } from "../../vehicle-classification/LineScheduleClassifier";
 import { HasMovedInLastFewMinutesClassifierMock } from "../../vehicle-classification/HasMovedInLastFewMinutesClassifier";

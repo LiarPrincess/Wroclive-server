@@ -1,10 +1,10 @@
 import {
   AngleCalculator,
-  AngleCalculatorDatabaseMock,
   LastAngleUpdateLocation,
   locationExpirationInMilliseconds,
   storeInDatabaseIntervalInMilliseconds,
 } from "../AngleCalculator";
+import { AngleCalculatorDatabaseMock } from "../AngleCalculatorMock";
 import { VehicleLocationFromApi } from "../../models";
 
 const vehicleId1 = "1";

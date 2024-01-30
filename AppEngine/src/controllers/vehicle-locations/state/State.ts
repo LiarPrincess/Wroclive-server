@@ -1,6 +1,6 @@
 // This dir
 import { StateType, UpdateResult } from "./StateType";
-import { AngleCalculatorType } from "./AngleCalculator";
+import { AngleCalculatorType } from "./AngleCalculatorType";
 import { createLineFromName } from "./createLineFromName";
 // Parent dir
 import {

@@ -1,9 +1,5 @@
-import {
-  AngleCalculator,
-  AngleCalculatorDatabaseMock,
-  minMovementToUpdateHeading,
-  locationExpirationInMilliseconds,
-} from "../AngleCalculator";
+import { AngleCalculatorDatabaseMock } from "../AngleCalculatorMock";
+import { AngleCalculator, minMovementToUpdateHeading, locationExpirationInMilliseconds } from "../AngleCalculator";
 import { VehicleLocationFromApi } from "../../models";
 import { calculateDistanceInMeters } from "../../helpers";
 

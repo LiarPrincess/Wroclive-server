@@ -1,5 +1,5 @@
 import { DatabaseType } from "./database";
-import { VehicleProviderBase } from "./vehicle-provider";
+import { VehicleLocations } from "./vehicle-provider";
 import { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
 import { IntervalErrorReporter, minute, subtractMilliseconds } from "./helpers";
 import { Logger, LineLocation, LineLocationCollection } from "./models";
@@ -32,9 +32,13 @@ type State =
       lineLocations: LineLocationCollection;
     };
 
+export interface VehicleProviderType {
+  getVehicleLocations(): Promise<VehicleLocations>;
+}
+
 export class VehicleLocationsController extends VehicleLocationsControllerType {
-  private readonly openDataProvider: VehicleProviderBase;
-  private readonly mpkProvider: VehicleProviderBase;
+  private readonly openDataProvider: VehicleProviderType;
+  private readonly mpkProvider: VehicleProviderType;
   private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
   private readonly updateFromAllDataSourcesFailed: IntervalErrorReporter;
@@ -43,8 +47,8 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
   public constructor(
     database: DatabaseType,
-    openDataProvider: VehicleProviderBase,
-    mpkProvider: VehicleProviderBase,
+    openDataProvider: VehicleProviderType,
+    mpkProvider: VehicleProviderType,
     logger: Logger,
     dateProvider?: DateProvider
   ) {

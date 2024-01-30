@@ -1,5 +1,4 @@
 export { VehicleProviderBase, VehicleLocations } from "./VehicleProviderBase";
-export { VehicleProviderMock } from "./VehicleProviderMock";
 
 export { VehicleProviderDatabaseType, VehicleProviderDatabaseMock } from "./VehicleProviderDatabase";
 export { AngleCalculatorType, AngleCalculator, AngleCalculatorMock } from "./AngleCalculator";

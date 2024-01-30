@@ -2,9 +2,8 @@
 import { ApiType, ApiResult } from "./ApiType";
 import { ErrorReporterType } from "./ErrorReporter";
 // Parent dir
-import { StateType } from "../state";
-import { DatabaseType } from "../database";
-import { Line, VehicleLocationFromApi } from "../models";
+import { StateType, DatabaseType } from "../state";
+import { Line, LineCollection, VehicleLocationFromApi } from "../models";
 import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 
 export class VehicleProvider extends VehicleProviderBase {
@@ -15,6 +14,10 @@ export class VehicleProvider extends VehicleProviderBase {
     private readonly errorReporter: ErrorReporterType
   ) {
     super();
+  }
+
+  public async setLines(lines: LineCollection): Promise<void> {
+    await this.database.setLines(lines);
   }
 
   public async getVehicleLocations(): Promise<VehicleLocations> {

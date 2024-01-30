@@ -1,5 +1,5 @@
 import { ApiMock } from "../ApiMock";
-import { DatabaseMock } from "../../database";
+import { DatabaseMock } from "../../state";
 import { ApiError, ApiResult } from "../ApiType";
 import { VehicleProvider } from "../VehicleProvider";
 import { ErrorReporterMock } from "../ErrorReporter";

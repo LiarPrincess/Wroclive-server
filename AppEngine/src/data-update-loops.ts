@@ -24,7 +24,7 @@ function startUpdatingLines(controllers: Controllers, logger: Logger) {
 
       // We also need to push them to vehicle controller.
       const lines = controllers.lines.getLines();
-      controllers.vehicleLocation.database.setLines(lines);
+      await controllers.vehicleLocation.setLines(lines);
     } catch (error) {
       logger.error("Failed to update lines", error);
     }

@@ -1,70 +1,24 @@
 export { VehicleLocation, LineLocation, LineLocationLine, LineLocationCollection } from "./models";
 export { MpkApi, MpkErrorReporter, MpkVehicleProvider } from "./mpk";
 export { OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider } from "./open-data";
-export {
-  FirestoreDatabase as VehicleLocationsDatabase,
-  DatabaseType as VehicleLocationsDatabaseType,
-  DatabaseMock as VehicleLocationsDatabaseMock,
-} from "./database";
+export { DatabaseType as VehicleLocationsDatabaseType, DatabaseMock as VehicleLocationsDatabaseMock } from "./state";
 export { VehicleLocationsController } from "./VehicleLocationsController";
 export { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
 export { VehicleLocationsControllerMock } from "./VehicleLocationsControllerMock";
 
-import { State, AngleCalculator, AngleCalculatorDatabaseType } from "./state";
-import { DepotClassifier, LineScheduleClassifier, HasMovedInLastFewMinutesClassifier } from "./vehicle-classification";
-import { FirestoreDatabase, VehicleIdToDatabaseLocation } from "./database";
-import { MpkApi, MpkErrorReporter, MpkVehicleProvider } from "./mpk";
-import { OpenDataApi, OpenDataErrorReporter, OpenDataVehicleProvider } from "./open-data";
+import { State, AngleCalculator } from "./state";
 import { VehicleLocationsController } from "./VehicleLocationsController";
+import { MpkVehicleProvider, MpkApi, MpkDatabase, MpkErrorReporter } from "./mpk";
+import { OpenDataVehicleProvider, OpenDataApi, OpenDataDatabase, OpenDataErrorReporter } from "./open-data";
+import { DepotClassifier, LineScheduleClassifier, HasMovedInLastFewMinutesClassifier } from "./vehicle-classification";
 import { Logger } from "../../util";
 import { FirestoreVehicleLocationsDatabase } from "../../cloud-platform";
-
-function createTimestamp(): string {
-  const now = new Date();
-  return now.toISOString();
-}
-
-class OpenDataAngleCalculatorDatabase implements AngleCalculatorDatabaseType {
-  public constructor(private readonly firestore: FirestoreVehicleLocationsDatabase) {}
-
-  public async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToDatabaseLocation | undefined> {
-    const doc = await this.firestore.getOpenDataLastVehicleAngleUpdateLocations();
-    return doc?.data;
-  }
-
-  public async saveLastVehicleAngleUpdateLocations(locations: VehicleIdToDatabaseLocation): Promise<void> {
-    const timestamp = createTimestamp();
-    await this.firestore.saveOpenDataLastVehicleAngleUpdateLocations({
-      timestamp,
-      data: locations,
-    });
-  }
-}
-
-class MpkAngleCalculatorDatabase implements AngleCalculatorDatabaseType {
-  public constructor(private readonly firestore: FirestoreVehicleLocationsDatabase) {}
-
-  public async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToDatabaseLocation | undefined> {
-    const doc = await this.firestore.getMpkLastVehicleAngleUpdateLocations();
-    return doc?.data;
-  }
-
-  public async saveLastVehicleAngleUpdateLocations(locations: VehicleIdToDatabaseLocation): Promise<void> {
-    const timestamp = createTimestamp();
-    await this.firestore.saveMpkLastVehicleAngleUpdateLocations({
-      timestamp,
-      data: locations,
-    });
-  }
-}
 
 /** Factory function, since the assembly is a bit complicated. */
 export function createVehicleLocationsController(
   firestore: FirestoreVehicleLocationsDatabase,
   logger: Logger
 ): VehicleLocationsController {
-  const database = new FirestoreDatabase(firestore, logger);
-
   // =================
   // === Open data ===
   // =================
@@ -73,16 +27,16 @@ export function createVehicleLocationsController(
 
   const openDataApi = new OpenDataApi();
   const openDataError = new OpenDataErrorReporter(logger);
+  const openDataDatabase = new OpenDataDatabase(firestore, logger);
 
-  const openDataAngleDatabase = new OpenDataAngleCalculatorDatabase(firestore);
   const openDataState = new State(
-    new AngleCalculator(openDataAngleDatabase),
+    new AngleCalculator(openDataDatabase),
     new DepotClassifier(),
     new LineScheduleClassifier(),
     new HasMovedInLastFewMinutesClassifier()
   );
 
-  const openDataProvider = new OpenDataVehicleProvider(openDataApi, database, openDataState, openDataError);
+  const openDataProvider = new OpenDataVehicleProvider(openDataApi, openDataDatabase, openDataState, openDataError);
 
   // ===========
   // === MPK ===
@@ -92,16 +46,16 @@ export function createVehicleLocationsController(
 
   const mpkApi = new MpkApi();
   const mpkError = new MpkErrorReporter(logger);
+  const mpkDatabase = new MpkDatabase(firestore, logger);
 
-  const mpkAngleDatabase = new MpkAngleCalculatorDatabase(firestore);
   const mpkState = new State(
-    new AngleCalculator(mpkAngleDatabase),
+    new AngleCalculator(mpkDatabase),
     /* DepotClassifier */ undefined,
     /* LineScheduleClassifier */ undefined,
     new HasMovedInLastFewMinutesClassifier()
   );
 
-  const mpkProvider = new MpkVehicleProvider(mpkApi, database, mpkState, mpkError);
+  const mpkProvider = new MpkVehicleProvider(mpkApi, mpkDatabase, mpkState, mpkError);
 
-  return new VehicleLocationsController(database, openDataProvider, mpkProvider, logger);
+  return new VehicleLocationsController(openDataProvider, mpkProvider, logger);
 }

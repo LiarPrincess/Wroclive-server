@@ -1,9 +1,18 @@
-import { Logger } from "../../../util";
+import { Line, LineCollection } from "../models";
 import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
+import { Logger } from "../../../util";
 
 export { DatabaseMock } from "../database";
 
 export class VehicleProviderMock extends VehicleProviderBase {
+  public setLinesArg: Line[] = [];
+  public setLinesCallCount = 0;
+
+  public async setLines(lines: LineCollection): Promise<void> {
+    this.setLinesArg = lines.data;
+    this.setLinesCallCount++;
+  }
+
   public result: VehicleLocations | undefined;
 
   public getVehicleLocations(): Promise<VehicleLocations> {

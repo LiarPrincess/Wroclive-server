@@ -32,7 +32,7 @@ type State =
       lineLocations: LineLocationCollection;
     };
 
-export class VehicleLocationsController extends VehicleLocationsControllerType {
+export class VehicleLocationsController implements VehicleLocationsControllerType {
   private readonly openDataProvider: VehicleProviderBase;
   private readonly mpkProvider: VehicleProviderBase;
   private readonly logger: Logger;
@@ -42,14 +42,11 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
   private state: State;
 
   public constructor(
-    database: DatabaseType,
     openDataProvider: VehicleProviderBase,
     mpkProvider: VehicleProviderBase,
     logger: Logger,
     dateProvider?: DateProvider
   ) {
-    super(database);
-
     this.openDataProvider = openDataProvider;
     this.mpkProvider = mpkProvider;
     this.logger = logger;
@@ -64,6 +61,11 @@ export class VehicleLocationsController extends VehicleLocationsControllerType {
 
     const lineLocations = new LineLocationCollection("INITIAL_TIMESTAMP", []);
     this.state = { kind: "Initial", lineLocations };
+  }
+
+  public async setLines(lines: LineCollection): Promise<void> {
+    await this.openDataProvider.setLines(lines);
+    await this.mpkProvider.setLines(lines);
   }
 
   public getVehicleLocations(lineNamesLowercase: Set<string>): LineLocationCollection {

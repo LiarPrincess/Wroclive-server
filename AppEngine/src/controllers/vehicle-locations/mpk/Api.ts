@@ -1,20 +1,19 @@
-import { default as axios, AxiosRequestConfig } from 'axios';
+import { default as axios, AxiosRequestConfig } from "axios";
 
-import { ApiBase } from '../ApiBase';
-import { VehicleLocationFromApi } from '../models';
-import { ApiType, ApiResult, ApiError } from './ApiType';
+import { ApiBase } from "../ApiBase";
+import { VehicleLocationFromApi } from "../models";
+import { ApiType, ApiResult, ApiError } from "./ApiType";
 
 export class Api extends ApiBase implements ApiType {
-
   async getVehicleLocations(lineNamesLowercase: string[]): Promise<ApiResult> {
-    const url = 'https://mpk.wroc.pl/bus_position';
+    const url = "https://mpk.wroc.pl/bus_position";
     const query = this.createQuery(lineNamesLowercase);
 
     const config: AxiosRequestConfig = {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-      }
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        Accept: "application/json, text/javascript, */*; q=0.01",
+      },
     };
 
     let responseData: any;
@@ -23,21 +22,15 @@ export class Api extends ApiBase implements ApiType {
       responseData = response.data;
     } catch (error) {
       const statusCode = this.getStatusCode(error);
-      const message = statusCode ?
-        `Response with status: ${statusCode}.` :
-        `Unknown request error.`;
+      const message = statusCode ? `Response with status: ${statusCode}.` : `Unknown request error.`;
 
-      const e = new ApiError('Network error', message, error);
-      return { kind: 'Error', error: e };
+      const e = new ApiError("Network error", message, error);
+      return { kind: "Error", error: e };
     }
 
     if (!Array.isArray(responseData)) {
-      const error = new ApiError(
-        'Invalid response',
-        'Response data is not an array.',
-        responseData
-      );
-      return { kind: 'Error', error };
+      const error = new ApiError("Invalid response", "Response data is not an array.", responseData);
+      return { kind: "Error", error };
     }
 
     const result: VehicleLocationFromApi[] = [];
@@ -49,9 +42,7 @@ export class Api extends ApiBase implements ApiType {
       const lat: number = v.x;
       const lng: number = v.y;
 
-      const isValid = this.isString(lineName)
-        && this.isNumber(lat)
-        && this.isNumber(lng);
+      const isValid = this.isString(lineName) && this.isNumber(lat) && this.isNumber(lng);
 
       if (isValid) {
         const id = lineName + nonUniqueId.toString();
@@ -62,15 +53,15 @@ export class Api extends ApiBase implements ApiType {
       }
     }
 
-    return { kind: 'Success', vehicles: result, invalidRecords };
+    return { kind: "Success", vehicles: result, invalidRecords };
   }
 
   private createQuery(lineNamesLowercase: string[]): string {
-    let result = '';
+    let result = "";
 
     for (let index = 0; index < lineNamesLowercase.length; index++) {
       if (index > 0) {
-        result += '&';
+        result += "&";
       }
 
       const lineNameLower = lineNamesLowercase[index];

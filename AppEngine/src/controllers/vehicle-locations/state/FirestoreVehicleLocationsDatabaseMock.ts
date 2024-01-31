@@ -1,16 +1,12 @@
-import { Logger } from '../../models';
-import {
-  FirestoreVehicleLocationsDatabase,
-  FirestoreVehicleLocationsDocument
-} from '../../../../cloud-platform';
+import { Logger } from "../models";
+import { FirestoreVehicleLocationsDatabase, FirestoreVehicleLocationsDocument } from "../../../cloud-platform";
 
 export class LoggerMock implements Logger {
-  info(message?: any, ...optionalParams: any[]): void { }
-  error(message?: any, ...optionalParams: any[]): void { }
+  info(message?: any, ...optionalParams: any[]): void {}
+  error(message?: any, ...optionalParams: any[]): void {}
 }
 
-export class FirestoreDatabaseMock implements FirestoreVehicleLocationsDatabase {
-
+export class FirestoreVehicleLocationsDatabaseMock implements FirestoreVehicleLocationsDatabase {
   public getOpenDataDocumentCallCount = 0;
   public saveOpenDataDocumentCallCount = 0;
   public openDataDocument: FirestoreVehicleLocationsDocument | undefined;

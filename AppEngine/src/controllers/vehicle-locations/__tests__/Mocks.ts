@@ -2,8 +2,6 @@ import { Line, LineCollection } from "../models";
 import { VehicleProviderBase, VehicleLocations } from "../VehicleProviderBase";
 import { Logger } from "../../../util";
 
-export { DatabaseMock } from "../database";
-
 export class VehicleProviderMock extends VehicleProviderBase {
   public setLinesArg: Line[] = [];
   public setLinesCallCount = 0;

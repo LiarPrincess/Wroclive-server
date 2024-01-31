@@ -1,8 +1,7 @@
-import { DatabaseType } from "./database";
 import { VehicleProviderBase } from "./VehicleProviderBase";
 import { VehicleLocationsControllerType } from "./VehicleLocationsControllerType";
 import { IntervalErrorReporter, minute, subtractMilliseconds } from "./helpers";
-import { Logger, LineLocation, LineLocationCollection } from "./models";
+import { Logger, LineLocation, LineLocationCollection, LineCollection } from "./models";
 
 export const timeForWhichToUsePreviousResultIfAllProvidersFailed = 2 * minute;
 

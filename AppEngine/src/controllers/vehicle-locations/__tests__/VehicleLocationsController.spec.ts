@@ -1,12 +1,5 @@
 import * as mocks from "./Mocks";
-import {
-  Line,
-  LineCollection,
-  LineLocation,
-  LineLocationLine,
-  LineLocationCollection,
-  VehicleLocation,
-} from "../models";
+import { LineCollection, LineLocation, LineLocationLine, LineLocationCollection, VehicleLocation } from "../models";
 import {
   VehicleLocationsController,
   timeForWhichToUsePreviousResultIfAllProvidersFailed,
@@ -32,23 +25,13 @@ const dateAfterPeriod = "2020-01-01 10:03:01";
 const dateAfterPeriodTimestamp = "2020-01-01T09:03:01.000Z";
 
 async function createController() {
-  const database = new mocks.DatabaseMock();
-  database.setLines(
-    new LineCollection("TIMESTAMP", [
-      new Line(lineA.name, lineA.type, lineA.subtype),
-      new Line(line4.name, line4.type, line4.subtype),
-      new Line(line125.name, line125.type, line125.subtype),
-    ])
-  );
+  const logger = new mocks.LoggerMock();
+  const dateProvider = mocks.getCurrentDate;
 
   const openDataProvider = new mocks.VehicleProviderMock();
   const mpkProvider = new mocks.VehicleProviderMock();
-  const dateProvider = mocks.getCurrentDate;
-
-  const logger = new mocks.LoggerMock();
   const controller = new VehicleLocationsController(openDataProvider, mpkProvider, logger, dateProvider);
-
-  return { database, openDataProvider, mpkProvider, controller };
+  return { openDataProvider, mpkProvider, controller };
 }
 
 function getVehicleLocations(controller: VehicleLocationsController, lineNames: string[]): LineLocationCollection {

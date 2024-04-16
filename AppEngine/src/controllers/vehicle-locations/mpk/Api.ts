@@ -1,3 +1,4 @@
+import { Agent as HttpsAgent } from "https";
 import { default as axios, AxiosRequestConfig } from "axios";
 
 import { ApiBase } from "../ApiBase";
@@ -14,6 +15,9 @@ export class Api extends ApiBase implements ApiType {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         Accept: "application/json, text/javascript, */*; q=0.01",
       },
+      httpsAgent: new HttpsAgent({
+        rejectUnauthorized: false,
+      }),
     };
 
     let responseData: any;

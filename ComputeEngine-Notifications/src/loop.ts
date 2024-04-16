@@ -1,9 +1,9 @@
-import { CleanTweet } from './CleanTweet';
-import { NotificationStore } from './notification-store';
-import { PushNotificationSender } from './push-notifications';
-import { Tweet, Twitter, TwitterUser } from './twitter';
-import { Logger } from './util';
-import { loopInterval, tweetCount } from './config';
+import { Notification } from "./Notification";
+import { NotificationStore } from "./notification-store";
+import { PushNotificationSender } from "./push-notifications";
+import { Tweet, Twitter, TwitterUser } from "./twitter";
+import { Logger } from "./util";
+import { loopInterval, tweetCount } from "./config";
 
 export class LoopDependencies {
   constructor(
@@ -12,7 +12,7 @@ export class LoopDependencies {
     public readonly notificationStore: NotificationStore,
     public readonly pushNotificationSender: PushNotificationSender,
     public readonly logger: Logger
-  ) { }
+  ) {}
 }
 
 export function startLoop(dependencies: LoopDependencies) {
@@ -20,7 +20,7 @@ export function startLoop(dependencies: LoopDependencies) {
     try {
       await singleIteration(dependencies);
     } catch (error) {
-      dependencies.logger.error('Failed to update lines', error);
+      dependencies.logger.error("[Notifications] Loop iteration failed", error);
     }
 
     setTimeout(update, loopInterval);
@@ -43,48 +43,43 @@ async function singleIteration(dependencies: LoopDependencies) {
     return;
   }
 
-  const cleanTweets = tweets.map(t => CleanTweet.fromTweet(t));
+  const notifications = tweets.map((t) => Notification.fromTweet(t));
 
   try {
-    await notificationStore.store(cleanTweets);
+    await notificationStore.store(notifications);
   } catch (error) {
-    logger.error('[Notifications] Unable to store notifications', error);
+    logger.error("[Notifications] Unable to store notifications", error);
   }
 
   try {
-    await pushNotificationSender.send(cleanTweets);
+    await pushNotificationSender.send(notifications);
   } catch (error) {
-    logger.error('[Notifications] Unable to send push notifications', error);
+    logger.error("[Notifications] Unable to send push notifications", error);
   }
 }
 
-async function getTweets(
-  twitter: Twitter,
-  user: TwitterUser,
-  logger: Logger
-): Promise<Tweet[] | undefined> {
-
+async function getTweets(twitter: Twitter, user: TwitterUser, logger: Logger): Promise<Tweet[] | undefined> {
   const getTweetsResult = await twitter.getTweets(user, {
     maxResults: tweetCount,
     excludeReplies: true,
-    excludeRetweets: true
+    excludeRetweets: true,
   });
 
   const getTweetsErrorMessage = `[PushNotifications] Unable to get latest ${tweetCount} tweets from '${user.username}': ${getTweetsResult.kind}`;
 
   switch (getTweetsResult.kind) {
-    case 'Success':
+    case "Success":
       return getTweetsResult.tweets;
 
-    case 'Response with errors':
+    case "Response with errors":
       logger.error(getTweetsErrorMessage, getTweetsResult.errors);
       return undefined;
 
-    case 'Invalid response':
+    case "Invalid response":
       logger.error(getTweetsErrorMessage, getTweetsResult.response);
       return undefined;
 
-    case 'Network error':
+    case "Network error":
       logger.error(getTweetsErrorMessage, getTweetsResult.error);
       return undefined;
   }

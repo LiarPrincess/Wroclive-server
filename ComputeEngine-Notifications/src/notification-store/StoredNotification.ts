@@ -1,36 +1,22 @@
-import { CleanTweet } from '../CleanTweet';
-import { FirestoreNotification } from '../cloud-platform';
+import { Notification } from "../Notification";
+import { FirestoreNotification } from "../cloud-platform";
 
 export class StoredNotificationAuthor {
-  constructor(
-    public readonly name: string,
-    public readonly username: string
-  ) { }
+  constructor(public readonly name: string, public readonly username: string) {}
 }
 
 export class StoredNotification implements FirestoreNotification {
-
-  constructor(
+  public constructor(
     public readonly id: string,
     public readonly url: string,
     public readonly author: StoredNotificationAuthor,
     public readonly date: string,
     public readonly body: string
-  ) { }
+  ) {}
 
-  public static fromTweet(tweet: CleanTweet): StoredNotification {
-    const date = tweet.createdAt.toISOString();
-    const author = new StoredNotificationAuthor(
-      tweet.author.name,
-      tweet.author.username
-    );
-
-    return new StoredNotification(
-      tweet.id,
-      tweet.url,
-      author,
-      date,
-      tweet.text
-    );
+  public static fromNotification(n: Notification): StoredNotification {
+    const date = n.createdAt.toISOString();
+    const author = new StoredNotificationAuthor(n.author.name, n.author.username);
+    return new StoredNotification(n.id, n.url, author, date, n.text);
   }
 }

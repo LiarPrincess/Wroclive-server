@@ -1,33 +1,28 @@
-import { StoredNotification } from './StoredNotification';
-import { CleanTweet } from '../CleanTweet';
+import { StoredNotification } from "./StoredNotification";
+import { Notification } from "../Notification";
 import {
   FirestoreNotification,
   FirestoreAllNotificationsDocument,
-  FirestoreNotificationDatabase
-} from '../cloud-platform';
-import { Logger } from '../util';
+  FirestoreNotificationDatabase,
+} from "../cloud-platform";
+import { Logger } from "../util";
 
 export type DateProvider = () => Date;
 
 export class Store {
-
   private readonly database: FirestoreNotificationDatabase;
   private readonly logger: Logger;
   private readonly dateProvider: DateProvider;
   private notificationIdsInDatabase: Set<string> | undefined;
 
-  public constructor(
-    database: FirestoreNotificationDatabase,
-    logger: Logger,
-    dateProvider?: DateProvider
-  ) {
+  public constructor(database: FirestoreNotificationDatabase, logger: Logger, dateProvider?: DateProvider) {
     this.database = database;
     this.logger = logger;
     this.dateProvider = dateProvider || (() => new Date());
   }
 
-  public async store(tweets: CleanTweet[]) {
-    const notifications = tweets.map(t => StoredNotification.fromTweet(t));
+  public async store(tweets: Notification[]) {
+    const notifications = tweets.map((t) => StoredNotification.fromNotification(t));
 
     const hasNew = await this.hasNewNotifications(notifications);
     if (!hasNew) {
@@ -39,7 +34,7 @@ export class Store {
 
     const document: FirestoreAllNotificationsDocument = {
       timestamp,
-      data: notifications
+      data: notifications,
     };
 
     this.notificationIdsInDatabase = this.toIdSet(notifications);
@@ -47,7 +42,7 @@ export class Store {
     try {
       await this.database.storeNotifications(document);
     } catch (error) {
-      this.logger.error('[NotificationStore] Error when storing notifications in database.', error);
+      this.logger.error("[NotificationStore] Error when storing notifications in database.", error);
     }
   }
 
@@ -72,11 +67,9 @@ export class Store {
     let result: Set<string>;
     try {
       const document = await this.database.getNotifications();
-      result = document === undefined ?
-        new Set<string>() :
-        this.toIdSet(document.data);
+      result = document === undefined ? new Set<string>() : this.toIdSet(document.data);
     } catch (error) {
-      this.logger.error('[NotificationStore] Error when getting notifications from database.', error);
+      this.logger.error("[NotificationStore] Error when getting notifications from database.", error);
       result = new Set<string>();
     }
 

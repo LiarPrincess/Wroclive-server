@@ -1,43 +1,33 @@
-import crypto from 'crypto';
-import OAuth, { Token as OAuthToken } from 'oauth-1.0a';
+import crypto from "crypto";
+import OAuth, { Token as OAuthToken } from "oauth-1.0a";
 
-import {
-  GetUserEndpoint,
-  GetUserResponse,
-  GetTweetsEndpoint,
-  GetTweetsOptions,
-  GetTweetsResponse
-} from './endpoints';
-import { User } from './User';
+import { GetUserEndpoint, GetUserResponse, GetTweetsEndpoint, GetTweetsOptions, GetTweetsResponse } from "./endpoints";
+import { User } from "./User";
 
 export class Twitter {
-
   private readonly getUserEndpoint: GetUserEndpoint;
   private readonly getTweetsEndpoint: GetTweetsEndpoint;
 
   public constructor(credentials: {
-    consumerKey: string,
-    consumerSecret: string,
-    accessTokenKey: string,
-    accessTokenSecret: string
+    consumerKey: string;
+    consumerSecret: string;
+    accessTokenKey: string;
+    accessTokenSecret: string;
   }) {
     const oauth = new OAuth({
       consumer: {
         key: credentials.consumerKey,
         secret: credentials.consumerSecret,
       },
-      signature_method: 'HMAC-SHA1',
+      signature_method: "HMAC-SHA1",
       hash_function(base_string, key) {
-        return crypto
-          .createHmac('sha1', key)
-          .update(base_string)
-          .digest('base64');
+        return crypto.createHmac("sha1", key).update(base_string).digest("base64");
       },
     });
 
     const oauthToken: OAuthToken = {
       key: credentials.accessTokenKey,
-      secret: credentials.accessTokenSecret
+      secret: credentials.accessTokenSecret,
     };
 
     this.getUserEndpoint = new GetUserEndpoint(oauth, oauthToken);

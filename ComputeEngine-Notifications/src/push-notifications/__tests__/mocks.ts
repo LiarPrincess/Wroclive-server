@@ -1,15 +1,14 @@
-import { DatabaseType } from '../database';
-import { PushNotification } from '../PushNotification';
-import { ApplePushNotificationsType, AppleDeviceToken, AppleSendResult, AppleSendError } from '../apple';
-import { Logger } from '../../util';
+import { DatabaseType } from "../database";
+import { PushNotification } from "../PushNotification";
+import { ApplePushNotificationsType, AppleDeviceToken, AppleSendResult, AppleSendError } from "../apple";
+import { Logger } from "../../util";
 
 export class LoggerMock implements Logger {
-  info(message?: any, ...optionalParams: any[]): void { }
-  error(message?: any, ...optionalParams: any[]): void { }
+  info(message?: any, ...optionalParams: any[]): void {}
+  error(message?: any, ...optionalParams: any[]): void {}
 }
 
 export class DatabaseMock implements DatabaseType {
-
   /* ==================== */
   /* === Already send === */
   /* ==================== */
@@ -61,14 +60,10 @@ export class DatabaseMock implements DatabaseType {
 }
 
 export class ApplePushNotificationsMock implements ApplePushNotificationsType {
-
   public sendArgs: any[] = [];
   public sendResult: AppleSendResult | Error = new AppleSendResult([], []);
 
-  async send(
-    notification: PushNotification,
-    deviceTokens: AppleDeviceToken[]
-  ): Promise<AppleSendResult> {
+  async send(notification: PushNotification, deviceTokens: AppleDeviceToken[]): Promise<AppleSendResult> {
     this.sendArgs.push({ notification, deviceTokens });
 
     if (this.sendResult instanceof AppleSendResult) {

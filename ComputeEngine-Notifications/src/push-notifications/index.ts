@@ -3,9 +3,9 @@ export {
   AppleEnvironment,
   ApplePushNotifications,
   LocalApplePushNotifications,
-  ApplePushNotificationsType
-} from './apple';
+  ApplePushNotificationsType,
+} from "./apple";
 
-export { PushNotification } from './PushNotification';
-export { PushNotificationSender } from './PushNotificationSender';
-export { Database as PushNotificationDatabase } from './database';
+export { PushNotification } from "./PushNotification";
+export { PushNotificationSender } from "./PushNotificationSender";
+export { Database as PushNotificationDatabase } from "./database";

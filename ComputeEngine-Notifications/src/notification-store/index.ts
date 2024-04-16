@@ -1,2 +1,2 @@
-export { Store as NotificationStore } from './Store';
-export { StoredNotification } from './StoredNotification';
+export { Store as NotificationStore } from "./Store";
+export { StoredNotification } from "./StoredNotification";

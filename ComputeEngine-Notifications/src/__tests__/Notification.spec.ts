@@ -1,4 +1,4 @@
-import { Tweet, TweetAuthor } from "../twitter";
+import { Tweet, TweetAuthor } from "../twitter-api";
 import { Notification, NotificationAuthor } from "../Notification";
 
 const author = new TweetAuthor("296212741", "MPK Wrocław", "AlertMPK");

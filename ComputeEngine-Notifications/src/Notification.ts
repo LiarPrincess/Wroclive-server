@@ -1,4 +1,4 @@
-import { Tweet } from "./twitter";
+import { Tweet } from "./twitter-api";
 
 // No type definitions?
 const htmlEscaper = require("html-escaper");

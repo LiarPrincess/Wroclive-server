@@ -1,5 +1,5 @@
 import { Tweet, TweetAuthor } from "../twitter";
-import { Notification } from "../Notification";
+import { Notification, NotificationAuthor } from "../Notification";
 
 const author = new TweetAuthor("296212741", "MPK Wrocław", "AlertMPK");
 
@@ -23,7 +23,7 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
     const result = Notification.fromTweet(tweet);
     expect(result.id).toEqual(tweet.id);
     expect(result.url).toEqual(tweet.url);
-    expect(result.author).toEqual(tweet.author);
+    expect(result.author).toEqual(new NotificationAuthor(tweet.author.name, tweet.author.username));
     expect(result.createdAt).toEqual(tweet.createdAt);
   });
 

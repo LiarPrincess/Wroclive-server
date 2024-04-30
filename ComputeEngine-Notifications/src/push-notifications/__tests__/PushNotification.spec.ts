@@ -17,7 +17,7 @@ describe("PushNotification", () => {
       id: "1500857433622732808",
       threadId: "2022-03-07", // Group by day
       url: "https://twitter.com/AlertMPK/status/1500857433622732808",
-      author: "https://twitter.com/AlertMPK",
+      author: "MPK Wrocław (@AlertMPK)",
       createdAt: date,
       body: "ul. Żmigrodzka - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu.",
     });

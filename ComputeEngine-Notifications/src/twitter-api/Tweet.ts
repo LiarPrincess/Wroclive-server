@@ -1,14 +1,9 @@
-import { User } from './User';
+import { User } from "./User";
 
 export class TweetAuthor {
-
   public readonly url: string;
 
-  public constructor(
-    public readonly id: string,
-    public readonly name: string,
-    public readonly username: string
-  ) {
+  public constructor(public readonly id: string, public readonly name: string, public readonly username: string) {
     this.url = `https://twitter.com/${this.username}`;
   }
 
@@ -18,7 +13,6 @@ export class TweetAuthor {
 }
 
 export class Tweet {
-
   public readonly url: string;
   public readonly conversationUrl: string;
 

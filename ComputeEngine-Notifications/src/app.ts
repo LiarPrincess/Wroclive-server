@@ -9,9 +9,9 @@ import {
   PushNotificationDatabase,
   PushNotificationSender,
 } from "./push-notifications";
+import { TwitterClient } from "./TwitterClient";
+import { TwitterApiClient } from "./twitter-api";
 import { NotificationStore } from "./notification-store";
-import { Twitter } from "./twitter";
-import { twitterUsername } from "./config";
 import { Logger, createLogger, getRootDir, isProduction, isLocal } from "./util";
 import { LoopDependencies, startLoop } from "./loop";
 
@@ -23,62 +23,45 @@ process.title = "CE-Notifications";
   const logger = createLogger("CE-Notifications");
 
   try {
-    const twitter = await createTwitterClient();
+    logger.info(`[Notifications] Creating Twitter api.`);
+    const twitter = await createTwitterApiClient(logger);
+
+    if (twitter === undefined) {
+      // Error was already logged.
+      return;
+    }
 
     let firestore: FirestoreDatabaseType;
     let apn: ApplePushNotificationsType;
 
     if (isProduction) {
+      logger.info(`[Notifications] Connecting to Firestore.`);
       firestore = new FirestoreDatabase();
-      apn = await createApplePushNotificationClient('production');
+      logger.info(`[Notifications] Connecting to ApplePushNotification.`);
+      apn = await createApplePushNotificationClient("production");
     } else {
-      const applePushNotificationTokens: string[] = ['TOKEN_1'];
+      const applePushNotificationTokens: string[] = ["TOKEN_1"];
       firestore = new LocalFirestoreDatabase(applePushNotificationTokens, logger);
       apn = new LocalApplePushNotifications(logger);
     }
 
+    logger.info(`[Notifications] Creating store/sender.`);
     const notificationStore = new NotificationStore(firestore, logger);
     const pushNotificationSender = createPushNotificationSender(apn, firestore, logger);
 
-    const twitterUserResult = await twitter.getUser(twitterUsername);
-    const twitterUserErrorMessage = `[PushNotifications] Unable to get twitter user '${twitterUsername}': ${twitterUserResult.kind}`;
-
-    switch (twitterUserResult.kind) {
-      case 'Success':
-        const twitterUser = twitterUserResult.user;
-        logger.info(`[Notifications] Got twitter user '${twitterUsername}'. Starting loop.`);
-
-        const dependencies = new LoopDependencies(
-          twitter,
-          twitterUser,
-          notificationStore,
-          pushNotificationSender,
-          logger
-        );
-
-        startLoop(dependencies);
-        break;
-
-      case 'Response with errors':
-        logger.error(twitterUserErrorMessage, twitterUserResult.errors);
-        break;
-      case 'Invalid response':
-        logger.error(twitterUserErrorMessage, twitterUserResult.response);
-        break;
-      case 'Network error':
-        logger.error(twitterUserErrorMessage, twitterUserResult.error);
-        break;
-    }
+    logger.info(`[Notifications] Starting loop.`);
+    const dependencies = new LoopDependencies(twitter, notificationStore, pushNotificationSender, logger);
+    startLoop(dependencies);
   } catch (error) {
     logger.error("[Notifications] Error when starting the loop", error);
   }
 })();
 
-async function createTwitterClient(): Promise<Twitter> {
+async function createTwitterApiClient(logger: Logger): Promise<TwitterClient | undefined> {
   const rootDir = await getRootDir();
   const credentialsPath = join(rootDir, "Twitter-Credentials.json");
   const credentials = require(credentialsPath);
-  return new Twitter(credentials);
+  return new TwitterApiClient(credentials, logger);
 }
 
 async function createApplePushNotificationClient(environment: AppleEnvironment): Promise<ApplePushNotifications> {

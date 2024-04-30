@@ -1,6 +1,6 @@
-import { User } from '../User';
-import { Tweet, TweetAuthor } from '../Tweet';
-import { Endpoint, NetworkError, isString, parseDate } from './Endpoint';
+import { User } from "../User";
+import { Tweet, TweetAuthor } from "../Tweet";
+import { Endpoint, NetworkError, isString, parseDate } from "./Endpoint";
 
 export interface GetTweetsOptions {
   readonly maxResults?: number;
@@ -10,29 +10,28 @@ export interface GetTweetsOptions {
 }
 
 export type GetTweetsResponse =
-  { kind: 'Success', tweets: Tweet[], nextPageToken: string } |
-  { kind: 'Response with errors', errors: any[] } |
-  { kind: 'Invalid response', response: any } |
-  { kind: 'Network error', error: NetworkError };
+  | { kind: "Success"; tweets: Tweet[]; nextPageToken: string }
+  | { kind: "Response with errors"; errors: any[] }
+  | { kind: "Invalid response"; response: any }
+  | { kind: "Network error"; error: NetworkError };
 
 /// https://developer.twitter.com/en/docs/twitter-api/tweets/timelines/api-reference/get-users-id-tweets
 export class GetTweetsEndpoint extends Endpoint {
-
   public async call(user: User, options: GetTweetsOptions | undefined): Promise<GetTweetsResponse> {
     const url = this.createUrl(user, options);
     const result = await this.get(url);
 
     switch (result.kind) {
-      case 'Success':
+      case "Success":
         const response = result.response as ResponseModel;
 
         if (response.errors) {
-          return { kind: 'Response with errors', errors: response.errors };
+          return { kind: "Response with errors", errors: response.errors };
         }
 
         const tweetModels = response.data;
         if (!Array.isArray(tweetModels)) {
-          return { kind: 'Invalid response', response: tweetModels };
+          return { kind: "Invalid response", response: tweetModels };
         }
 
         // If the users are invalid we can deal with it (no need for error).
@@ -45,15 +44,15 @@ export class GetTweetsEndpoint extends Endpoint {
           if (tweet) {
             tweets.push(tweet);
           } else {
-            return { kind: 'Invalid response', response: tweetModels };
+            return { kind: "Invalid response", response: tweetModels };
           }
         }
 
         const nextPageToken = response.meta.next_token;
-        return { kind: 'Success', tweets, nextPageToken };
+        return { kind: "Success", tweets, nextPageToken };
 
-      case 'Network error':
-        return { kind: 'Network error', error: result.error };
+      case "Network error":
+        return { kind: "Network error", error: result.error };
     }
   }
 
@@ -65,11 +64,11 @@ export class GetTweetsEndpoint extends Endpoint {
     }
 
     if (options?.excludeRetweets && options?.excludeReplies) {
-      url += '&exclude=retweets,replies';
+      url += "&exclude=retweets,replies";
     } else if (options?.excludeRetweets) {
-      url += '&exclude=retweets';
+      url += "&exclude=retweets";
     } else if (options?.excludeReplies) {
-      url += '&exclude=replies';
+      url += "&exclude=replies";
     }
 
     if (options?.pagination_token) {
@@ -94,11 +93,8 @@ export class GetTweetsEndpoint extends Endpoint {
     const createdAt = model?.created_at;
     const authorId = model?.author_id;
 
-    const isValid = isString(id)
-      && isString(conversationId)
-      && isString(authorId)
-      && isString(createdAt)
-      && isString(text);
+    const isValid =
+      isString(id) && isString(conversationId) && isString(authorId) && isString(createdAt) && isString(text);
 
     if (!isValid) {
       return undefined;
@@ -115,7 +111,6 @@ export class GetTweetsEndpoint extends Endpoint {
 }
 
 class AuthorCollection {
-
   private readonly originalAuthor: TweetAuthor;
   private readonly responseAuthors: TweetAuthor[] = [];
 
@@ -166,7 +161,7 @@ interface ResponseUserModel {
 interface ResponseModel {
   data: ResponseTweetModel[];
   includes?: {
-    users: ResponseUserModel[]
+    users: ResponseUserModel[];
   };
   meta: {
     readonly oldest_id: string;

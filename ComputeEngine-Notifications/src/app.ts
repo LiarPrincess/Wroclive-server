@@ -9,8 +9,8 @@ import {
   PushNotificationDatabase,
   PushNotificationSender,
 } from "./push-notifications";
-import { TwitterClient } from "./TwitterClient";
 import { TwitterApiClient } from "./twitter-api";
+import { NitterClient } from "./twitter-nitter";
 import { NotificationStore } from "./notification-store";
 import { Logger, createLogger, getRootDir, isProduction, isLocal } from "./util";
 import { LoopDependencies, startLoop } from "./loop";
@@ -24,7 +24,12 @@ process.title = "CE-Notifications";
 
   try {
     logger.info(`[Notifications] Creating Twitter api.`);
-    const twitter = await createTwitterApiClient(logger);
+    // const rootDir = await getRootDir();
+    // const twitterCredentialsPath = join(rootDir, "Twitter-Credentials.json");
+    // const twitterCredentials = require(twitterCredentialsPath);
+    // const twitter = new TwitterApiClient(twitterCredentials, logger);
+
+    const twitter = new NitterClient(logger);
 
     if (twitter === undefined) {
       // Error was already logged.
@@ -45,8 +50,10 @@ process.title = "CE-Notifications";
       apn = new LocalApplePushNotifications(logger);
     }
 
-    logger.info(`[Notifications] Creating store/sender.`);
+    logger.info(`[Notifications] Creating notification store.`);
     const notificationStore = new NotificationStore(firestore, logger);
+
+    logger.info(`[Notifications] Creating push notification sender.`);
     const pushNotificationSender = createPushNotificationSender(apn, firestore, logger);
 
     logger.info(`[Notifications] Starting loop.`);
@@ -56,13 +63,6 @@ process.title = "CE-Notifications";
     logger.error("[Notifications] Error when starting the loop", error);
   }
 })();
-
-async function createTwitterApiClient(logger: Logger): Promise<TwitterClient | undefined> {
-  const rootDir = await getRootDir();
-  const credentialsPath = join(rootDir, "Twitter-Credentials.json");
-  const credentials = require(credentialsPath);
-  return new TwitterApiClient(credentials, logger);
-}
 
 async function createApplePushNotificationClient(environment: AppleEnvironment): Promise<ApplePushNotifications> {
   if (isLocal && environment === "production") {

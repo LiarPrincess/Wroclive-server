@@ -6,7 +6,11 @@ export interface GetTweetsOptions {
   readonly includeRetweets: boolean;
 }
 
+export class TwitterUser {
+  public constructor(public readonly name: string, public readonly username: string) {}
+}
+
 export interface TwitterClient {
   /** Get latests tweets from a given user. */
-  getTweets(username: string, options: GetTweetsOptions): Promise<Notification[] | undefined>;
+  getTweets(user: TwitterUser, options: GetTweetsOptions): Promise<Notification[] | undefined>;
 }

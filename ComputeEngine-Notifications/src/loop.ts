@@ -2,7 +2,7 @@ import { NotificationStore } from "./notification-store";
 import { PushNotificationSender } from "./push-notifications";
 import { Logger } from "./util";
 import { TwitterClient } from "./TwitterClient";
-import { twitterUsername, loopInterval, tweetCount } from "./config";
+import { twitterUser, loopInterval, tweetCount } from "./config";
 
 export class LoopDependencies {
   constructor(
@@ -30,7 +30,7 @@ export function startLoop(dependencies: LoopDependencies) {
 async function singleIteration(dependencies: LoopDependencies) {
   const { twitter, notificationStore, pushNotificationSender, logger } = dependencies;
 
-  const notifications = await twitter.getTweets(twitterUsername, {
+  const notifications = await twitter.getTweets(twitterUser, {
     count: tweetCount,
     includeReplies: false,
     includeRetweets: false,

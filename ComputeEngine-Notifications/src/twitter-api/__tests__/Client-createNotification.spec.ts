@@ -1,5 +1,6 @@
-import { Tweet, TweetAuthor } from "../twitter-api";
-import { Notification, NotificationAuthor } from "../Notification";
+import { TwitterApiClient } from "..";
+import { Tweet, TweetAuthor } from "../Tweet";
+import { NotificationAuthor } from "../../Notification";
 
 const author = new TweetAuthor("296212741", "MPK Wrocław", "AlertMPK");
 
@@ -8,7 +9,7 @@ function createTweet(text: string): Tweet {
   return new Tweet("id", "conversationId", author, createdAt, text);
 }
 
-describe("Notification", () => {
+describe("TwitterApiClient-createNotification", () => {
   it("takes id, createdAt etc. from original tweet", async () => {
     const tweet = new Tweet(
       "1491376201558261760",
@@ -20,7 +21,7 @@ describe("Notification", () => {
 Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich - FAT.`
     );
 
-    const result = Notification.fromTweet(tweet);
+    const result = TwitterApiClient.createNotification(tweet);
     expect(result.id).toEqual(tweet.id);
     expect(result.url).toEqual(tweet.url);
     expect(result.author).toEqual(new NotificationAuthor(tweet.author.name, tweet.author.username));
@@ -33,7 +34,7 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
 Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich - FAT.`;
 
     const tweet = createTweet(text);
-    const result = Notification.fromTweet(tweet);
+    const result = TwitterApiClient.createNotification(tweet);
     expect(result.text).toEqual(text);
   });
 
@@ -65,7 +66,7 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
         const text = prefix + separator + originalText;
         const tweet = createTweet(text);
 
-        const result = Notification.fromTweet(tweet);
+        const result = TwitterApiClient.createNotification(tweet);
         expect(result.text).toEqual(originalText);
       }
     }
@@ -83,7 +84,7 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
 🚍 Kursują autobusy "za tramwaj" w relacji Dworzec Nadodrze> Poświętne.<`;
 
     const tweet = createTweet(text);
-    const result = Notification.fromTweet(tweet);
+    const result = TwitterApiClient.createNotification(tweet);
     expect(result.text).toEqual(expected);
   });
 
@@ -102,7 +103,7 @@ Zadysponowano autobusy 'za tramwaj" w relacji FAT - ul. Powstańców Śląskich 
 🚋 Tramwaje linii 70 zostały skierowane przez ul. Powstańców Śląskich do Zajezdni BOREK, gdzie zawracają.`;
 
     const tweet = createTweet(text);
-    const result = Notification.fromTweet(tweet);
+    const result = TwitterApiClient.createNotification(tweet);
     expect(result.text).toEqual(expected);
   });
 });

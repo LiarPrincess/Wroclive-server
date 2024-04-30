@@ -4,16 +4,25 @@ import OAuth, { Token as OAuthToken } from "oauth-1.0a";
 import { GetUserEndpoint, GetUserResponse, GetTweetsEndpoint, GetTweetsOptions, GetTweetsResponse } from "./endpoints";
 import { User } from "./User";
 
-export class Twitter {
+export interface Credentials {
+  consumerKey: string;
+  consumerSecret: string;
+  accessTokenKey: string;
+  accessTokenSecret: string;
+}
+
+export abstract class ApiBase {
+  public abstract getUser(username: string): Promise<GetUserResponse>;
+  public abstract getTweets(user: User, options?: GetTweetsOptions): Promise<GetTweetsResponse>;
+}
+
+export class Api extends ApiBase {
   private readonly getUserEndpoint: GetUserEndpoint;
   private readonly getTweetsEndpoint: GetTweetsEndpoint;
 
-  public constructor(credentials: {
-    consumerKey: string;
-    consumerSecret: string;
-    accessTokenKey: string;
-    accessTokenSecret: string;
-  }) {
+  public constructor(credentials: Credentials) {
+    super();
+
     const oauth = new OAuth({
       consumer: {
         key: credentials.consumerKey,

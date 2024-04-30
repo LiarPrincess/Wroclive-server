@@ -79,12 +79,12 @@ describe("TwitterApiClient", () => {
     const logger = new LoggerFake();
     const client = new TwitterApiClient(api, logger);
 
-    const result1 = await client.getTweets(username, options);
+    const result1 = await client.getTweets(user, options);
     expect(result1).toEqual([]);
     expect(api.getUserArgs).toEqual([username]);
     expect(api.getTweetsArgs).toEqual([getTweetsArg]);
 
-    const result2 = await client.getTweets(username, options);
+    const result2 = await client.getTweets(user, options);
     expect(result2).toEqual([]);
     expect(api.getUserArgs).toEqual([username]); // Only 1 entry!
     expect(api.getTweetsArgs).toEqual([getTweetsArg, getTweetsArg]);
@@ -102,7 +102,7 @@ describe("TwitterApiClient", () => {
       const logger = new LoggerFake();
       const client = new TwitterApiClient(api, logger);
 
-      const result = await client.getTweets(username, options);
+      const result = await client.getTweets(user, options);
       expect(result).toBeUndefined();
       expect(logger.errorArgs.length).toEqual(1);
     }
@@ -113,7 +113,7 @@ describe("TwitterApiClient", () => {
     const logger = new LoggerFake();
     const client = new TwitterApiClient(api, logger);
 
-    const result = await client.getTweets(username, options);
+    const result = await client.getTweets(user, options);
     expect(result).toEqual(tweets);
   });
 
@@ -129,7 +129,7 @@ describe("TwitterApiClient", () => {
       const logger = new LoggerFake();
       const client = new TwitterApiClient(api, logger);
 
-      const result = await client.getTweets(username, options);
+      const result = await client.getTweets(user, options);
       expect(result).toBeUndefined();
       expect(logger.errorArgs.length).toEqual(1);
     }

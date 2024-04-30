@@ -7,6 +7,9 @@
 build:
 	./node_modules/.bin/tsc
 
+run: build
+	node ./dist/app.js
+
 watch:
 	./node_modules/.bin/tsc -w
 

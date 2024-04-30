@@ -3,7 +3,7 @@ import { Tweet } from "./Tweet";
 import { ApiBase, Api, Credentials } from "./Api";
 import { Logger } from "../util";
 import { Notification, NotificationAuthor } from "../Notification";
-import { TwitterClient, GetTweetsOptions } from "../TwitterClient";
+import { TwitterClient, TwitterUser, GetTweetsOptions } from "../TwitterClient";
 
 export class TwitterApiClient implements TwitterClient {
   private readonly api: ApiBase;
@@ -20,7 +20,8 @@ export class TwitterApiClient implements TwitterClient {
     this.logger = logger;
   }
 
-  public async getTweets(username: string, options: GetTweetsOptions): Promise<Notification[] | undefined> {
+  public async getTweets(userArg: TwitterUser, options: GetTweetsOptions): Promise<Notification[] | undefined> {
+    const username = userArg.username;
     let user = this.usernameToUser.get(username);
 
     if (user === undefined) {
@@ -58,7 +59,8 @@ export class TwitterApiClient implements TwitterClient {
 
     switch (response.kind) {
       case "Success":
-        return response.tweets.map((t) => TwitterApiClient.createNotification(t));
+        const tweets = response.tweets;
+        return tweets.map((t) => TwitterApiClient.createNotification(t));
       case "Response with errors":
         this.logger.error(errorMessage, response.errors);
         return undefined;

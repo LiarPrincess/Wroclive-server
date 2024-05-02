@@ -1,17 +1,7 @@
 import { createHmac } from "crypto";
-import { default as axios, AxiosResponse, AxiosRequestConfig } from "axios";
 import { ResponseModel } from "./ResponseModel";
 import { TwitterUser } from "../TwitterClient";
 const xml2js = require("xml2js");
-
-// https://rss.app/feed/BeCZy2G8hbxynlRS
-// https://rss.app/feeds/BeCZy2G8hbxynlRS.xml
-// https://nitter.poast.org/AlertMPK/rss
-// https://nitter.privacydev.net/AlertMpk/rss
-
-export class NetworkError {
-  constructor(public readonly message: string, public readonly data: any) {}
-}
 
 export class Tweet {
   public constructor(
@@ -22,69 +12,27 @@ export class Tweet {
   ) {}
 }
 
-export type GetTweetsResponse =
-  | { kind: "Success"; tweets: Tweet[] }
-  | { kind: "Invalid response"; error: any }
-  | { kind: "Network error"; error: NetworkError };
+export type ParseResult = { kind: "Success"; tweets: Tweet[] } | { kind: "Failure"; message: string; data: any };
 
-export class Api {
-  public constructor(private readonly baseUrl: string) {}
-
-  public async getTweets(user: TwitterUser, maxCount: number): Promise<GetTweetsResponse> {
-    const url = `${this.baseUrl}/${user.username}/rss`;
-    let response: AxiosResponse<any, any>;
-
-    try {
-      response = await axios.get(url);
-    } catch (axiosError) {
-      const statusCode = this.getStatusCode(axiosError);
-      const message = statusCode ? `Response with status: ${statusCode}.` : `Unknown request error.`;
-      const error = new NetworkError(message, axiosError);
-      return { kind: "Network error", error };
-    }
-
-    const xmlString = response.data;
-    const result = await parse(response, xmlString, user, maxCount);
-    return result;
-  }
-
-  private getStatusCode(error: any): string | undefined {
-    return error.statusCode || (error.response && error.response.status);
-  }
-}
-
-export type ParseResult = { kind: "Success"; tweets: Tweet[] } | { kind: "Invalid response"; error: any };
-
-export async function parse(
-  response: any,
-  xmlString: string,
-  user: TwitterUser,
-  maxCount: number
-): Promise<ParseResult> {
+export async function parse(xmlString: string, user: TwitterUser, maxCount: number): Promise<ParseResult> {
   let xml: ResponseModel;
 
   try {
     xml = (await parseXml(xmlString)) as ResponseModel;
   } catch (error) {
     return {
-      kind: "Invalid response",
-      error: {
-        message: "XML parsing error.",
-        parsingError: error,
-        response,
-      },
+      kind: "Failure",
+      message: "XML parsing failure: xml2js.parseString.",
+      data: error,
     };
   }
 
   const channels = xml.rss.channel;
   if (channels.length !== 1) {
     return {
-      kind: "Invalid response",
-      error: {
-        message: `XML content error: invalid channel count: ${channels.length}.`,
-        xml,
-        response,
-      },
+      kind: "Failure",
+      message: `XML content error: invalid channel count: ${channels.length}.`,
+      data: xml,
     };
   }
 
@@ -131,11 +79,11 @@ export async function parse(
 
   if (contentErrors.length !== 0) {
     return {
-      kind: "Invalid response",
-      error: {
+      kind: "Failure",
+      message: `XML content error: unable to parse tweets.`,
+      data: {
         messages: contentErrors,
         xml,
-        response,
       },
     };
   }

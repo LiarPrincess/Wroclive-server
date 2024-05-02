@@ -12,6 +12,7 @@ import {
 import { TwitterApiClient } from "./twitter-api";
 import { NitterClient } from "./twitter-nitter";
 import { NotificationStore } from "./notification-store";
+import { nitterUrl } from "./config";
 import { Logger, createLogger, getRootDir, isProduction, isLocal } from "./util";
 import { LoopDependencies, startLoop } from "./loop";
 
@@ -28,8 +29,7 @@ process.title = "CE-Notifications";
     // const twitterCredentialsPath = join(rootDir, "Twitter-Credentials.json");
     // const twitterCredentials = require(twitterCredentialsPath);
     // const twitter = new TwitterApiClient(twitterCredentials, logger);
-
-    const twitter = new NitterClient(logger);
+    const twitter = new NitterClient(nitterUrl, logger);
 
     if (twitter === undefined) {
       // Error was already logged.

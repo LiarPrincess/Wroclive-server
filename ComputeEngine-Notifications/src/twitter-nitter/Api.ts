@@ -15,8 +15,7 @@ export class NetworkError {
 
 export class Tweet {
   public constructor(
-    public readonly id: string,
-    public readonly url: string,
+    public readonly textHash: string,
     public readonly author: TwitterUser,
     public readonly createdAt: Date,
     public readonly text: string
@@ -28,57 +27,15 @@ export type GetTweetsResponse =
   | { kind: "Invalid response"; error: any }
   | { kind: "Network error"; error: NetworkError };
 
-// curl 'https://nitter.privacydev.net/AlertMpk/rss' \
-// -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
-// -H 'accept-language: en-US,en;q=0.9,ja;q=0.8,pl;q=0.7' \
-// -H 'cache-control: no-cache' \
-// -H 'pragma: no-cache' \
-// -H 'sec-ch-ua: "Chromium";v="123", "Not:A-Brand";v="8"' \
-// -H 'sec-ch-ua-mobile: ?0' \
-// -H 'sec-ch-ua-platform: "Linux"' \
-// -H 'sec-fetch-dest: document' \
-// -H 'sec-fetch-mode: navigate' \
-// -H 'sec-fetch-site: none' \
-// -H 'sec-fetch-user: ?1' \
-// -H 'upgrade-insecure-requests: 1' \
-// -H 'user-agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
-const config: AxiosRequestConfig = {
-  headers: {
-    // accept:
-    //   "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
-    // "accept-language": "en-US,en;q=0.9,ja;q=0.8,pl;q=0.7",
-    // "cache-control": "no-cache",
-    // pragma: "no-cache",
-    // "sec-ch-ua": '"Chromium";v="123", "Not:A-Brand";v="8"',
-    // "sec-ch-ua-mobile": "?0",
-    // "sec-ch-ua-platform": '"Linux"',
-    // "sec-fetch-dest": "document",
-    // "sec-fetch-mode": "navigate",
-    // "sec-fetch-site": "none",
-    // "sec-fetch-user": "?1",
-    // "upgrade-insecure-requests": "1",
-    // "user-agent":
-    //   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-    // ---
-    // "Cache-Control": "no-cache",
-    // Pragma: "no-cache",
-    // Expires: "0",
-  },
-};
-
 export class Api {
-  public async getTweets(user: TwitterUser, maxCount: number): Promise<GetTweetsResponse> {
-    // There is some weird issue with cache, we will make url unique to solve it.
-    const avoidCache = new Date().valueOf();
-    console.log("");
-    console.log("");
-    console.log(new Date());
+  public constructor(private readonly baseUrl: string) {}
 
-    const url = `https://nitter.privacydev.net/${user.username}/rss?timestamp=${avoidCache}`;
+  public async getTweets(user: TwitterUser, maxCount: number): Promise<GetTweetsResponse> {
+    const url = `${this.baseUrl}/${user.username}/rss`;
     let response: AxiosResponse<any, any>;
 
     try {
-      response = await axios.get(url, config);
+      response = await axios.get(url);
     } catch (axiosError) {
       const statusCode = this.getStatusCode(axiosError);
       const message = statusCode ? `Response with status: ${statusCode}.` : `Unknown request error.`;
@@ -168,10 +125,7 @@ export async function parse(
     const createdAtNum = Date.parse(createdAtString);
     const createdAt = new Date(createdAtNum);
 
-    // 'item.link[0]' is a Nitter url, which we do not want to expose to our users.
-    const url = ""; // ;
-
-    const tweet = new Tweet(id, url, user, createdAt, text);
+    const tweet = new Tweet(id, user, createdAt, text);
     tweets.push(tweet);
   }
 

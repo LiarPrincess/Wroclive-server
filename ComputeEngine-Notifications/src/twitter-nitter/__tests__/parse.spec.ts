@@ -233,14 +233,12 @@ describe("Nitter-parse", () => {
       tweets: [
         new Tweet(
           "83e1684724fc9d3ef45fa2c2967b3bf2af37bfde40ff554d30cceae398f1c9cb",
-          "",
           user,
           new Date("2024-04-30T06:29:15.000Z"),
           "#AlertMPK ul. Kazimierza Wielkiego - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "3b865b6094a2c209c553d25c6d40ba39f0b805caaec6364dc5938087b7cbf442",
-          "",
           user,
           new Date("2024-04-30T06:10:15.000Z"),
           `#AlertMPK #TRAM
@@ -249,14 +247,12 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "fdec411b3f829b79f68f9030538104a6b2dbed6e8ba2f1f44456020378e4fa8b",
-          "",
           user,
           new Date("2024-04-26T16:03:33.000Z"),
           "#AlertMPK pętla Osiedle Sobieskiego - ruch przywrócony. Autobusy wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "d27fd4430e50f3148fafc649deb1feced406ec297466559546299c6672fd2971",
-          "",
           user,
           new Date("2024-04-26T15:21:14.000Z"),
           `#AlertMPK #BUS
@@ -266,14 +262,12 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "fc8bc3f30b52de124e005ab51c0c41a4278736f71e25b902c6c98d461ddd9e84",
-          "",
           user,
           new Date("2024-04-26T14:10:27.000Z"),
           "#AlertMPK ul. Świeradowska - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "936fd5c53aa00f77cfe065c3bb8e0cdf99314672fd93fea5e1c09d265569348e",
-          "",
           user,
           new Date("2024-04-26T14:05:16.000Z"),
           `AKTUALIZACJA 16:04
@@ -281,7 +275,6 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "9eb4ec8db6e172015f334dd87fbfe82fd0b2fd119002edd3f25e93adb6a75caa",
-          "",
           user,
           new Date("2024-04-26T13:57:33.000Z"),
           `#AlertMPK #TRAM
@@ -290,21 +283,18 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "97503a602bcdb109d27af4490065b3313cebcf61c35951e27a86ef70df6d5e59",
-          "",
           user,
           new Date("2024-04-26T13:45:08.000Z"),
           "#AlertMPK ul. Piłsudskiego - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "f6610ff0f13215e145c3d920400952b5831722b79bc4bf214cbb883948931b1b",
-          "",
           user,
           new Date("2024-04-26T13:39:24.000Z"),
           'Przystanek "pl. Orląt Lwowskich" realizowany jest na ul. Podwale.'
         ),
         new Tweet(
           "c8788f4d5a8a0ac96c8adffa48811e62b2b5a0c43a65f6e02d3eac36c70b65f3",
-          "",
           user,
           new Date("2024-04-26T13:33:19.000Z"),
           `#AlertMPK #TRAM
@@ -313,14 +303,12 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "7c662ab1aa7cc2b013b9c586a4cba04741fc596be1956693822bc93e6a3f502b",
-          "",
           user,
           new Date("2024-04-26T12:31:37.000Z"),
           "#AlertMPK ul. Szczytnicka - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "45b625dffba1d126cace2c6845c90eb9d98deb3760e4fa75889c3e91eb07475f",
-          "",
           user,
           new Date("2024-04-26T12:26:10.000Z"),
           `#AlertMPK #TRAM
@@ -329,21 +317,18 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "c1da1d2b1d02cf6527ec75ec9ca4278e141f825f22d9a9c1fffbd2a19f878459",
-          "",
           user,
           new Date("2024-04-26T11:02:17.000Z"),
           "#AlertMPK ul. Hubska - ruch przywrócony. Tramwaje i autobusy wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "4402dbddb26ed6953c05429c6b230d7471bcc080c1ba15f14445f41df8327245",
-          "",
           user,
           new Date("2024-04-26T10:15:07.000Z"),
           "#AlertMPK ul. Pomorska - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "7d86fd62c5b0cf8550cf9f07bca3ea21a17d60981ae1f20059f5503ba1ed9ef0",
-          "",
           user,
           new Date("2024-04-26T09:08:53.000Z"),
           `AKTUALIZACJA 11:07
@@ -351,7 +336,6 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "1688b4b1d18519e4c4b17fae9a3f580bcce0d76eec742dde844ae0cc94e9a2a9",
-          "",
           user,
           new Date("2024-04-26T08:58:51.000Z"),
           `AKTUALIZACJA 10:55
@@ -359,7 +343,6 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "1c12938bbb42582c58373f9b005d115d834da78146ab8c84a75f5c47e9e9f30c",
-          "",
           user,
           new Date("2024-04-26T08:58:50.000Z"),
           `AKTUALIZACJA 10:55
@@ -367,7 +350,6 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "92ce2bf67ad4bb733efcdc9aa3f5962d05dc182519b6427f1068cee0b1e77fdf",
-          "",
           user,
           new Date("2024-04-26T08:39:54.000Z"),
           `#AlertMPK #TRAM
@@ -376,14 +358,12 @@ describe("Nitter-parse", () => {
         ),
         new Tweet(
           "756a32de0a351eea2fbaf6da4109de3a23b905dfcb8c4a39e074b3d3472a5ce5",
-          "",
           user,
           new Date("2024-04-25T19:02:52.000Z"),
           "#AlertMPK ul. Chrobrego - ruch przywrócony. Tramwaje wracają na swoje stałe trasy przejazdu."
         ),
         new Tweet(
           "29d47e93fe487038363c0d653003cce8fc6eae653931571316c10ed32f6343cc",
-          "",
           user,
           new Date("2024-04-25T19:01:37.000Z"),
           `#AlertMPK #TRAM

@@ -11,13 +11,13 @@ export class Endpoint {
   protected readonly oauth: OAuth;
   protected readonly oauthToken: OAuthToken;
 
-  constructor(oauth: OAuth, oauthToken: OAuthToken) {
+  public constructor(oauth: OAuth, oauthToken: OAuthToken) {
     this.oauth = oauth;
     this.oauthToken = oauthToken;
   }
 
   protected async get(url: string): Promise<GetResult> {
-    const authorizationHeader = this.createAuthorizationHeader("get", url);
+    const authorizationHeader = this.createAuthorizationHeader("GET", url);
     const config: AxiosRequestConfig = {
       headers: {
         Authorization: authorizationHeader,
@@ -42,7 +42,7 @@ export class Endpoint {
     }
   }
 
-  private createAuthorizationHeader(requestMethod: "get" | "POST", url: string): string {
+  private createAuthorizationHeader(requestMethod: "GET" | "POST", url: string): string {
     const oauthAuthorization = this.oauth.authorize(
       {
         url: url.toString(),

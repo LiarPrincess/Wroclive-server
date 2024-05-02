@@ -7,8 +7,8 @@ export class NitterClient implements TwitterClient {
   private readonly api: Api;
   private readonly logger: Logger;
 
-  public constructor(logger: Logger) {
-    this.api = new Api();
+  public constructor(baseUrl: string, logger: Logger) {
+    this.api = new Api(baseUrl);
     this.logger = logger;
   }
 
@@ -34,6 +34,6 @@ export class NitterClient implements TwitterClient {
   public static createNotification(t: Tweet): Notification {
     const text = Notification.cleanText(t.text);
     const author = new NotificationAuthor(t.author.name, t.author.username);
-    return new Notification(t.id, t.url, author, t.createdAt, text);
+    return new Notification(t.textHash, "", author, t.createdAt, text);
   }
 }

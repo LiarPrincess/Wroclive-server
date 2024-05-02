@@ -21,10 +21,15 @@ export function startLoop(dependencies: LoopDependencies) {
       dependencies.logger.error("[Notifications] Loop iteration failed", error);
     }
 
-    setTimeout(update, loopInterval);
+    const timeout = getRandom(loopInterval.min, loopInterval.max);
+    setTimeout(update, timeout);
   }
 
   update();
+}
+
+function getRandom(min: number, max: number): number {
+  return min + Math.random() * (max - min);
 }
 
 async function singleIteration(dependencies: LoopDependencies) {

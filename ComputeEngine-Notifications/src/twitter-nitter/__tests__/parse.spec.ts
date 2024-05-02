@@ -1,4 +1,4 @@
-import { Tweet, parse } from "../Api";
+import { Tweet, parse } from "../parse";
 import { TwitterUser } from "../../TwitterClient";
 
 describe("Nitter-parse", () => {
@@ -226,7 +226,7 @@ describe("Nitter-parse", () => {
 
     const user = new TwitterUser("MPK Wrocław", "AlertMPK");
     const maxCount = 20;
-    const result = await parse("RESPONSE", xml, user, maxCount);
+    const result = await parse(xml, user, maxCount);
 
     expect(result).toEqual({
       kind: "Success",

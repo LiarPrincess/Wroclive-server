@@ -34,7 +34,7 @@ export class NitterClient implements TwitterClient {
     switch (result.kind) {
       case "Success":
         const tweets = result.tweets;
-        return tweets.map((t) => NitterClient.createNotification(t));
+        return tweets.map((t) => NitterClient.createNotification(t, user));
       case "Failure":
         const errorMessage = `[Notifications] NitterClient.getTweets(${username}, ${tweetCount}): ${result.message}.`;
         this.logger.error(errorMessage, {
@@ -49,9 +49,10 @@ export class NitterClient implements TwitterClient {
     return error.statusCode || (error.response && error.response.status);
   }
 
-  public static createNotification(t: Tweet): Notification {
+  public static createNotification(t: Tweet, u: TwitterUser): Notification {
     const text = Notification.cleanText(t.text);
+    const url = `https://twitter.com/${u.username}`;
     const author = new NotificationAuthor(t.author.name, t.author.username);
-    return new Notification(t.textHash, "", author, t.createdAt, text);
+    return new Notification(t.textHash, url, author, t.createdAt, text);
   }
 }

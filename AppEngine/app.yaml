@@ -1,8 +1,11 @@
 # See:
 # https://cloud.google.com/appengine/docs/standard/nodejs/config/appref
 
-runtime: nodejs12
+runtime: nodejs22
 instance_class: F1
+
+env_variables:
+  NODE_ENV: "production"
 
 automatic_scaling:
   # max_instances

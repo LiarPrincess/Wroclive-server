@@ -17,6 +17,22 @@ export function createConsoleLogger(): Logger {
   return { info: console.log, error: console.error };
 }
 
+class WinstonLoggerWrapper implements Logger {
+  public constructor(
+    private readonly inner: winston.Logger
+  ) { }
+  info(message?: any, ...optionalParams: any[]): void {
+    try {
+      this.inner.info(message, ...optionalParams);
+    } catch (error) { }
+  }
+  error(message?: any, ...optionalParams: any[]): void {
+    try {
+      this.inner.error(message, ...optionalParams);
+    } catch (error) { }
+  }
+}
+
 export function createLogger(serviceName: string): Logger {
   const logger = winston.createLogger({
     handleExceptions: true,
@@ -36,6 +52,11 @@ export function createLogger(serviceName: string): Logger {
       level: 'silly'
     }));
   }
-
+  // logger.add(new winston.transports.Console({
+  //   format: winston.format.simple(),
+  //   level: 'silly'
+  // }));
+  // const wrap = new WinstonLoggerWrapper(logger);
+  // return wrap;
   return logger;
 }

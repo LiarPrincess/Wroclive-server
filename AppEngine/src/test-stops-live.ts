@@ -35,7 +35,7 @@ const wiejska = '17104';
         break;
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error(error.message);
     process.exit(1);
   }

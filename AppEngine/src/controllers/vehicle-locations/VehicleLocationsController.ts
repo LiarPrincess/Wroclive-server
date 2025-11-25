@@ -17,19 +17,19 @@ interface LineLocationsByLineNameLowercase {
 // - FailedUpdate -> SuccessfulUpdate|FailedUpdate
 type State =
   | {
-      kind: "Initial";
-      lineLocations: LineLocationCollection;
-    }
+    kind: "Initial";
+    lineLocations: LineLocationCollection;
+  }
   | {
-      kind: "SuccessfulUpdate";
-      date: Date;
-      timestamp: string;
-      lineLocationsByLineNameLowercase: LineLocationsByLineNameLowercase;
-    }
+    kind: "SuccessfulUpdate";
+    date: Date;
+    timestamp: string;
+    lineLocationsByLineNameLowercase: LineLocationsByLineNameLowercase;
+  }
   | {
-      kind: "FailedUpdate";
-      lineLocations: LineLocationCollection;
-    };
+    kind: "FailedUpdate";
+    lineLocations: LineLocationCollection;
+  };
 
 export class VehicleLocationsController implements VehicleLocationsControllerType {
   private readonly openDataProvider: VehicleProviderBase;
@@ -95,15 +95,15 @@ export class VehicleLocationsController implements VehicleLocationsControllerTyp
     const now = this.dateProvider();
 
     const openDataResult = await this.openDataProvider.getVehicleLocations();
-    let openDataError = '';
+    let openDataError = "NOT_USED";
 
     switch (openDataResult.kind) {
-      case 'Success':
+      case "Success":
         this.handleLineLocationsFromProvider(now, openDataResult.lineLocations);
         return;
-      case 'ApiError':
-      case 'ResponseContainsNoVehicles':
-      case 'NoVehicleHasMovedInLastFewMinutes':
+      case "ApiError":
+      case "ResponseContainsNoVehicles":
+      case "NoVehicleHasMovedInLastFewMinutes":
         openDataError = openDataResult.kind;
         break;
     }

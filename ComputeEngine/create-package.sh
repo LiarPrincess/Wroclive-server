@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Fail on 1st failed command
+set -e
+
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 ROOT_DIR=$(dirname "$SCRIPT_DIR")
 
@@ -30,6 +33,7 @@ PUBSUB_PATH=$PACKAGE_PATH/pub-sub
 mkdir "$PUBSUB_PATH"
 
 cd "$ROOT_DIR/ComputeEngine-PubSub"
+npm install --quiet
 rm -rf "./dist"
 make build
 
@@ -53,6 +57,7 @@ mkdir "$UPDATER_PATH"
 mkdir "$UPDATER_PATH/data"
 
 cd "$ROOT_DIR/ComputeEngine-Updater"
+npm install --quiet
 rm -rf "./dist"
 make build
 
@@ -76,6 +81,7 @@ NOTIFICATIONS_PATH=$PACKAGE_PATH/notifications
 mkdir "$NOTIFICATIONS_PATH"
 
 cd "$ROOT_DIR/ComputeEngine-Notifications"
+npm install --quiet
 rm -rf "./dist"
 make build
 

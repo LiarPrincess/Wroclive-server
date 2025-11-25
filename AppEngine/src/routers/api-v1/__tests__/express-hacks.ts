@@ -78,7 +78,8 @@ interface ExpressRouteLayer {
 }
 
 function getExpressRoute(router: Router, request: Request): ExpressRouteLayer {
-  const routerLayers = router.stack as ExpressLayer[];
+  // Hack: But only for testing.
+  const routerLayers = router.stack as unknown as ExpressLayer[];
 
   for (const layer of routerLayers) {
     const route = layer.route;

@@ -19,7 +19,7 @@ class Database implements DatabaseType {
   public async getLastVehicleAngleUpdateLocations(): Promise<VehicleIdToAngleData | undefined> {
     return undefined;
   }
-  public async saveLastVehicleAngleUpdateLocations(data: VehicleIdToAngleData): Promise<void> {}
+  public async saveLastVehicleAngleUpdateLocations(data: VehicleIdToAngleData): Promise<void> { }
 }
 
 (async () => {
@@ -63,7 +63,7 @@ class Database implements DatabaseType {
 
       await sleep(5 * second);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error(error.message);
     process.exit(1);
   }

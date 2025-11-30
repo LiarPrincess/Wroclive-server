@@ -83,6 +83,19 @@
       "outputCapture": "std"
     },
     {
+      "name": "ComputeEngine-Send-Single-Notification",
+      "type": "node",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/ComputeEngine-Notifications/dist/SINGLE_NOTIFICATION.js",
+      "outFiles": [
+        "${workspaceFolder}/**/*.js"
+      ],
+      "outputCapture": "std"
+    },
+    {
       "name": "CloudFunctions",
       "type": "node",
       "request": "launch",
